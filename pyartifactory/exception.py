@@ -8,3 +8,7 @@ class UserNotFoundException(Exception):
 
 class UserAlreadyExistsException(Exception):
     pass
+
+
+class GroupNotFoundException(Exception):
+    pass

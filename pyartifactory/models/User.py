@@ -5,10 +5,10 @@ from pydantic import BaseModel, EmailStr, SecretStr
 
 class BaseUserModel(BaseModel):
     name: str
-    admin: Optional[bool] = None
-    profileUpdatable: Optional[bool] = None
-    disableUIAccess: Optional[bool] = None
-    internalPasswordDisabled: Optional[bool] = None
+    admin: Optional[bool] = False
+    profileUpdatable: Optional[bool] = True
+    disableUIAccess: Optional[bool] = False
+    internalPasswordDisabled: Optional[bool] = False
     groups: Optional[List[str]] = None
 
 
