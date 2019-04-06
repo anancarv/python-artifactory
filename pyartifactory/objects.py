@@ -99,6 +99,72 @@ class ArtfictoryUser(ArtifactoryAuth):
         r.raise_for_status()
 
 
+class ArtfictorySecurity(ArtifactoryAuth):
+    _uri = "security"
+
+    def __init__(self, artifactory: AuthModel) -> None:
+        super(ArtfictorySecurity, self).__init__(artifactory)
+
+    def get_encrypted_password(self) -> PasswordModel:
+        """
+        Get the encrypted password of the authenticated requestor.
+        :return: str
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/encryptedPassword"
+        r = requests.get(request_url, auth=self._auth)
+        r.raise_for_status()
+        return PasswordModel(**r.json())
+
+    def create_api_key(self) -> ApiKeyModel:
+        """
+        Create an API key for the current user.
+        :return: Error if API key already exists - use regenerate API key instead.
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
+        r = requests.post(request_url, auth=self._auth)
+        r.raise_for_status()
+        return ApiKeyModel(**r.json())
+
+    def regenerate_api_key(self) -> ApiKeyModel:
+        """
+        Regenerate an API key for the current user
+        :return: API key
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
+        r = requests.put(request_url, auth=self._auth)
+        r.raise_for_status()
+        return ApiKeyModel(**r.json())
+
+    def get_api_key(self) -> ApiKeyModel:
+        """
+        Get the current user's own API key
+        :return: API key
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
+        r = requests.get(request_url, auth=self._auth)
+        r.raise_for_status()
+        return ApiKeyModel(**r.json())
+
+    def revoke_api_key(self) -> None:
+        """
+        Revokes the current user's API key
+        :return: None
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
+        r = requests.delete(request_url, auth=self._auth)
+        r.raise_for_status()
+
+    def revoke_user_api_key(self, name: str) -> None:
+        """
+        Revokes the API key of another user
+        :param name: name of the user to whom api key has to be revoked
+        :return: None
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey/{name}"
+        r = requests.delete(request_url, auth=self._auth)
+        r.raise_for_status()
+
+
 class ArtfictoryGroup(ArtifactoryAuth):
     _uri = "security/groups"
 
@@ -171,71 +237,5 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(request_url, auth=self._auth)
-        r.raise_for_status()
-
-
-class ArtfictorySecurity(ArtifactoryAuth):
-    _uri = "security"
-
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictorySecurity, self).__init__(artifactory)
-
-    def get_encrypted_password(self) -> PasswordModel:
-        """
-        Get the encrypted password of the authenticated requestor.
-        :return: str
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/encryptedPassword"
-        r = requests.get(request_url, auth=self._auth)
-        r.raise_for_status()
-        return PasswordModel(**r.json())
-
-    def create_api_key(self) -> ApiKeyModel:
-        """
-        Create an API key for the current user.
-        :return: Error if API key already exists - use regenerate API key instead.
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.post(request_url, auth=self._auth)
-        r.raise_for_status()
-        return ApiKeyModel(**r.json())
-
-    def regenerate_api_key(self) -> ApiKeyModel:
-        """
-        Regenerate an API key for the current user
-        :return: API key
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.put(request_url, auth=self._auth)
-        r.raise_for_status()
-        return ApiKeyModel(**r.json())
-
-    def get_api_key(self) -> ApiKeyModel:
-        """
-        Get the current user's own API key
-        :return: API key
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.get(request_url, auth=self._auth)
-        r.raise_for_status()
-        return ApiKeyModel(**r.json())
-
-    def revoke_api_key(self) -> None:
-        """
-        Revokes the current user's API key
-        :return: None
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.delete(request_url, auth=self._auth)
-        r.raise_for_status()
-
-    def revoke_user_api_key(self, name: str) -> None:
-        """
-        Revokes the API key of another user
-        :param name: name of the user to whom api key has to be revoked
-        :return: None
-        """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey/{name}"
         r = requests.delete(request_url, auth=self._auth)
         r.raise_for_status()
