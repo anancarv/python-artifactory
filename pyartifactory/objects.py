@@ -2,7 +2,11 @@ import logging
 
 import requests
 
-from pyartifactory.exception import UserNotFoundException, UserAlreadyExistsException, GroupNotFoundException
+from pyartifactory.exception import (
+    UserNotFoundException,
+    UserAlreadyExistsException,
+    GroupNotFoundException,
+)
 from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
 from pyartifactory.models.Group import Group, GroupList
 from pyartifactory.models.User import User, NewUser, UserList
@@ -27,7 +31,6 @@ class ArtfictoryUser(ArtifactoryAuth):
         """
         Create user
         :param user: NewUser object
-
         :return: User
         """
         username = user.name
@@ -47,7 +50,6 @@ class ArtfictoryUser(ArtifactoryAuth):
         """
         Read user from artifactory. Fill object if exist
         :param name: Name of the user to retrieve
-
         :return: UserModel
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
@@ -63,7 +65,6 @@ class ArtfictoryUser(ArtifactoryAuth):
     def list(self) -> UserList:
         """
         Lists all the users
-
         :return: UserList
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}"
@@ -75,7 +76,6 @@ class ArtfictoryUser(ArtifactoryAuth):
         """
         Updates an artifactory user
         :param user: NewUser object
-
         :return: UserModel
         """
         username = user.name
@@ -92,7 +92,6 @@ class ArtfictoryUser(ArtifactoryAuth):
         """
         Remove user
         :param name: Name of the user to delete
-
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
@@ -110,7 +109,6 @@ class ArtfictoryGroup(ArtifactoryAuth):
         """
         Creates a new group in Artifactory or replaces an existing group
         :param group: Group to create
-
         :return: Created group
         """
         group_name = group.name
@@ -128,7 +126,6 @@ class ArtfictoryGroup(ArtifactoryAuth):
         """
         Get the details of an Artifactory Group
         :param name: Name of the group to retrieve
-
         :return: Found artifactory group
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
@@ -144,7 +141,6 @@ class ArtfictoryGroup(ArtifactoryAuth):
     def list(self) -> GroupList:
         """
         Lists all the groups
-
         :return: GroupList
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}"
@@ -156,7 +152,6 @@ class ArtfictoryGroup(ArtifactoryAuth):
         """
         Updates an exiting group in Artifactory with the provided group details.
         :param group: Group to be updated
-
         :return: Updated group
         """
         group_name = group.name
@@ -173,7 +168,6 @@ class ArtfictoryGroup(ArtifactoryAuth):
         """
         Removes a group
         :param name: Name of the group to delete
-
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
@@ -240,7 +234,6 @@ class ArtfictorySecurity(ArtifactoryAuth):
         """
         Revokes the API key of another user
         :param name: name of the user to whom api key has to be revoked
-
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey/{name}"

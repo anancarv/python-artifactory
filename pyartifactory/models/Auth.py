@@ -15,4 +15,3 @@ class ApiKeyModel(BaseModel):
 
 class PasswordModel(BaseModel):
     password: SecretStr = None
-
