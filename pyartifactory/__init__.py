@@ -7,8 +7,14 @@ __version__ = "0.1.0"
 
 
 class Artifactory:
-    def __init__(self, url: str, api_key: str = None, auth: Tuple[str, str] = None):
-        self.artifactory = AuthModel(url=url, api_key=api_key, auth=auth)
+    def __init__(
+        self,
+        url: str,
+        auth: Tuple[str, str] = None,
+        verify: bool = True,
+        cert: str = None,
+    ):
+        self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
         self.users = ArtfictoryUser(self.artifactory)
         self.groups = ArtfictoryGroup(self.artifactory)
         self.security = ArtfictorySecurity(self.artifactory)

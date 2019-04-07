@@ -19,6 +19,8 @@ class ArtifactoryAuth:
             self._artifactory.auth[0],
             self._artifactory.auth[1].get_secret_value(),
         )
+        self._verify = self._artifactory.verify
+        self._cert = self._artifactory.cert
 
 
 class ArtfictoryUser(ArtifactoryAuth):
@@ -42,7 +44,13 @@ class ArtfictoryUser(ArtifactoryAuth):
             request_url = f"{self._artifactory.url}/api/{self._uri}/{username}"
             data = user.dict()
             data["password"] = user.password.get_secret_value()
-            r = requests.put(request_url, json=data, auth=self._auth)
+            r = requests.put(
+                request_url,
+                json=data,
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
             r.raise_for_status()
             return self.get(user.name)
 
@@ -53,7 +61,9 @@ class ArtfictoryUser(ArtifactoryAuth):
         :return: UserModel
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         if 404 == r.status_code == r.status_code:
             logging.debug(f"User {name} does not exist")
             raise UserNotFoundException(f"{name} does not exist")
@@ -68,7 +78,9 @@ class ArtfictoryUser(ArtifactoryAuth):
         :return: UserList
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return UserList(users=r.json())
 
@@ -82,7 +94,13 @@ class ArtfictoryUser(ArtifactoryAuth):
         try:
             self.get(username)
             request_url = f"{self._artifactory.url}/api/{self._uri}/{username}"
-            r = requests.post(request_url, json=user.dict(), auth=self._auth)
+            r = requests.post(
+                request_url,
+                json=user.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
             r.raise_for_status()
             return self.get(username)
         except UserNotFoundException:
@@ -95,7 +113,9 @@ class ArtfictoryUser(ArtifactoryAuth):
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(request_url, auth=self._auth)
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
 
 
@@ -111,7 +131,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: str
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/encryptedPassword"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return PasswordModel(**r.json())
 
@@ -121,7 +143,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: Error if API key already exists - use regenerate API key instead.
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.post(request_url, auth=self._auth)
+        r = requests.post(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return ApiKeyModel(**r.json())
 
@@ -131,7 +155,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: API key
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.put(request_url, auth=self._auth)
+        r = requests.put(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return ApiKeyModel(**r.json())
 
@@ -141,7 +167,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: API key
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return ApiKeyModel(**r.json())
 
@@ -151,7 +179,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey"
-        r = requests.delete(request_url, auth=self._auth)
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
 
     def revoke_user_api_key(self, name: str) -> None:
@@ -161,7 +191,9 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/apiKey/{name}"
-        r = requests.delete(request_url, auth=self._auth)
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
 
 
@@ -184,7 +216,13 @@ class ArtfictoryGroup(ArtifactoryAuth):
             raise UserAlreadyExistsException(f"Group {group_name} already exists")
         except GroupNotFoundException:
             request_url = f"{self._artifactory.url}/api/{self._uri}/{group_name}"
-            r = requests.put(request_url, json=group.dict(), auth=self._auth)
+            r = requests.put(
+                request_url,
+                json=group.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
             r.raise_for_status()
             return self.get(group.name)
 
@@ -195,7 +233,9 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :return: Found artifactory group
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         if 404 == r.status_code == r.status_code:
             logging.debug(f"Group {name} does not exist")
             raise GroupNotFoundException(f"Group {name} does not exist")
@@ -210,7 +250,9 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :return: GroupList
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}"
-        r = requests.get(request_url, auth=self._auth)
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()
         return GroupList(groups=r.json())
 
@@ -224,7 +266,13 @@ class ArtfictoryGroup(ArtifactoryAuth):
         try:
             self.get(group_name)
             request_url = f"{self._artifactory.url}/api/{self._uri}/{group_name}"
-            r = requests.post(request_url, json=group.dict(), auth=self._auth)
+            r = requests.post(
+                request_url,
+                json=group.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
             r.raise_for_status()
             return self.get(group_name)
         except GroupNotFoundException:
@@ -237,5 +285,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :return: None
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(request_url, auth=self._auth)
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
         r.raise_for_status()

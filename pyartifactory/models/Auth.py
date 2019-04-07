@@ -5,8 +5,9 @@ from pydantic import BaseModel, SecretStr
 
 class AuthModel(BaseModel):
     url: str
-    api_key: SecretStr = None
     auth: Tuple[str, SecretStr] = None
+    verify: bool = True
+    cert: str = None
 
 
 class ApiKeyModel(BaseModel):
