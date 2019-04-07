@@ -1,3 +1,6 @@
 from pydantic import BaseModel
 
-# ToDo
+
+class Permission(BaseModel):
+    # ToDo
+    pass

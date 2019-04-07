@@ -6,9 +6,13 @@ from pyartifactory.exception import (
     UserNotFoundException,
     UserAlreadyExistsException,
     GroupNotFoundException,
+    RepositoryAlreadyExistsException,
+    GroupAlreadyExistsException,
+    RepositoryNotFoundException,
 )
 from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
 from pyartifactory.models.Group import Group, GroupList
+from pyartifactory.models.Repository import LocalRepository, RepositoryList
 from pyartifactory.models.User import User, NewUser, UserList
 
 
@@ -213,7 +217,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         try:
             self.get(group_name)
             logging.debug(f"Group {group_name} already exists")
-            raise UserAlreadyExistsException(f"Group {group_name} already exists")
+            raise GroupAlreadyExistsException(f"Group {group_name} already exists")
         except GroupNotFoundException:
             request_url = f"{self._artifactory.url}/api/{self._uri}/{group_name}"
             r = requests.put(
@@ -289,3 +293,131 @@ class ArtfictoryGroup(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
+
+
+class ArtfictoryRepository(ArtifactoryAuth):
+    _uri = "repositories"
+
+    def __init__(self, artifactory: AuthModel) -> None:
+        super(ArtfictoryRepository, self).__init__(artifactory)
+
+    # Local repositories operations
+    def create_local_repo(self, repo: LocalRepository) -> LocalRepository:
+        """
+        Creates a new local repository
+        :param repo: LocalRepository object
+        :return: LocalRepository object
+        """
+        repo_name = repo.name
+        try:
+            self.get_local_repo(repo_name)
+            logging.debug(f"Repository {repo_name} already exists")
+            raise RepositoryAlreadyExistsException(
+                f"Repository {repo_name} already exists"
+            )
+        except RepositoryNotFoundException:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.put(
+                request_url,
+                json=repo.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get_local_repo(repo_name)
+
+    def get_local_repo(self, repo_name: str) -> LocalRepository:
+        """
+        Find repository in artifactory. Fill object if exist
+        :param repo_name: Name of the repository to retrieve
+        :return: Reposisory object
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        if 404 == r.status_code == r.status_code:
+            logging.debug(f"Repository {repo_name} does not exist")
+            raise UserNotFoundException(f" Repository {repo_name} does not exist")
+        else:
+            logging.debug(f"Repository {repo_name} exists")
+            r.raise_for_status()
+            return LocalRepository(**r.json())
+
+    def update_local_repo(self):
+        # ToDo
+        pass
+
+    def delete_local_repo(self):
+        # ToDo
+        pass
+
+    # Virtual repositories operations
+    def create_virtual_repo(self):
+        # ToDo
+        pass
+
+    def get_virtual_repo(self):
+        # ToDo
+        pass
+
+    def update_virtual_repo(self):
+        # ToDo
+        pass
+
+    def delete_virtual_repo(self):
+        # ToDo
+        pass
+
+    # Remote repositories operations
+    def create_remote_repo(self):
+        # ToDo
+        pass
+
+    def get_remote_repo(self):
+        # ToDo
+        pass
+
+    def update_remote_repo(self):
+        # ToDo
+        pass
+
+    def delete_remote_repo(self):
+        # ToDo
+        pass
+
+    def list(self) -> RepositoryList:
+        """
+        Lists all the repositories
+        :return: A list of repositories
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        r.raise_for_status()
+        return RepositoryList(repositories=r.json())
+
+
+class ArtfictoryPermission(ArtifactoryAuth):
+    _uri = "permissions"
+
+    def __init__(self, artifactory: AuthModel) -> None:
+        super(ArtfictoryPermission, self).__init__(artifactory)
+
+    def create(self):
+        # ToDo
+        pass
+
+    def get(self):
+        # ToDo
+        pass
+
+    def update(self):
+        # ToDo
+        pass
+
+    def delete(self):
+        # ToDo
+        pass

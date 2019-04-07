@@ -48,10 +48,18 @@ class SnapshotVersionBehavior(str, Enum):
     deployer = "deployer"
 
 
-class PomRepositoryReferencesCleanupPolicy(str, Enum):
+class PomRepoRefCleanupPolicy(str, Enum):
     discard_active_reference = "discard_active_reference"
     discard_any_reference = "discard_any_reference"
     nothing = "nothing"
+
+
+class SimpleRepository(BaseModel):
+    key: str
+    type: str
+    description: Optional[str] = None
+    url: str
+    packageType: str
 
 
 class BaseRepositoryModel(BaseModel):
@@ -89,7 +97,7 @@ class LocalRepository(BaseRepositoryModel):
 class VirtualRepository(BaseRepositoryModel):
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     keyPair: Optional[str] = None
-    pomRepositoryReferencesCleanupPolicy: PomRepositoryReferencesCleanupPolicy = PomRepositoryReferencesCleanupPolicy.discard_active_reference
+    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
     defaultDeploymentRepo: Optional[str] = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False
@@ -100,3 +108,7 @@ class VirtualRepository(BaseRepositoryModel):
 class RemoteRepository(BaseRepositoryModel):
     # ToDo
     pass
+
+
+class RepositoryList(BaseModel):
+    repositories: List[SimpleRepository] = None

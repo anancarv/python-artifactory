@@ -1,7 +1,12 @@
 from typing import Tuple
 
 from pyartifactory.models.Auth import AuthModel
-from pyartifactory.objects import ArtfictoryUser, ArtfictoryGroup, ArtfictorySecurity
+from pyartifactory.objects import (
+    ArtfictoryUser,
+    ArtfictoryGroup,
+    ArtfictorySecurity,
+    ArtfictoryRepository,
+)
 
 __version__ = "0.1.0"
 
@@ -18,3 +23,4 @@ class Artifactory:
         self.users = ArtfictoryUser(self.artifactory)
         self.groups = ArtfictoryGroup(self.artifactory)
         self.security = ArtfictorySecurity(self.artifactory)
+        self.repositories = ArtfictoryRepository(self.artifactory)
