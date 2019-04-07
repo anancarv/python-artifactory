@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class Group(BaseModel):
     name: str
-    description: str
+    description: str = None
     autoJoin: bool = False
     adminPrivileges: bool = False
     realm: Optional[str] = None
