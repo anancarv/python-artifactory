@@ -1,7 +1,7 @@
 # Python Artifactory
 
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
-This library enables you to manage Artifactory resources such as users, groups, permissions and repositories in your applications.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories and artifacts in your applications.
 This library requires at least Python 3.6
 
 
@@ -9,24 +9,22 @@ This library requires at least Python 3.6
 
 ### Authentication
 
-```
+```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 ```
 
 #### SSL Cert Verification Options
-See Requests - [SSL verification](http://docs.python-requests.org/en/latest/user/advanced/#ssl-cert-verification) for more details.
-
 Specify a local cert to use as client side certificate
 
-```
+```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), cert="/path_to_file/server.pem")
 ```
 
 Disable host cert verification
 
-```
+```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False)
 ```
@@ -36,23 +34,23 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'),
 #### User
 
 First, you need to create a new Artifactory object.
-```
+```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 ```
 
 Get the list of users:
-```
+```python
 users = art.users.list()
 ```
 
 Get a single user:
-```
+```python
 users = art.users.get("username")
 ```
 
 Create/Update a user:
-```
+```python
 from pyartifactory.models.User import NewUser
 
 # Create User
@@ -67,17 +65,17 @@ updated_user = art.users.update(user)
 #### Group
 
 Get the list of groups:
-```
+```python
 users = art.groups.list()
 ```
 
 Get a single group:
-```
+```python
 users = art.groups.get("group_name")
 ```
 
 Create/Update a group:
-```
+```python
 from pyartifactory.models.Group import Group
 
 # Create a Group
@@ -97,3 +95,9 @@ A set of methods are available in the security object in order to perform operat
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
+
+#### Repository
+TBD
+
+#### Permission 
+TBD
