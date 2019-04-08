@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "PyArtifactory"
+name = "python-artifactory"
 version = "0.1.0"
 description = ""
 authors = ["Ananias CARVALHO <ananias.carvalho@ext.adeo.com>"]
