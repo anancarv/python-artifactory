@@ -16,6 +16,10 @@ from pyartifactory.models.Repository import (
     LocalRepository,
     RepositoryList,
     VirtualRepository,
+    LocalRepositoryResponse,
+    VirtualRepositoryResponse,
+    RemoteRepository,
+    RemoteRepositoryResponse,
 )
 from pyartifactory.models.User import User, NewUser, UserList
 
@@ -306,11 +310,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
         super(ArtfictoryRepository, self).__init__(artifactory)
 
     # Local repositories operations
-    def create_local_repo(self, repo: LocalRepository) -> LocalRepository:
+    def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
         Creates a new local repository
         :param repo: LocalRepository object
-        :return: LocalRepository object
+        :return: LocalRepositoryResponse object
         """
         repo_name = repo.key
         try:
@@ -331,11 +335,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             r.raise_for_status()
             return self.get_local_repo(repo_name)
 
-    def get_local_repo(self, repo_name: str) -> LocalRepository:
+    def get_local_repo(self, repo_name: str) -> LocalRepositoryResponse:
         """
-        Find repository in artifactory. Fill object if exist
+        Finds repository in artifactory. Fill object if exist
         :param repo_name: Name of the repository to retrieve
-        :return: LocalRepository object
+        :return: LocalRepositoryResponse object
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
         r = requests.get(
@@ -347,13 +351,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         else:
             logging.debug(f"Repository {repo_name} exists")
             r.raise_for_status()
-            return LocalRepository(**r.json())
+            return LocalRepositoryResponse(**r.json())
 
-    def update_local_repo(self, repo: LocalRepository) -> LocalRepository:
+    def update_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
         Updates an artifactory repository
         :param repo: LocalRepository object
-        :return: LocalRepository
+        :return: LocalRepositoryResponse
         """
         repo_name = repo.key
         try:
@@ -372,11 +376,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
     # Virtual repositories operations
-    def create_virtual_repo(self, repo: VirtualRepository) -> VirtualRepository:
+    def create_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
         Creates a new local repository
         :param repo: VirtualRepository object
-        :return: VirtualRepository object
+        :return: VirtualRepositoryResponse object
         """
         repo_name = repo.key
         try:
@@ -397,11 +401,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             r.raise_for_status()
             return self.get_virtual_repo(repo_name)
 
-    def get_virtual_repo(self, repo_name: str) -> VirtualRepository:
+    def get_virtual_repo(self, repo_name: str) -> VirtualRepositoryResponse:
         """
-        Find repository in artifactory. Fill object if exist
+        Finds repository in artifactory. Fill object if exist
         :param repo_name: Name of the repository to retrieve
-        :return: VirtualRepository object
+        :return: VirtualRepositoryResponse object
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
         r = requests.get(
@@ -413,13 +417,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         else:
             logging.debug(f"Repository {repo_name} exists")
             r.raise_for_status()
-            return VirtualRepository(**r.json())
+            return VirtualRepositoryResponse(**r.json())
 
-    def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepository:
+    def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
         Updates a virtual artifactory repository
         :param repo: VirtualRepository object
-        :return: VirtualRepository
+        :return: VirtualRepositoryResponse
         """
         repo_name = repo.key
         try:
@@ -438,17 +442,70 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
     # Remote repositories operations
-    def create_remote_repo(self):
-        # ToDo
-        pass
+    def create_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        """
+        Creates a new local repository
+        :param repo: RemoteRepository object
+        :return: RemoteRepositoryResponse object
+        """
+        repo_name = repo.key
+        try:
+            self.get_remote_repo(repo_name)
+            logging.debug(f"Repository {repo_name} already exists")
+            raise RepositoryAlreadyExistsException(
+                f"Repository {repo_name} already exists"
+            )
+        except RepositoryNotFoundException:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.put(
+                request_url,
+                json=repo.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get_remote_repo(repo_name)
 
-    def get_remote_repo(self):
-        # ToDo
-        pass
+    def get_remote_repo(self, repo_name: str) -> RemoteRepositoryResponse:
+        """
+        Finds a remote repository in artifactory. Fill object if exist
+        :param repo_name: Name of the repository to retrieve
+        :return: RemoteRepositoryResponse object
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        if r.status_code == 404 or r.status_code == 400:
+            logging.debug(f"Repository {repo_name} does not exist")
+            raise RepositoryNotFoundException(f" Repository {repo_name} does not exist")
+        else:
+            logging.debug(f"Repository {repo_name} exists")
+            r.raise_for_status()
+            return RemoteRepositoryResponse(**r.json())
 
-    def update_remote_repo(self):
-        # ToDo
-        pass
+    def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        """
+        Updates a remote artifactory repository
+        :param repo: VirtualRepository object
+        :return: VirtualRepositoryResponse
+        """
+        repo_name = repo.key
+        try:
+            self.get_virtual_repo(repo_name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.post(
+                request_url,
+                json=repo.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get_remote_repo(repo_name)
+        except RepositoryNotFoundException:
+            raise
 
     def list(self) -> RepositoryList:
         """

@@ -15,8 +15,6 @@ pytest = "^3.0"
 mypy = "^0.700.0"
 black = { version = "^19.3b0", allows-prereleases = true }
 pre-commit = "^1.15"
-pytest-mock = "^1.10"
-mock = "^2.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

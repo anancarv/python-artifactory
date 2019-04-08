@@ -1,7 +1,7 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 
 class PackageTypeEnum(str, Enum):
@@ -54,6 +54,30 @@ class PomRepoRefCleanupPolicy(str, Enum):
     nothing = "nothing"
 
 
+class VcsGitProviderEnum(str, Enum):
+    github = "GITHUB"
+    bitbucket = "BITBUCKET"
+    oldstash = "OLDSTASH"
+    stash = "STASH"
+    artifactory = "ARTIFACTORY"
+    custom = ("CUSTOM",)
+
+
+class ContentSynchronisation(BaseModel):
+    enabled: bool = False
+    statistics: Dict[str, bool] = {"enabled": False}
+    properties: Dict[str, bool] = {"enabled": False}
+    source: Dict[str, bool] = {"originAbsenceDetection": False}
+
+
+class Nuget:
+    nuget: Dict[str, str] = {
+        "feedContextPath": "api/v2",
+        "downloadContextPath": "api/v2/package",
+        "v3FeedUrl": "https://api.nuget.org/v3/index.json",
+    }
+
+
 class SimpleRepository(BaseModel):
     key: str
     type: str
@@ -85,16 +109,35 @@ class LocalRepository(BaseRepositoryModel):
     blackedOut: bool = False
     xrayIndex: bool = False
     propertySets: List[str] = None
+    dockerApiVersion: str = "V2"
     archiveBrowsingEnabled: bool = False
     calculateYumMetadata: bool = False
     yumRootDepth: int = 0
-    dockerApiVersion: str = "V2"
     enableFileListsIndexing: str = "false"
     optionalIndexCompressionFormats: List[str] = None
     downloadRedirect: str = "false"
 
 
+class LocalRepositoryResponse(LocalRepository):
+    enableComposerSupport: bool = False
+    enableNuGetSupport: bool = False
+    enableGemsSupport: bool = False
+    enableNpmSupport: bool = False
+    enableBowerSupport: bool = False
+    enableCocoaPodsSupport: bool = False
+    enableConanSupport: bool = False
+    enableDebianSupport: bool = False
+    enablePypiSupport: bool = False
+    enablePuppetSupport: bool = False
+    enableDockerSupport: bool = False
+    forceNugetAuthentication: bool = False
+    enableVagrantSupport: bool = False
+    enableGitLfsSupport: bool = False
+    enableDistRepoSupport: bool = False
+
+
 class VirtualRepository(BaseRepositoryModel):
+    repositories: List[str] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     keyPair: Optional[str] = None
     pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
@@ -105,9 +148,87 @@ class VirtualRepository(BaseRepositoryModel):
     externalDependenciesRemoteRepo: str = None
 
 
+class VirtualRepositoryResponse(LocalRepository):
+    dockerApiVersion: str = "V2"
+    enableComposerSupport: bool = False
+    enableNuGetSupport: bool = False
+    enableGemsSupport: bool = False
+    enableNpmSupport: bool = False
+    enableBowerSupport: bool = False
+    enableCocoaPodsSupport: bool = False
+    enableConanSupport: bool = False
+    enableDebianSupport: bool = False
+    enablePypiSupport: bool = False
+    enablePuppetSupport: bool = False
+    enableDockerSupport: bool = False
+    forceNugetAuthentication: bool = False
+    enableVagrantSupport: bool = False
+    enableGitLfsSupport: bool = False
+    enableDistRepoSupport: bool = False
+
+
 class RemoteRepository(BaseRepositoryModel):
-    # ToDo
-    pass
+    url: str
+    username: str = None
+    password: SecretStr = None
+    proxy: str = None
+    remoteRepoChecksumPolicyType: str = "generate-if-absent"
+    handleReleases: bool = True
+    handleSnapshots: bool = True
+    maxUniqueSnapshots: int = 0
+    suppressPomConsistencyChecks: bool = False
+    hardFail: bool = False
+    offline: bool = False
+    blackedOut: bool = False
+    storeArtifactsLocally: bool = True
+    socketTimeoutMillis: int = 15000
+    localAddress: str = None
+    retrievalCachePeriodSecs: int = 43200
+    failedRetrievalCachePeriodSecs: int = 30
+    missedRetrievalCachePeriodSecs: int = 7200
+    unusedArtifactsCleanupEnabled: bool = False
+    unusedArtifactsCleanupPeriodHours: int = 0
+    assumedOfflinePeriodSecs: int = 300
+    fetchJarsEagerly: int = False
+    fetchSourcesEagerly: int = False
+    shareConfiguration: bool = False
+    synchronizeProperties: bool = False
+    blockMismatchingMimeTypes: bool = True
+    propertySets: List[str] = None
+    allowAnyHostAuth: bool = False
+    enableCookieManagement: False
+    bowerRegistryUrl: str = "https://registry.bower.io"
+    composerRegistryUrl: str = "https://packagist.org"
+    pyPIRegistryUrl: str = "https://pypi.org"
+    vcsType: str = "GIT"
+    vcsGitProvider: VcsGitProviderEnum = VcsGitProviderEnum.github
+    vcsGitDownloadUrl: str = ""
+    bypassHeadRequest: bool = False
+    clientTlsCertificate: str = ""
+    externalDependenciesEnabled: bool = False
+    externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
+    downloadRedirect: bool = False
+    contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
+    nuget: Nuget = Nuget()
+
+
+class RemoteRepositoryResponse(RemoteRepository):
+    dockerApiVersion: str = "V2"
+    enableComposerSupport: bool = False
+    enableNuGetSupport: bool = False
+    enableGemsSupport: bool = False
+    enableNpmSupport: bool = False
+    enableBowerSupport: bool = False
+    enableCocoaPodsSupport: bool = False
+    enableConanSupport: bool = False
+    enableDebianSupport: bool = False
+    enablePypiSupport: bool = False
+    enablePuppetSupport: bool = False
+    enableDockerSupport: bool = False
+    forceNugetAuthentication: bool = False
+    enableVagrantSupport: bool = False
+    enableGitLfsSupport: bool = False
+    enableDistRepoSupport: bool = False
 
 
 class RepositoryList(BaseModel):
