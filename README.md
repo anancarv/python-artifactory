@@ -48,7 +48,7 @@ users = art.users.list()
 
 Get a single user:
 ```python
-users = art.users.get("username")
+users = art.users.get("test_user")
 ```
 
 Create/Update a user:
@@ -62,6 +62,11 @@ new_user = art.users.create(user)
 # Update user
 user.email = "test@test.com"
 updated_user = art.users.update(user)
+```
+
+Delete a user:
+```python
+art.users.delete("test_user")
 ```
 
 #### Group
@@ -89,6 +94,11 @@ group.description = "test_group_2"
 updated_group = art.groups.update(group)
 ```
 
+Delete a group:
+```python
+art.groups.delete("test_group")
+```
+
 #### Security
 
 A set of methods are available in the security object in order to perform operations on apiKeys, passwords ...
@@ -99,7 +109,41 @@ art.security.get_api_key(             art.security.regenerate_api_key(      art.
 ```
 
 #### Repository
-TBD
+
+Get the list of repositories:
+```python
+repositories = art.repositories.list()
+```
+
+Get a single repository (Local, Virtual or Remote):
+```python
+local_repo = art.groups.get_local_repo("local_repo_name")
+virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
+remote_repo = art.groups.get_remote_repo("remote_repo_name")
+```
+
+
+Create/Update a group:
+```python
+from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
+
+# Create a Group
+local_repo = LocalRepository(key="test_local_repo")
+new_local_repo = art.repositories.create_local_repo(local_repo)
+
+# Update user
+local_repo.description = "test_local_repo"
+updated_local_repo = art.repositories.update_local_repo(local_repo)
+
+# Same process for Virtual and Remote repositories
+```
+
+
+Delete a repository:
+```python
+art.repositories.delete("test_local_repo")
+```
+
 
 #### Permission 
 TBD

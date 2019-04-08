@@ -70,7 +70,7 @@ class ContentSynchronisation(BaseModel):
     source: Dict[str, bool] = {"originAbsenceDetection": False}
 
 
-class Nuget:
+class Nuget(BaseModel):
     nuget: Dict[str, str] = {
         "feedContextPath": "api/v2",
         "downloadContextPath": "api/v2/package",
@@ -95,7 +95,6 @@ class BaseRepositoryModel(BaseModel):
     includesPattern: str = "**/*"
     excludesPattern: str = ""
     repoLayoutRef: str = "maven-2-default"
-    debianTrivialLayout: bool = False
 
 
 class LocalRepository(BaseRepositoryModel):
@@ -104,6 +103,7 @@ class LocalRepository(BaseRepositoryModel):
     handleSnapshots: bool = True
     maxUniqueSnapshots: int = 0
     maxUniqueTags: int = 0
+    debianTrivialLayout: bool = False
     snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
     suppressPomConsistencyChecks: bool = False
     blackedOut: bool = False
@@ -139,6 +139,7 @@ class LocalRepositoryResponse(LocalRepository):
 class VirtualRepository(BaseRepositoryModel):
     repositories: List[str] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
+    debianTrivialLayout: bool = False
     keyPair: Optional[str] = None
     pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
     defaultDeploymentRepo: Optional[str] = None
@@ -196,7 +197,7 @@ class RemoteRepository(BaseRepositoryModel):
     blockMismatchingMimeTypes: bool = True
     propertySets: List[str] = None
     allowAnyHostAuth: bool = False
-    enableCookieManagement: False
+    enableCookieManagement: bool = False
     bowerRegistryUrl: str = "https://registry.bower.io"
     composerRegistryUrl: str = "https://packagist.org"
     pyPIRegistryUrl: str = "https://pypi.org"
@@ -208,12 +209,13 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
-    contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
-    nuget: Nuget = Nuget()
+    contentSynchronisation: ContentSynchronisation = None
+    nuget: Nuget = None
 
 
 class RemoteRepositoryResponse(RemoteRepository):
     dockerApiVersion: str = "V2"
+    debianTrivialLayout: bool = False
     enableComposerSupport: bool = False
     enableNuGetSupport: bool = False
     enableGemsSupport: bool = False
