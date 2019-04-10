@@ -231,7 +231,3 @@ class RemoteRepositoryResponse(RemoteRepository):
     enableVagrantSupport: bool = False
     enableGitLfsSupport: bool = False
     enableDistRepoSupport: bool = False
-
-
-class RepositoryList(BaseModel):
-    repositories: List[SimpleRepository] = None

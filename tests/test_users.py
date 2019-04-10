@@ -78,7 +78,7 @@ class TestUser:
         mocker.spy(artifactory_user, "get")
         artifactory_user.get(NEW_USER.name)
 
-        artifactory_user.get.assert_called_with(NEW_USER.name)
+        artifactory_user.get.assert_called_once()
 
     @responses.activate
     def test_list_user_success(self, mocker):

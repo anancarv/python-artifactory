@@ -14,7 +14,3 @@ class Group(BaseModel):
 class SimpleGroup(BaseModel):
     name: str
     uri: str
-
-
-class GroupList(BaseModel):
-    groups: List[SimpleGroup] = None

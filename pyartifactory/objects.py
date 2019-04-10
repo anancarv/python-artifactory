@@ -12,15 +12,15 @@ from pyartifactory.exception import (
     RepositoryNotFoundException,
 )
 from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
-from pyartifactory.models.Group import Group, GroupList
+from pyartifactory.models.Group import Group
 from pyartifactory.models.Repository import (
     LocalRepository,
-    RepositoryList,
     VirtualRepository,
     LocalRepositoryResponse,
     VirtualRepositoryResponse,
     RemoteRepository,
     RemoteRepositoryResponse,
+    SimpleRepository,
 )
 from pyartifactory.models.User import UserResponse, NewUser, SimpleUser
 
@@ -279,7 +279,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
 
         group_list = []
         for group in r.json():
-            group_list.append(group)
+            group_list.append(Group(**group))
 
         return group_list
 
@@ -512,7 +512,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         """
         repo_name = repo.key
         try:
-            self.get_virtual_repo(repo_name)
+            self.get_remote_repo(repo_name)
             request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
             r = requests.post(
                 request_url,
@@ -526,7 +526,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         except RepositoryNotFoundException:
             raise
 
-    def list(self) -> RepositoryList:
+    def list(self) -> List[SimpleRepository]:
         """
         Lists all the repositories
         :return: A list of repositories
@@ -536,7 +536,12 @@ class ArtfictoryRepository(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return RepositoryList(repositories=r.json())
+
+        repositories_list = []
+        for repository in r.json():
+            repositories_list.append(SimpleRepository(**repository))
+
+        return repositories_list
 
     def delete(self, repo_name: str) -> None:
         """
@@ -544,11 +549,14 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            raise
 
 
 class ArtfictoryPermission(ArtifactoryAuth):
