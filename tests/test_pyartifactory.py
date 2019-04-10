@@ -13,7 +13,7 @@ from pyartifactory.models.Group import Group
 from pyartifactory.models.Repository import LocalRepository, VirtualRepository
 from pyartifactory.models.User import NewUser, UserResponse, SimpleUser
 
-URL = "https://adeo.jfrog.io/adeo"
+URL = "http://localhost:8080/artifactory/adeo"
 AUTH = ("user", "password_or_apiKey")
 SIMPLE_USER = SimpleUser(name="test_user")
 USER = UserResponse(name="test_user", email="test.test@test.com")
