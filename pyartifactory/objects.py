@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import requests
 
@@ -21,7 +22,7 @@ from pyartifactory.models.Repository import (
     RemoteRepository,
     RemoteRepositoryResponse,
 )
-from pyartifactory.models.User import User, NewUser, UserList
+from pyartifactory.models.User import UserResponse, NewUser, SimpleUser
 
 
 class ArtifactoryAuth:
@@ -41,7 +42,7 @@ class ArtfictoryUser(ArtifactoryAuth):
     def __init__(self, artifactory: AuthModel) -> None:
         super(ArtfictoryUser, self).__init__(artifactory)
 
-    def create(self, user: NewUser) -> User:
+    def create(self, user: NewUser) -> UserResponse:
         """
         Create user
         :param user: NewUser object
@@ -66,7 +67,7 @@ class ArtfictoryUser(ArtifactoryAuth):
             r.raise_for_status()
             return self.get(user.name)
 
-    def get(self, name: str) -> User:
+    def get(self, name: str) -> UserResponse:
         """
         Read user from artifactory. Fill object if exist
         :param name: Name of the user to retrieve
@@ -82,9 +83,9 @@ class ArtfictoryUser(ArtifactoryAuth):
         else:
             logging.debug(f"User {name} exists")
             r.raise_for_status()
-            return User(**r.json())
+            return UserResponse(**r.json())
 
-    def list(self) -> UserList:
+    def list(self) -> List[SimpleUser]:
         """
         Lists all the users
         :return: UserList
@@ -94,9 +95,12 @@ class ArtfictoryUser(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return UserList(users=r.json())
+        user_list = []
+        for user in r.json():
+            user_list.append(SimpleUser(**user))
+        return user_list
 
-    def update(self, user: NewUser) -> User:
+    def update(self, user: NewUser) -> UserResponse:
         """
         Updates an artifactory user
         :param user: NewUser object
@@ -106,9 +110,11 @@ class ArtfictoryUser(ArtifactoryAuth):
         try:
             self.get(username)
             request_url = f"{self._artifactory.url}/api/{self._uri}/{username}"
+            data = user.dict()
+            data["password"] = user.password.get_secret_value()
             r = requests.post(
                 request_url,
-                json=user.dict(),
+                json=data,
                 auth=self._auth,
                 verify=self._verify,
                 cert=self._cert,
@@ -124,11 +130,15 @@ class ArtfictoryUser(ArtifactoryAuth):
         :param name: Name of the user to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            self.get(name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except UserNotFoundException:
+            raise
 
 
 class ArtfictorySecurity(ArtifactoryAuth):
@@ -256,7 +266,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
             r.raise_for_status()
             return Group(**r.json())
 
-    def list(self) -> GroupList:
+    def list(self) -> List[Group]:
         """
         Lists all the groups
         :return: GroupList
@@ -266,7 +276,12 @@ class ArtfictoryGroup(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return GroupList(groups=r.json())
+
+        group_list = []
+        for group in r.json():
+            group_list.append(group)
+
+        return group_list
 
     def update(self, group: Group) -> Group:
         """
@@ -296,11 +311,15 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :param name: Name of the group to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            self.get(name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except GroupNotFoundException:
+            raise
 
 
 class ArtfictoryRepository(ArtifactoryAuth):

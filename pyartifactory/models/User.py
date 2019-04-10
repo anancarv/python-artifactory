@@ -3,6 +3,12 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, SecretStr
 
 
+class SimpleUser(BaseModel):
+    name: str = None
+    uri: str = None
+    realm: str = None
+
+
 class BaseUserModel(BaseModel):
     name: str
     admin: Optional[bool] = False
@@ -17,11 +23,8 @@ class NewUser(BaseUserModel):
     password: SecretStr
 
 
-class User(BaseUserModel):
+class UserResponse(BaseUserModel):
     email: EmailStr
     lastLoggedIn: datetime = None
     realm: str = None
-
-
-class UserList(BaseModel):
-    users: List[BaseUserModel] = None
+    offlineMode: bool = False
