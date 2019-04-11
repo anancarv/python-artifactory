@@ -26,8 +26,9 @@ PERMISSION = Permission(
 
 
 class TestGroup:
+    @staticmethod
     @responses.activate
-    def test_create_permission_fail_if_group_already_exists(self, mocker):
+    def test_create_permission_fail_if_group_already_exists(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
@@ -42,8 +43,9 @@ class TestGroup:
 
         artifactory_permission.get.assert_called_once_with(PERMISSION.name)
 
+    @staticmethod
     @responses.activate
-    def test_create_permission_success(self, mocker):
+    def test_create_permission_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
@@ -65,8 +67,9 @@ class TestGroup:
             artifactory_permission.get.assert_called_with(PERMISSION.name)
         assert artifactory_permission.get.call_count == 2
 
+    @staticmethod
     @responses.activate
-    def test_get_permission_error_not_found(self):
+    def test_get_permission_error_not_found():
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
@@ -77,8 +80,9 @@ class TestGroup:
         with pytest.raises(PermissionNotFoundException):
             artifactory_permission.get(PERMISSION.name)
 
+    @staticmethod
     @responses.activate
-    def test_get_permission_success(self, mocker):
+    def test_get_permission_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
@@ -92,8 +96,9 @@ class TestGroup:
 
         artifactory_permission.get.assert_called_with(PERMISSION.name)
 
+    @staticmethod
     @responses.activate
-    def test_list_group_success(self, mocker):
+    def test_list_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions",
@@ -107,8 +112,9 @@ class TestGroup:
 
         artifactory_permission.list.assert_called_once()
 
+    @staticmethod
     @responses.activate
-    def test_delete_permission_fail_if_group_not_found(self, mocker):
+    def test_delete_permission_fail_if_group_not_found(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
@@ -123,8 +129,9 @@ class TestGroup:
 
             artifactory_permission.get.assert_called_once_with(PERMISSION.name)
 
+    @staticmethod
     @responses.activate
-    def test_delete_group_success(self, mocker):
+    def test_delete_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",

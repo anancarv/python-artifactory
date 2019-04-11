@@ -16,8 +16,9 @@ NEW_USER = NewUser(
 
 
 class TestUser:
+    @staticmethod
     @responses.activate
-    def test_create_user_fail_if_user_already_exists(self, mocker):
+    def test_create_user_fail_if_user_already_exists(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{USER.name}",
@@ -32,8 +33,9 @@ class TestUser:
 
         artifactory_user.get.assert_called_once_with(NEW_USER.name)
 
+    @staticmethod
     @responses.activate
-    def test_create_user_success(self, mocker):
+    def test_create_user_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{USER.name}",
@@ -55,8 +57,9 @@ class TestUser:
         artifactory_user.get.assert_called_with(NEW_USER.name)
         assert artifactory_user.get.call_count == 2
 
+    @staticmethod
     @responses.activate
-    def test_get_user_error_not_found(self):
+    def test_get_user_error_not_found():
         responses.add(
             responses.GET, f"{URL}/api/security/users/{USER.name}", status=404
         )
@@ -65,8 +68,9 @@ class TestUser:
         with pytest.raises(UserNotFoundException):
             artifactory_user.get(NEW_USER.name)
 
+    @staticmethod
     @responses.activate
-    def test_get_user_success(self, mocker):
+    def test_get_user_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{USER.name}",
@@ -80,8 +84,9 @@ class TestUser:
 
         artifactory_user.get.assert_called_once()
 
+    @staticmethod
     @responses.activate
-    def test_list_user_success(self, mocker):
+    def test_list_user_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users",
@@ -95,8 +100,9 @@ class TestUser:
 
         artifactory_user.list.assert_called_once()
 
+    @staticmethod
     @responses.activate
-    def test_update_user_fail_if_user_not_found(self, mocker):
+    def test_update_user_fail_if_user_not_found(mocker):
         responses.add(
             responses.GET, f"{URL}/api/security/users/{NEW_USER.name}", status=404
         )
@@ -108,8 +114,9 @@ class TestUser:
 
         artifactory_user.get.assert_called_once_with(NEW_USER.name)
 
+    @staticmethod
     @responses.activate
-    def test_update_user_success(self, mocker):
+    def test_update_user_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{NEW_USER.name}",
@@ -130,8 +137,9 @@ class TestUser:
         artifactory_user.get.assert_called_with(NEW_USER.name)
         assert artifactory_user.get.call_count == 2
 
+    @staticmethod
     @responses.activate
-    def test_delete_user_fail_if_user_not_found(self, mocker):
+    def test_delete_user_fail_if_user_not_found(mocker):
         responses.add(
             responses.GET, f"{URL}/api/security/users/{NEW_USER.name}", status=404
         )
@@ -144,8 +152,9 @@ class TestUser:
 
         artifactory_user.get.assert_called_once_with(NEW_USER.name)
 
+    @staticmethod
     @responses.activate
-    def test_delete_user_success(self, mocker):
+    def test_delete_user_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{NEW_USER.name}",
