@@ -636,21 +636,7 @@ class ArtfictoryPermission(ArtifactoryAuth):
         :param permission: Permission object
         :return: Permission
         """
-        permission_name = permission.name
-        try:
-            self.get(permission_name)
-            request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
-            r = requests.post(
-                request_url,
-                json=permission.dict(),
-                auth=self._auth,
-                verify=self._verify,
-                cert=self._cert,
-            )
-            r.raise_for_status()
-            return self.get(permission_name)
-        except PermissionNotFoundException:
-            raise
+        return self.create(permission)
 
     def delete(self, permission_name: str) -> None:
         """

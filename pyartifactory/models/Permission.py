@@ -19,7 +19,7 @@ class PermissionEnum(str, Enum):
 
 class PrincipalsPermission(BaseModel):
     users: Optional[Dict[str, List[PermissionEnum]]] = None
-    groups = Optional[Dict[str, List[PermissionEnum]]] = None
+    groups: Optional[Dict[str, List[PermissionEnum]]] = None
 
 
 class Permission(BaseModel):
