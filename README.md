@@ -146,7 +146,42 @@ art.repositories.delete("test_local_repo")
 
 
 #### Permission 
-TBD
+Get the list of permissions:
+```python
+permissions = art.permissions.list()
+```
+
+Get a single permission:
+```python
+users = art.permissions.get("test_permission")
+```
+
+Create/Update a permission:
+```python
+from pyartifactory.models.Permission import Permission
+
+# Create a Group
+permission = Permission(
+    **{
+        "name": "test_permission",
+        "repositories": ["test_repository"],
+        "principals": {
+            "users": {"test_user": ["r", "w", "n", "d"]},
+            "groups": {"developers": ["r"]},
+        },
+    }
+)
+perm = art.permissions.create(permission)
+
+# Update permission
+permission.repositories = ["test_repository_2"]
+updated_permission = art.permissions.update(permission)
+```
+
+Delete a permission:
+```python
+art.permissions.delete("test_permission")
+```
 
 #### Artifact 
 TBD
