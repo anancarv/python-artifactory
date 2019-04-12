@@ -95,10 +95,8 @@ class ArtfictoryUser(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        user_list = []
-        for user in r.json():
-            user_list.append(SimpleUser(**user))
-        return user_list
+
+        return [SimpleUser(**user) for user in r.json()]
 
     def update(self, user: NewUser) -> UserResponse:
         """
@@ -277,11 +275,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         )
         r.raise_for_status()
 
-        group_list = []
-        for group in r.json():
-            group_list.append(Group(**group))
-
-        return group_list
+        return [Group(**group) for group in r.json()]
 
     def update(self, group: Group) -> Group:
         """
@@ -537,11 +531,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         )
         r.raise_for_status()
 
-        repositories_list = []
-        for repository in r.json():
-            repositories_list.append(SimpleRepository(**repository))
-
-        return repositories_list
+        return [SimpleRepository(**repository) for repository in r.json()]
 
     def delete(self, repo_name: str) -> None:
         """

@@ -72,7 +72,7 @@ class Properties(BaseModel):
 
 
 class Source(BaseModel):
-    originAbsenceDetection: False
+    originAbsenceDetection: bool = False
 
 
 class ContentSynchronisation(BaseModel):

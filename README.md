@@ -3,10 +3,22 @@
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
 
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories and artifacts in your applications.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts & builds in your applications.
 This library requires at least Python 3.6
 
+# Table of contents
 
+* [Usage](#Usage)
+    * [Authentication](#Authentication)
+    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
+    * [Admin objects](#Admin-objects)
+        * [User](#User)
+        * [Group](#Group)
+        * [Security](#Security)
+        * [Repository](#Repository)
+        * [Permission](#Permission)
+    * [Artifacts & Builds](#Artifacts-&-Builds)
+    
 ## Usage
 
 ### Authentication
@@ -16,7 +28,7 @@ from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 ```
 
-#### SSL Cert Verification Options
+### SSL Cert Verification Options
 Specify a local cert to use as client side certificate
 
 ```python
@@ -146,5 +158,5 @@ art.repositories.delete("test_local_repo")
 #### Permission 
 TBD
 
-#### Artifact 
+### Artifacts & Builds 
 TBD
