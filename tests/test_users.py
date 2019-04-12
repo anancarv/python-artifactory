@@ -3,8 +3,7 @@ import responses
 
 from pyartifactory import ArtfictoryUser
 from pyartifactory.exception import UserAlreadyExistsException, UserNotFoundException
-from pyartifactory.models.Auth import AuthModel
-from pyartifactory.models.User import NewUser, UserResponse, SimpleUser
+from pyartifactory.models import AuthModel, NewUser, UserResponse, SimpleUser
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")

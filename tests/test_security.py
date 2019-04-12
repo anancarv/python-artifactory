@@ -1,7 +1,7 @@
 import responses
 
 from pyartifactory import ArtfictorySecurity
-from pyartifactory.models.Auth import AuthModel, PasswordModel, ApiKeyModel
+from pyartifactory.models import AuthModel, PasswordModel, ApiKeyModel
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")

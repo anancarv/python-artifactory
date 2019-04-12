@@ -3,8 +3,7 @@ import responses
 
 from pyartifactory import ArtfictoryGroup
 from pyartifactory.exception import GroupNotFoundException, GroupAlreadyExistsException
-from pyartifactory.models.Auth import AuthModel, PasswordModel
-from pyartifactory.models.Group import Group
+from pyartifactory.models import AuthModel, PasswordModel, Group
 
 
 URL = "http://localhost:8080/artifactory"

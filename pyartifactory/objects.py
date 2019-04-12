@@ -12,9 +12,11 @@ from pyartifactory.exception import (
     GroupAlreadyExistsException,
     RepositoryNotFoundException,
 )
-from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
-from pyartifactory.models.Group import Group
-from pyartifactory.models.Repository import (
+from pyartifactory.models import (
+    AuthModel,
+    ApiKeyModel,
+    PasswordModel,
+    Group,
     LocalRepository,
     VirtualRepository,
     LocalRepositoryResponse,
@@ -22,8 +24,10 @@ from pyartifactory.models.Repository import (
     RemoteRepository,
     RemoteRepositoryResponse,
     SimpleRepository,
+    UserResponse,
+    NewUser,
+    SimpleUser,
 )
-from pyartifactory.models.User import UserResponse, NewUser, SimpleUser
 
 
 class ArtifactoryAuth:
@@ -120,13 +124,14 @@ class ArtfictoryUser(ArtifactoryAuth):
         :param name: Name of the user to retrieve
         :return: UserModel
         """
-        r = self._get(f"api/{self._uri}/{name}")
-        if r.status_code == 404 or r.status_code == 400:
-            logging.debug(f"User {name} does not exist")
-            raise UserNotFoundException(f"{name} does not exist")
-        else:
+        try:
+            r = self._get(f"api/{self._uri}/{name}")
             logging.debug(f"User {name} exists")
             return UserResponse(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.debug(f"User {name} does not exist")
+                raise UserNotFoundException(f"{name} does not exist")
 
     def list(self) -> List[SimpleUser]:
         """
@@ -246,14 +251,14 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :param name: Name of the group to retrieve
         :return: Found artifactory group
         """
-        r = self._get(f"api/{self._uri}/{name}")
-        if r.status_code == 404 or r.status_code == 400:
-            logging.debug(f"Group {name} does not exist")
-            raise GroupNotFoundException(f"Group {name} does not exist")
-        else:
+        try:
+            r = self._get(f"api/{self._uri}/{name}")
             logging.debug(f"Group {name} exists")
-            r.raise_for_status()
             return Group(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.debug(f"Group {name} does not exist")
+                raise GroupNotFoundException(f"Group {name} does not exist")
 
     def list(self) -> List[Group]:
         """
@@ -320,14 +325,16 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to retrieve
         :return: LocalRepositoryResponse object
         """
-        r = self._get(f"api/{self._uri}/{repo_name}")
-        if r.status_code == 404 or r.status_code == 400:
-            logging.debug(f"Repository {repo_name} does not exist")
-            raise RepositoryNotFoundException(f" Repository {repo_name} does not exist")
-        else:
+        try:
+            r = self._get(f"api/{self._uri}/{repo_name}")
             logging.debug(f"Repository {repo_name} exists")
-            r.raise_for_status()
             return LocalRepositoryResponse(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.debug(f"Repository {repo_name} does not exist")
+                raise RepositoryNotFoundException(
+                    f" Repository {repo_name} does not exist"
+                )
 
     def update_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
@@ -367,14 +374,16 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to retrieve
         :return: VirtualRepositoryResponse object
         """
-        r = self._get(f"api/{self._uri}/{repo_name}")
-        if r.status_code == 404 or r.status_code == 400:
-            logging.debug(f"Repository {repo_name} does not exist")
-            raise RepositoryNotFoundException(f" Repository {repo_name} does not exist")
-        else:
+        try:
+            r = self._get(f"api/{self._uri}/{repo_name}")
             logging.debug(f"Repository {repo_name} exists")
-            r.raise_for_status()
             return VirtualRepositoryResponse(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.debug(f"Repository {repo_name} does not exist")
+                raise RepositoryNotFoundException(
+                    f" Repository {repo_name} does not exist"
+                )
 
     def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
@@ -414,14 +423,16 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to retrieve
         :return: RemoteRepositoryResponse object
         """
-        r = self._get(f"api/{self._uri}/{repo_name}")
-        if r.status_code == 404 or r.status_code == 400:
-            logging.debug(f"Repository {repo_name} does not exist")
-            raise RepositoryNotFoundException(f" Repository {repo_name} does not exist")
-        else:
+        try:
+            r = self._get(f"api/{self._uri}/{repo_name}")
             logging.debug(f"Repository {repo_name} exists")
-            r.raise_for_status()
             return RemoteRepositoryResponse(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.debug(f"Repository {repo_name} does not exist")
+                raise RepositoryNotFoundException(
+                    f" Repository {repo_name} does not exist"
+                )
 
     def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
         """

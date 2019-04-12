@@ -7,8 +7,8 @@ from pyartifactory.exception import (
     RepositoryAlreadyExistsException,
     RepositoryNotFoundException,
 )
-from pyartifactory.models.Auth import AuthModel
-from pyartifactory.models.Repository import (
+from pyartifactory.models import (
+    AuthModel,
     LocalRepository,
     VirtualRepository,
     RemoteRepository,
