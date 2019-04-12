@@ -219,8 +219,8 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
-    contentSynchronisation: ContentSynchronisation
-    nuget: Nuget
+    contentSynchronisation: ContentSynchronisation = ContentSynchronisation
+    nuget: Nuget = Nuget
 
 
 class RemoteRepositoryResponse(RemoteRepository):
