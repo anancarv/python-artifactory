@@ -122,15 +122,15 @@ virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
 remote_repo = art.groups.get_remote_repo("remote_repo_name")
 ```
 
-Create/Update a group:
+Create/Update a repository:
 ```python
 from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
 
-# Create a Group
+# Create a repository
 local_repo = LocalRepository(key="test_local_repo")
 new_local_repo = art.repositories.create_local_repo(local_repo)
 
-# Update user
+# Update repository
 local_repo.description = "test_local_repo"
 updated_local_repo = art.repositories.update_local_repo(local_repo)
 

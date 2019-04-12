@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict
+from typing import Optional, List
 from enum import Enum
 
 from pydantic import BaseModel, SecretStr
@@ -60,22 +60,32 @@ class VcsGitProviderEnum(str, Enum):
     oldstash = "OLDSTASH"
     stash = "STASH"
     artifactory = "ARTIFACTORY"
-    custom = ("CUSTOM",)
+    custom = "CUSTOM"
+
+
+class Statistics(BaseModel):
+    enabled: bool = False
+
+
+class Properties(BaseModel):
+    enabled: bool = False
+
+
+class Source(BaseModel):
+    originAbsenceDetection: False
 
 
 class ContentSynchronisation(BaseModel):
     enabled: bool = False
-    statistics: Dict[str, bool] = {"enabled": False}
-    properties: Dict[str, bool] = {"enabled": False}
-    source: Dict[str, bool] = {"originAbsenceDetection": False}
+    statistics: Statistics
+    properties: Properties
+    source: Source
 
 
 class Nuget(BaseModel):
-    nuget: Dict[str, str] = {
-        "feedContextPath": "api/v2",
-        "downloadContextPath": "api/v2/package",
-        "v3FeedUrl": "https://api.nuget.org/v3/index.json",
-    }
+    feedContextPath: str = "api/v2"
+    downloadContextPath: str = "api/v2/package"
+    v3FeedUrl: str = "https://api.nuget.org/v3/index.json"
 
 
 class SimpleRepository(BaseModel):
@@ -209,8 +219,8 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
-    contentSynchronisation: ContentSynchronisation = None
-    nuget: Nuget = None
+    contentSynchronisation: ContentSynchronisation
+    nuget: Nuget
 
 
 class RemoteRepositoryResponse(RemoteRepository):
