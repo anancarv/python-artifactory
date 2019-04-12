@@ -10,8 +10,9 @@ API_KEY = ApiKeyModel(apiKey="test_api_key")
 
 
 class TestSecurity:
+    @staticmethod
     @responses.activate
-    def test_get_encrypted_password(self):
+    def test_get_encrypted_password():
         data = PASSWORD.dict()
         data["password"] = PASSWORD.password.get_secret_value()
         responses.add(
@@ -24,8 +25,9 @@ class TestSecurity:
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.get_encrypted_password()
 
+    @staticmethod
     @responses.activate
-    def test_create_api_key(self):
+    def test_create_api_key():
         data = API_KEY.dict()
         data["apiKey"] = API_KEY.apiKey.get_secret_value()
         responses.add(
@@ -35,8 +37,9 @@ class TestSecurity:
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.create_api_key()
 
+    @staticmethod
     @responses.activate
-    def test_regenerate_api_key(self):
+    def test_regenerate_api_key():
         data = API_KEY.dict()
         data["apiKey"] = API_KEY.apiKey.get_secret_value()
         responses.add(
@@ -46,8 +49,9 @@ class TestSecurity:
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.regenerate_api_key()
 
+    @staticmethod
     @responses.activate
-    def test_get_api_key(self):
+    def test_get_api_key():
         data = API_KEY.dict()
         data["apiKey"] = API_KEY.apiKey.get_secret_value()
         responses.add(
@@ -57,15 +61,17 @@ class TestSecurity:
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.get_api_key()
 
+    @staticmethod
     @responses.activate
-    def test_revoke_api_key(self):
+    def test_revoke_api_key():
         responses.add(responses.DELETE, f"{URL}/api/security/apiKey", status=200)
 
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.revoke_api_key()
 
+    @staticmethod
     @responses.activate
-    def test_revoke_user_api_key(self):
+    def test_revoke_user_api_key():
         responses.add(
             responses.DELETE, f"{URL}/api/security/apiKey/test_user", status=200
         )

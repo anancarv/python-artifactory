@@ -122,7 +122,6 @@ virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
 remote_repo = art.groups.get_remote_repo("remote_repo_name")
 ```
 
-
 Create/Update a group:
 ```python
 from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
@@ -137,7 +136,6 @@ updated_local_repo = art.repositories.update_local_repo(local_repo)
 
 # Same process for Virtual and Remote repositories
 ```
-
 
 Delete a repository:
 ```python

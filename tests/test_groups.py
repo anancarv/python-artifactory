@@ -10,12 +10,13 @@ from pyartifactory.models.Group import Group
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 NEW_GROUP = Group(name="test_group", description="test_group")
-PASSWORD = PasswordModel(password="test_password")
+PASSWORD = PasswordModel(password="test")
 
 
 class TestGroup:
+    @staticmethod
     @responses.activate
-    def test_create_group_fail_if_group_already_exists(self, mocker):
+    def test_create_group_fail_if_group_already_exists(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups/{NEW_GROUP.name}",
@@ -30,8 +31,9 @@ class TestGroup:
 
         artifactory_group.get.assert_called_once_with(NEW_GROUP.name)
 
+    @staticmethod
     @responses.activate
-    def test_create_group_success(self, mocker):
+    def test_create_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups/{NEW_GROUP.name}",
@@ -53,8 +55,9 @@ class TestGroup:
         artifactory_group.get.assert_called_with(NEW_GROUP.name)
         assert artifactory_group.get.call_count == 2
 
+    @staticmethod
     @responses.activate
-    def test_get_group_error_not_found(self):
+    def test_get_group_error_not_found():
         responses.add(
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
@@ -63,8 +66,9 @@ class TestGroup:
         with pytest.raises(GroupNotFoundException):
             artifactory_group.get(NEW_GROUP.name)
 
+    @staticmethod
     @responses.activate
-    def test_get_group_success(self, mocker):
+    def test_get_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups/{NEW_GROUP.name}",
@@ -78,8 +82,9 @@ class TestGroup:
 
         artifactory_group.get.assert_called_with(NEW_GROUP.name)
 
+    @staticmethod
     @responses.activate
-    def test_list_group_success(self, mocker):
+    def test_list_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups",
@@ -93,8 +98,9 @@ class TestGroup:
 
         artifactory_group.list.assert_called_once()
 
+    @staticmethod
     @responses.activate
-    def test_update_group_fail_if_group_not_found(self, mocker):
+    def test_update_group_fail_if_group_not_found(mocker):
         responses.add(
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
@@ -106,8 +112,9 @@ class TestGroup:
 
         artifactory_group.get.assert_called_once_with(NEW_GROUP.name)
 
+    @staticmethod
     @responses.activate
-    def test_update_group_success(self, mocker):
+    def test_update_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups/{NEW_GROUP.name}",
@@ -128,8 +135,9 @@ class TestGroup:
         artifactory_group.get.assert_called_with(NEW_GROUP.name)
         assert artifactory_group.get.call_count == 2
 
+    @staticmethod
     @responses.activate
-    def test_delete_group_fail_if_group_not_found(self, mocker):
+    def test_delete_group_fail_if_group_not_found(mocker):
         responses.add(
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
@@ -142,8 +150,9 @@ class TestGroup:
 
         artifactory_group.get.assert_called_once_with(NEW_GROUP.name)
 
+    @staticmethod
     @responses.activate
-    def test_delete_group_success(self, mocker):
+    def test_delete_group_success(mocker):
         responses.add(
             responses.GET,
             f"{URL}/api/security/groups/{NEW_GROUP.name}",
