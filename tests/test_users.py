@@ -7,7 +7,7 @@ from pyartifactory.models import AuthModel, NewUser, UserResponse, SimpleUser
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-SIMPLE_USER = SimpleUser(name="test_user")
+SIMPLE_USER = SimpleUser(name="test_user", uri="https:some.uri")
 USER = UserResponse(name="test_user", email="test.test@test.com")
 NEW_USER = NewUser(name="test_user", password="test", email="test.test@test.com")
 

@@ -77,9 +77,9 @@ class Source(BaseModel):
 
 class ContentSynchronisation(BaseModel):
     enabled: bool = False
-    statistics: Statistics
-    properties: Properties
-    source: Source
+    statistics: Statistics = Statistics()
+    properties: Properties = Properties()
+    source: Source = Source()
 
 
 class Nuget(BaseModel):
