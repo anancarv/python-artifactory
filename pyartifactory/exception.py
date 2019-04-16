@@ -1,22 +1,26 @@
-class UserAlreadyExistsException(Exception):
+class ArtifactoryException(Exception):
     pass
 
 
-class GroupAlreadyExistsException(Exception):
+class UserAlreadyExistsException(ArtifactoryException):
     pass
 
 
-class RepositoryAlreadyExistsException(Exception):
+class GroupAlreadyExistsException(ArtifactoryException):
     pass
 
 
-class UserNotFoundException(Exception):
+class RepositoryAlreadyExistsException(ArtifactoryException):
     pass
 
 
-class GroupNotFoundException(Exception):
+class UserNotFoundException(ArtifactoryException):
     pass
 
 
-class RepositoryNotFoundException(Exception):
+class GroupNotFoundException(ArtifactoryException):
+    pass
+
+
+class RepositoryNotFoundException(ArtifactoryException):
     pass

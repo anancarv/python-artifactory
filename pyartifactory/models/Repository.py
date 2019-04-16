@@ -118,13 +118,13 @@ class LocalRepository(BaseRepositoryModel):
     suppressPomConsistencyChecks: bool = False
     blackedOut: bool = False
     xrayIndex: bool = False
-    propertySets: List[str] = None
+    propertySets: Optional[List[str]] = None
     dockerApiVersion: str = "V2"
     archiveBrowsingEnabled: bool = False
     calculateYumMetadata: bool = False
     yumRootDepth: int = 0
     enableFileListsIndexing: str = "false"
-    optionalIndexCompressionFormats: List[str] = None
+    optionalIndexCompressionFormats: Optional[List[str]] = None
     downloadRedirect: str = "false"
 
 
@@ -147,7 +147,7 @@ class LocalRepositoryResponse(LocalRepository):
 
 
 class VirtualRepository(BaseRepositoryModel):
-    repositories: List[str] = None
+    repositories: Optional[List[str]] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
     keyPair: Optional[str] = None
@@ -155,8 +155,8 @@ class VirtualRepository(BaseRepositoryModel):
     defaultDeploymentRepo: Optional[str] = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False
-    externalDependenciesPatterns: List[str] = None
-    externalDependenciesRemoteRepo: str = None
+    externalDependenciesPatterns: Optional[List[str]] = None
+    externalDependenciesRemoteRepo: Optional[str] = None
 
 
 class VirtualRepositoryResponse(LocalRepository):
@@ -180,9 +180,9 @@ class VirtualRepositoryResponse(LocalRepository):
 
 class RemoteRepository(BaseRepositoryModel):
     url: str
-    username: str = None
-    password: SecretStr = None
-    proxy: str = None
+    username: Optional[str] = None
+    password: Optional[SecretStr] = None
+    proxy: Optional[str] = None
     remoteRepoChecksumPolicyType: str = "generate-if-absent"
     handleReleases: bool = True
     handleSnapshots: bool = True
@@ -193,7 +193,7 @@ class RemoteRepository(BaseRepositoryModel):
     blackedOut: bool = False
     storeArtifactsLocally: bool = True
     socketTimeoutMillis: int = 15000
-    localAddress: str = None
+    localAddress: Optional[str] = None
     retrievalCachePeriodSecs: int = 43200
     failedRetrievalCachePeriodSecs: int = 30
     missedRetrievalCachePeriodSecs: int = 7200
@@ -205,7 +205,7 @@ class RemoteRepository(BaseRepositoryModel):
     shareConfiguration: bool = False
     synchronizeProperties: bool = False
     blockMismatchingMimeTypes: bool = True
-    propertySets: List[str] = None
+    propertySets: Optional[List[str]] = None
     allowAnyHostAuth: bool = False
     enableCookieManagement: bool = False
     bowerRegistryUrl: str = "https://registry.bower.io"
@@ -219,8 +219,8 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
-    contentSynchronisation: ContentSynchronisation = ContentSynchronisation
-    nuget: Nuget = Nuget
+    contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
+    nuget: Nuget = Nuget()
 
 
 class RemoteRepositoryResponse(RemoteRepository):

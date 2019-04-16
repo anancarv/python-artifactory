@@ -11,6 +11,7 @@ from pyartifactory.exception import (
     RepositoryAlreadyExistsException,
     GroupAlreadyExistsException,
     RepositoryNotFoundException,
+    ArtifactoryException,
 )
 from pyartifactory.models import (
     AuthModel,
@@ -132,6 +133,7 @@ class ArtfictoryUser(ArtifactoryAuth):
             if e.response.status_code == 404 or e.response.status_code == 400:
                 logging.debug(f"User {name} does not exist")
                 raise UserNotFoundException(f"{name} does not exist")
+            raise ArtifactoryException from e
 
     def list(self) -> List[SimpleUser]:
         """
@@ -259,6 +261,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
             if e.response.status_code == 404 or e.response.status_code == 400:
                 logging.debug(f"Group {name} does not exist")
                 raise GroupNotFoundException(f"Group {name} does not exist")
+            raise ArtifactoryException from e
 
     def list(self) -> List[Group]:
         """
@@ -335,6 +338,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
+            raise ArtifactoryException from e
 
     def update_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
@@ -384,6 +388,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
+            raise ArtifactoryException from e
 
     def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
@@ -433,6 +438,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
+            raise ArtifactoryException from e
 
     def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
         """
