@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from pyartifactory.models.Auth import AuthModel
+from pyartifactory.models import AuthModel
 from pyartifactory.objects import (
     ArtfictoryUser,
     ArtfictoryGroup,

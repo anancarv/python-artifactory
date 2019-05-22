@@ -111,12 +111,13 @@ class ArtfictoryUser(ArtifactoryAuth):
         username = user.name
         try:
             self.get(username)
-            logging.debug(f"User {username} already exists")
+            logging.error(f"User {username} already exists")
             raise UserAlreadyExistsException(f"User {username} already exists")
         except UserNotFoundException:
             data = user.dict()
             data["password"] = user.password.get_secret_value()
             self._put(f"api/{self._uri}/{username}", json=data)
+            logging.info(f"User {username} successfully created")
             return self.get(user.name)
 
     def get(self, name: str) -> UserResponse:
@@ -127,11 +128,11 @@ class ArtfictoryUser(ArtifactoryAuth):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"User {name} exists")
+            logging.info(f"User {name} exists")
             return UserResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
-                logging.debug(f"User {name} does not exist")
+                logging.error(f"User {name} does not exist")
                 raise UserNotFoundException(f"{name} does not exist")
             raise ArtifactoryException from e
 
@@ -141,6 +142,7 @@ class ArtfictoryUser(ArtifactoryAuth):
         :return: UserList
         """
         r = self._get(f"api/{self._uri}")
+        logging.info("List all users successful")
         return [SimpleUser(**user) for user in r.json()]
 
     def update(self, user: NewUser) -> UserResponse:
@@ -155,6 +157,7 @@ class ArtfictoryUser(ArtifactoryAuth):
             data = user.dict()
             data["password"] = user.password.get_secret_value()
             self._post(f"api/{self._uri}/{username}", json=data)
+            logging.info(f"User {username} successfully updated")
             return self.get(username)
         except UserNotFoundException:
             raise
@@ -168,6 +171,7 @@ class ArtfictoryUser(ArtifactoryAuth):
         try:
             self.get(name)
             self._delete(f"api/{self._uri}/{name}")
+            logging.info(f"User {name} successfully deleted")
         except UserNotFoundException:
             raise
 
@@ -184,6 +188,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: str
         """
         r = self._get(f"api/{self._uri}/encryptedPassword")
+        logging.info(f"Encrypted password successfully delivered")
         return PasswordModel(**r.json())
 
     def create_api_key(self) -> ApiKeyModel:
@@ -192,6 +197,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: Error if API key already exists - use regenerate API key instead.
         """
         r = self._post(f"api/{self._uri}/apiKey")
+        logging.info(f"API Key successfully created")
         return ApiKeyModel(**r.json())
 
     def regenerate_api_key(self) -> ApiKeyModel:
@@ -200,6 +206,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: API key
         """
         r = self._put(f"api/{self._uri}/apiKey")
+        logging.info(f"API Key successfully regenerated")
         return ApiKeyModel(**r.json())
 
     def get_api_key(self) -> ApiKeyModel:
@@ -208,6 +215,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: API key
         """
         r = self._get(f"api/{self._uri}/apiKey")
+        logging.info(f"API Key successfully delivered")
         return ApiKeyModel(**r.json())
 
     def revoke_api_key(self) -> None:
@@ -216,6 +224,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: None
         """
         self._delete(f"api/{self._uri}/apiKey")
+        logging.info(f"API Key successfully revoked")
 
     def revoke_user_api_key(self, name: str) -> None:
         """
@@ -224,6 +233,7 @@ class ArtfictorySecurity(ArtifactoryAuth):
         :return: None
         """
         self._delete(f"api/{self._uri}/apiKey/{name}")
+        logging.info(f"User API Key successfully revoked")
 
 
 class ArtfictoryGroup(ArtifactoryAuth):
@@ -241,10 +251,11 @@ class ArtfictoryGroup(ArtifactoryAuth):
         group_name = group.name
         try:
             self.get(group_name)
-            logging.debug(f"Group {group_name} already exists")
+            logging.error(f"Group {group_name} already exists")
             raise GroupAlreadyExistsException(f"Group {group_name} already exists")
         except GroupNotFoundException:
             self._put(f"api/{self._uri}/{group_name}", json=group.dict())
+            logging.info(f"Group {group_name} successfully created")
             return self.get(group.name)
 
     def get(self, name: str) -> Group:
@@ -255,11 +266,11 @@ class ArtfictoryGroup(ArtifactoryAuth):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"Group {name} exists")
+            logging.info(f"Group {name} exists")
             return Group(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
-                logging.debug(f"Group {name} does not exist")
+                logging.error(f"Group {name} does not exist")
                 raise GroupNotFoundException(f"Group {name} does not exist")
             raise ArtifactoryException from e
 
@@ -269,6 +280,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :return: GroupList
         """
         r = self._get(f"api/{self._uri}")
+        logging.info("List all groups successful")
         return [Group(**group) for group in r.json()]
 
     def update(self, group: Group) -> Group:
@@ -281,6 +293,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         try:
             self.get(group_name)
             self._post(f"api/{self._uri}/{group_name}", json=group.dict())
+            logging.info(f"Group {group_name} successfully updated")
             return self.get(group_name)
         except GroupNotFoundException:
             raise
@@ -294,6 +307,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
         try:
             self.get(name)
             self._delete(f"api/{self._uri}/{name}")
+            logging.info(f"Group {name} successfully deleted")
         except GroupNotFoundException:
             raise
 
@@ -314,12 +328,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         repo_name = repo.key
         try:
             self.get_local_repo(repo_name)
-            logging.debug(f"Repository {repo_name} already exists")
+            logging.error(f"Repository {repo_name} already exists")
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully created")
             return self.get_local_repo(repo_name)
 
     def get_local_repo(self, repo_name: str) -> LocalRepositoryResponse:
@@ -330,11 +345,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
+            logging.info(f"Repository {repo_name} exists")
             return LocalRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
-                logging.debug(f"Repository {repo_name} does not exist")
+                logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -350,6 +365,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         try:
             self.get_local_repo(repo_name)
             self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully updated")
             return self.get_local_repo(repo_name)
         except RepositoryNotFoundException:
             raise
@@ -364,12 +380,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         repo_name = repo.key
         try:
             self.get_virtual_repo(repo_name)
-            logging.debug(f"Repository {repo_name} already exists")
+            logging.error(f"Repository {repo_name} already exists")
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully created")
             return self.get_virtual_repo(repo_name)
 
     def get_virtual_repo(self, repo_name: str) -> VirtualRepositoryResponse:
@@ -380,11 +397,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
+            logging.info(f"Repository {repo_name} exists")
             return VirtualRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
-                logging.debug(f"Repository {repo_name} does not exist")
+                logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -400,6 +417,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         try:
             self.get_virtual_repo(repo_name)
             self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully updated")
             return self.get_virtual_repo(repo_name)
         except RepositoryNotFoundException:
             raise
@@ -414,12 +432,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         repo_name = repo.key
         try:
             self.get_remote_repo(repo_name)
-            logging.debug(f"Repository {repo_name} already exists")
+            logging.error(f"Repository {repo_name} already exists")
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully created")
             return self.get_remote_repo(repo_name)
 
     def get_remote_repo(self, repo_name: str) -> RemoteRepositoryResponse:
@@ -430,11 +449,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
+            logging.info(f"Repository {repo_name} exists")
             return RemoteRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
-                logging.debug(f"Repository {repo_name} does not exist")
+                logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -450,6 +469,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         try:
             self.get_remote_repo(repo_name)
             self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logging.info(f"Repository {repo_name} successfully updated")
             return self.get_remote_repo(repo_name)
         except RepositoryNotFoundException:
             raise
@@ -460,6 +480,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :return: A list of repositories
         """
         r = self._get(f"api/{self._uri}")
+        logging.info("List all repositories successful")
         return [SimpleRepository(**repository) for repository in r.json()]
 
     def delete(self, repo_name: str) -> None:
@@ -470,7 +491,8 @@ class ArtfictoryRepository(ArtifactoryAuth):
         """
         try:
             self._delete(f"api/{self._uri}/{repo_name}")
-        except requests.exceptions.HTTPError:
+            logging.info(f"Repository {repo_name} successfully deleted")
+        except RepositoryNotFoundException:
             raise
 
 
