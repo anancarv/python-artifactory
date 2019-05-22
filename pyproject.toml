@@ -2,7 +2,7 @@
 name = "python-artifactory"
 version = "0.1.0"
 description = ""
-authors = ["Ananias CARVALHO <ananias.carvalho@ext.adeo.com>"]
+authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
