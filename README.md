@@ -1,5 +1,6 @@
 # Python Artifactory
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
 
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
@@ -13,13 +14,13 @@ This library requires at least Python 3.6
 * [Authentication](#Authentication)
 * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
 * [Admin objects](#Admin-objects)
-    * [User](#User)
-    * [Group](#Group)
-    * [Security](#Security)
-    * [Repository](#Repository)
-    * [Permission](#Permission)
-    
+  * [User](#User)
+  * [Group](#Group)
+  * [Security](#Security)
+  * [Repository](#Repository)
+  * [Permission](#Permission)
 * [Artifacts & Builds](#Artifacts-&-Builds)
+    
     
 ## Usage
 

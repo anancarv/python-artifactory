@@ -17,6 +17,7 @@ black = { version = "^19.3b0", allows-prereleases = true }
 pre-commit = "^1.15"
 responses = "^0.10.6"
 pytest-mock = "^1.10"
+bandit = "1.5.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
