@@ -6,18 +6,20 @@
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
 This library requires at least Python 3.6
 
-# Table of contents
+## Table of contents
+
 
 * [Usage](#Usage)
-    * [Authentication](#Authentication)
-    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
-    * [Admin objects](#Admin-objects)
-        * [User](#User)
-        * [Group](#Group)
-        * [Security](#Security)
-        * [Repository](#Repository)
-        * [Permission](#Permission)
-    * [Artifacts & Builds](#Artifacts-&-Builds)
+* [Authentication](#Authentication)
+* [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
+* [Admin objects](#Admin-objects)
+    * [User](#User)
+    * [Group](#Group)
+    * [Security](#Security)
+    * [Repository](#Repository)
+    * [Permission](#Permission)
+    
+* [Artifacts & Builds](#Artifacts-&-Builds)
     
 ## Usage
 
@@ -159,5 +161,5 @@ art.repositories.delete("test_local_repo")
 TBD
 
 
-### Artifacts
+#### Artifacts
 TBD
