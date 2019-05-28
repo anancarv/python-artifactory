@@ -13,8 +13,3 @@ repos:
     hooks:
     -   id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
--   repo: https://github.com/PyCQA/bandit
-    rev: '1.6.0'
-    hooks:
-    - id: bandit
-      args: ['--exclude', 'tests,.venv']
