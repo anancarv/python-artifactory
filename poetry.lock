@@ -116,6 +116,17 @@ python-versions = "*"
 version = "0.6"
 
 [[package]]
+category = "dev"
+description = "Tool for detecting secrets in the codebase"
+name = "detect-secrets"
+optional = false
+python-versions = "*"
+version = "0.12.4"
+
+[package.dependencies]
+pyyaml = "*"
+
+[[package]]
 category = "main"
 description = "DNS toolkit"
 name = "dnspython"
@@ -421,7 +432,7 @@ python-versions = ">=2.7"
 version = "0.3.3"
 
 [metadata]
-content-hash = "edbd72ebaa40cb8ca320ec6382bbdd4a4ed868513201baa297a844835789724c"
+content-hash = "936411082185827609c9c8f95941e1fd140936c41811c5a7550dcaf7b4819cbc"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -437,6 +448,7 @@ chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "
 click = ["2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13", "5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"]
 colorama = ["05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d", "f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"]
 dataclasses = ["454a69d788c7fda44efd71e259be79577822f5e3f53f029a22d08004e951dc9f", "6988bd2b895eef432d562370bb707d540f32f7360ab13da45340101bc2307d84"]
+detect-secrets = ["4e2cdb09f59d026fd6b94723b713fc092f701163f194b6a3749fbb7c24df1785", "69a00487a36bb31fc11af2215576ac4b9be4c72b1339c6a06c892dc3352664e9"]
 dnspython = ["36c5e8e38d4369a08b6780b7f27d790a292b2b08eea01607865bf0936c558e01", "f69c21288a962f4da86e56c4905b49d11aba7938d3d740e80d9e366ee4f1632d"]
 email-validator = ["ddc4b5b59fa699bb10127adcf7ad4de78fde4ec539a072b104b8bb16da666ae5"]
 gitdb2 = ["83361131a1836661a155172932a13c08bda2db3674e4caa32368aa6eb02f38c2", "e3a0141c5f2a3f635c7209d56c496ebe1ad35da82fe4d3ec4aaa36278d70648a"]
