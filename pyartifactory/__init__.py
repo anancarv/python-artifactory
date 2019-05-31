@@ -25,4 +25,4 @@ class Artifactory:
         self.groups = ArtfictoryGroup(self.artifactory)
         self.security = ArtfictorySecurity(self.artifactory)
         self.repositories = ArtfictoryRepository(self.artifactory)
-        self.artifact = ArtifactoryArtifact(self.artifactory)
+        self.artifacts = ArtifactoryArtifact(self.artifactory)

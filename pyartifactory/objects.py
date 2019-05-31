@@ -541,7 +541,9 @@ class ArtifactoryArtifact(ArtifactoryAuth):
     def __init__(self, artifactory: AuthModel) -> None:
         super(ArtifactoryArtifact, self).__init__(artifactory)
 
-    def deploy(self, artifact_path: str, local_file_location: str):
+    def deploy(
+        self, artifact_path: str, local_file_location: str
+    ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
         :param local_file_location: Location of the file to deploy
@@ -556,8 +558,9 @@ class ArtifactoryArtifact(ArtifactoryAuth):
                     }
                 )
                 headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
-                self._get(f"{artifact_path}", headers=headers, data=form)
+                self._put(f"{artifact_path}", headers=headers, data=form)
                 logging.info(f"Artifact {local_filename} successfully deployed")
+                return self.properties(artifact_path)
         except ArtifactDeployException:
             logging.error(f"Cannot deploy artifact {local_filename}")
             raise
