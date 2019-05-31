@@ -23,7 +23,10 @@ class TestSecurity:
         )
 
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
-        artifactory_security.get_encrypted_password()
+        enc_pass = artifactory_security.get_encrypted_password()
+        assert (
+            enc_pass.password.get_secret_value() == PASSWORD.password.get_secret_value()
+        )
 
     @staticmethod
     @responses.activate
@@ -35,7 +38,8 @@ class TestSecurity:
         )
 
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
-        artifactory_security.create_api_key()
+        api_key = artifactory_security.create_api_key()
+        assert api_key.apiKey.get_secret_value() == API_KEY.apiKey.get_secret_value()
 
     @staticmethod
     @responses.activate
@@ -47,7 +51,8 @@ class TestSecurity:
         )
 
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
-        artifactory_security.regenerate_api_key()
+        api_key = artifactory_security.regenerate_api_key()
+        assert api_key.apiKey.get_secret_value() == API_KEY.apiKey.get_secret_value()
 
     @staticmethod
     @responses.activate
@@ -59,7 +64,8 @@ class TestSecurity:
         )
 
         artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
-        artifactory_security.get_api_key()
+        api_key = artifactory_security.get_api_key()
+        assert api_key.apiKey.get_secret_value() == API_KEY.apiKey.get_secret_value()
 
     @staticmethod
     @responses.activate
