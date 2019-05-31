@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import requests
 
@@ -11,13 +12,17 @@ from pyartifactory.exception import (
     RepositoryNotFoundException,
 )
 from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
-from pyartifactory.models.Group import Group, GroupList
+from pyartifactory.models.Group import Group
 from pyartifactory.models.Repository import (
     LocalRepository,
-    RepositoryList,
     VirtualRepository,
+    LocalRepositoryResponse,
+    VirtualRepositoryResponse,
+    RemoteRepository,
+    RemoteRepositoryResponse,
+    SimpleRepository,
 )
-from pyartifactory.models.User import User, NewUser, UserList
+from pyartifactory.models.User import UserResponse, NewUser, SimpleUser
 
 
 class ArtifactoryAuth:
@@ -37,7 +42,7 @@ class ArtfictoryUser(ArtifactoryAuth):
     def __init__(self, artifactory: AuthModel) -> None:
         super(ArtfictoryUser, self).__init__(artifactory)
 
-    def create(self, user: NewUser) -> User:
+    def create(self, user: NewUser) -> UserResponse:
         """
         Create user
         :param user: NewUser object
@@ -62,7 +67,7 @@ class ArtfictoryUser(ArtifactoryAuth):
             r.raise_for_status()
             return self.get(user.name)
 
-    def get(self, name: str) -> User:
+    def get(self, name: str) -> UserResponse:
         """
         Read user from artifactory. Fill object if exist
         :param name: Name of the user to retrieve
@@ -78,9 +83,9 @@ class ArtfictoryUser(ArtifactoryAuth):
         else:
             logging.debug(f"User {name} exists")
             r.raise_for_status()
-            return User(**r.json())
+            return UserResponse(**r.json())
 
-    def list(self) -> UserList:
+    def list(self) -> List[SimpleUser]:
         """
         Lists all the users
         :return: UserList
@@ -90,9 +95,12 @@ class ArtfictoryUser(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return UserList(users=r.json())
+        user_list = []
+        for user in r.json():
+            user_list.append(SimpleUser(**user))
+        return user_list
 
-    def update(self, user: NewUser) -> User:
+    def update(self, user: NewUser) -> UserResponse:
         """
         Updates an artifactory user
         :param user: NewUser object
@@ -102,9 +110,11 @@ class ArtfictoryUser(ArtifactoryAuth):
         try:
             self.get(username)
             request_url = f"{self._artifactory.url}/api/{self._uri}/{username}"
+            data = user.dict()
+            data["password"] = user.password.get_secret_value()
             r = requests.post(
                 request_url,
-                json=user.dict(),
+                json=data,
                 auth=self._auth,
                 verify=self._verify,
                 cert=self._cert,
@@ -120,11 +130,15 @@ class ArtfictoryUser(ArtifactoryAuth):
         :param name: Name of the user to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            self.get(name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except UserNotFoundException:
+            raise
 
 
 class ArtfictorySecurity(ArtifactoryAuth):
@@ -252,7 +266,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
             r.raise_for_status()
             return Group(**r.json())
 
-    def list(self) -> GroupList:
+    def list(self) -> List[Group]:
         """
         Lists all the groups
         :return: GroupList
@@ -262,7 +276,12 @@ class ArtfictoryGroup(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return GroupList(groups=r.json())
+
+        group_list = []
+        for group in r.json():
+            group_list.append(Group(**group))
+
+        return group_list
 
     def update(self, group: Group) -> Group:
         """
@@ -292,11 +311,15 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :param name: Name of the group to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            self.get(name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except GroupNotFoundException:
+            raise
 
 
 class ArtfictoryRepository(ArtifactoryAuth):
@@ -306,11 +329,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
         super(ArtfictoryRepository, self).__init__(artifactory)
 
     # Local repositories operations
-    def create_local_repo(self, repo: LocalRepository) -> LocalRepository:
+    def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
         Creates a new local repository
         :param repo: LocalRepository object
-        :return: LocalRepository object
+        :return: LocalRepositoryResponse object
         """
         repo_name = repo.key
         try:
@@ -331,11 +354,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             r.raise_for_status()
             return self.get_local_repo(repo_name)
 
-    def get_local_repo(self, repo_name: str) -> LocalRepository:
+    def get_local_repo(self, repo_name: str) -> LocalRepositoryResponse:
         """
-        Find repository in artifactory. Fill object if exist
+        Finds repository in artifactory. Fill object if exist
         :param repo_name: Name of the repository to retrieve
-        :return: LocalRepository object
+        :return: LocalRepositoryResponse object
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
         r = requests.get(
@@ -347,13 +370,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         else:
             logging.debug(f"Repository {repo_name} exists")
             r.raise_for_status()
-            return LocalRepository(**r.json())
+            return LocalRepositoryResponse(**r.json())
 
-    def update_local_repo(self, repo: LocalRepository) -> LocalRepository:
+    def update_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
         Updates an artifactory repository
         :param repo: LocalRepository object
-        :return: LocalRepository
+        :return: LocalRepositoryResponse
         """
         repo_name = repo.key
         try:
@@ -372,11 +395,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
     # Virtual repositories operations
-    def create_virtual_repo(self, repo: VirtualRepository) -> VirtualRepository:
+    def create_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
         Creates a new local repository
         :param repo: VirtualRepository object
-        :return: VirtualRepository object
+        :return: VirtualRepositoryResponse object
         """
         repo_name = repo.key
         try:
@@ -397,11 +420,11 @@ class ArtfictoryRepository(ArtifactoryAuth):
             r.raise_for_status()
             return self.get_virtual_repo(repo_name)
 
-    def get_virtual_repo(self, repo_name: str) -> VirtualRepository:
+    def get_virtual_repo(self, repo_name: str) -> VirtualRepositoryResponse:
         """
-        Find repository in artifactory. Fill object if exist
+        Finds repository in artifactory. Fill object if exist
         :param repo_name: Name of the repository to retrieve
-        :return: VirtualRepository object
+        :return: VirtualRepositoryResponse object
         """
         request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
         r = requests.get(
@@ -413,13 +436,13 @@ class ArtfictoryRepository(ArtifactoryAuth):
         else:
             logging.debug(f"Repository {repo_name} exists")
             r.raise_for_status()
-            return VirtualRepository(**r.json())
+            return VirtualRepositoryResponse(**r.json())
 
-    def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepository:
+    def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
         Updates a virtual artifactory repository
         :param repo: VirtualRepository object
-        :return: VirtualRepository
+        :return: VirtualRepositoryResponse
         """
         repo_name = repo.key
         try:
@@ -438,19 +461,72 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
     # Remote repositories operations
-    def create_remote_repo(self):
-        # ToDo
-        pass
+    def create_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        """
+        Creates a new local repository
+        :param repo: RemoteRepository object
+        :return: RemoteRepositoryResponse object
+        """
+        repo_name = repo.key
+        try:
+            self.get_remote_repo(repo_name)
+            logging.debug(f"Repository {repo_name} already exists")
+            raise RepositoryAlreadyExistsException(
+                f"Repository {repo_name} already exists"
+            )
+        except RepositoryNotFoundException:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.put(
+                request_url,
+                json=repo.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get_remote_repo(repo_name)
 
-    def get_remote_repo(self):
-        # ToDo
-        pass
+    def get_remote_repo(self, repo_name: str) -> RemoteRepositoryResponse:
+        """
+        Finds a remote repository in artifactory. Fill object if exist
+        :param repo_name: Name of the repository to retrieve
+        :return: RemoteRepositoryResponse object
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        if r.status_code == 404 or r.status_code == 400:
+            logging.debug(f"Repository {repo_name} does not exist")
+            raise RepositoryNotFoundException(f" Repository {repo_name} does not exist")
+        else:
+            logging.debug(f"Repository {repo_name} exists")
+            r.raise_for_status()
+            return RemoteRepositoryResponse(**r.json())
 
-    def update_remote_repo(self):
-        # ToDo
-        pass
+    def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        """
+        Updates a remote artifactory repository
+        :param repo: VirtualRepository object
+        :return: VirtualRepositoryResponse
+        """
+        repo_name = repo.key
+        try:
+            self.get_remote_repo(repo_name)
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.post(
+                request_url,
+                json=repo.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get_remote_repo(repo_name)
+        except RepositoryNotFoundException:
+            raise
 
-    def list(self) -> RepositoryList:
+    def list(self) -> List[SimpleRepository]:
         """
         Lists all the repositories
         :return: A list of repositories
@@ -460,7 +536,12 @@ class ArtfictoryRepository(ArtifactoryAuth):
             request_url, auth=self._auth, verify=self._verify, cert=self._cert
         )
         r.raise_for_status()
-        return RepositoryList(repositories=r.json())
+
+        repositories_list = []
+        for repository in r.json():
+            repositories_list.append(SimpleRepository(**repository))
+
+        return repositories_list
 
     def delete(self, repo_name: str) -> None:
         """
@@ -468,11 +549,14 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to delete
         :return: None
         """
-        request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
-        r = requests.delete(
-            request_url, auth=self._auth, verify=self._verify, cert=self._cert
-        )
-        r.raise_for_status()
+        try:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{repo_name}"
+            r = requests.delete(
+                request_url, auth=self._auth, verify=self._verify, cert=self._cert
+            )
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            raise
 
 
 class ArtfictoryPermission(ArtifactoryAuth):
