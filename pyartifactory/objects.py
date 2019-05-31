@@ -610,28 +610,49 @@ class ArtifactoryArtifact(ArtifactoryAuth):
             logging.error(f"Cannot retrieve artifact stats")
             raise
 
-    def copy(self, artifact_current_path: str, artifact_new_path: str) -> bool:
+    def copy(
+        self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
+    ) -> bool:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
+        :param dryrun: Dry run
         :return: True if the move is successful
         """
+        if dryrun:
+            dry = 1
+        else:
+            dry = 0
+
         try:
-            self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry=1")
+            self._post(
+                f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}"
+            )
             logging.info(f"Artifact {artifact_current_path} successfully copied")
             return True
         except ArtifactCopyException:
             logging.error(f"Cannot copy artifact {artifact_current_path}")
             raise
 
-    def move(self, artifact_current_path: str, artifact_new_path: str) -> bool:
+    def move(
+        self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
+    ) -> bool:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
+        :param dryrun: Dry run
         :return: True if the move is successful
         """
+
+        if dryrun:
+            dry = 1
+        else:
+            dry = 0
+
         try:
-            self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry=1")
+            self._post(
+                f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}"
+            )
             logging.info(f"Artifact {artifact_current_path} successfully moved")
             return True
         except ArtifactMoveException:
