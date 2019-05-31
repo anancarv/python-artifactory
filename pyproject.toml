@@ -9,6 +9,7 @@ python = "^3.6"
 pydantic = "^0.23.0"
 requests = "^2.21"
 email_validator = "^1.0"
+requests_toolbelt = "^0.9.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

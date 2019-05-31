@@ -24,3 +24,27 @@ class GroupNotFoundException(ArtifactoryException):
 
 class RepositoryNotFoundException(ArtifactoryException):
     pass
+
+
+class ArtifactNotFoundException(ArtifactoryException):
+    pass
+
+
+class ArtifactDeployException(ArtifactoryException):
+    pass
+
+
+class ArtifactDownloadException(ArtifactoryException):
+    pass
+
+
+class ArtifactPropertiesException(ArtifactoryException):
+    pass
+
+
+class ArtifactCopyException(ArtifactoryException):
+    pass
+
+
+class ArtifactMoveException(ArtifactoryException):
+    pass

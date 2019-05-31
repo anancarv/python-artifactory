@@ -6,6 +6,7 @@ from pyartifactory.objects import (
     ArtfictoryGroup,
     ArtfictorySecurity,
     ArtfictoryRepository,
+    ArtifactoryArtifact,
 )
 
 __version__ = "0.1.0"
@@ -24,3 +25,4 @@ class Artifactory:
         self.groups = ArtfictoryGroup(self.artifactory)
         self.security = ArtfictorySecurity(self.artifactory)
         self.repositories = ArtfictoryRepository(self.artifactory)
+        self.artifact = ArtifactoryArtifact(self.artifactory)
