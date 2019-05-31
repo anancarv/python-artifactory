@@ -1,3 +1,4 @@
+import re
 import logging
 from typing import List
 
@@ -53,6 +54,12 @@ class ArtifactoryAuth:
         self._cert = self._artifactory.cert
         self.session = requests.Session()
 
+        if re.match("^.*://", self._artifactory.url):
+            self._url = self._artifactory.url.rstrip("/")
+        else:
+            artifactory_url = self._artifactory.url.rstrip("/")
+            self._url = f"https://{artifactory_url}"
+
     def _get(self, route: str, **kwargs) -> Response:
         """
         :param route: API Route
@@ -96,7 +103,7 @@ class ArtifactoryAuth:
         """
         http_method = getattr(self.session, method)
         response = http_method(
-            f"{self._artifactory.url}/{route}",
+            f"{self._url}/{route}",
             auth=self._auth,
             **kwargs,
             verify=self._verify,
@@ -600,24 +607,30 @@ class ArtifactoryArtifact(ArtifactoryAuth):
             logging.error(f"Cannot retrieve artifact stats")
             raise
 
-    def copy(self, artifact_current_path, artifact_new_path):
+    def copy(self, artifact_current_path: str, artifact_new_path: str) -> bool:
+        """
+        :param artifact_current_path: Current path to file
+        :param artifact_new_path: New path to file
+        :return: True if the move is successful
+        """
         try:
-            r = self._get(
-                f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry=1"
-            )
+            self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry=1")
             logging.info(f"Artifact {artifact_current_path} successfully copied")
-            return ArtifactStatsResponse(**r.json())
+            return True
         except ArtifactCopyException:
             logging.error(f"Cannot copy artifact {artifact_current_path}")
             raise
 
-    def move(self, artifact_current_path, artifact_new_path):
+    def move(self, artifact_current_path: str, artifact_new_path: str) -> bool:
+        """
+        :param artifact_current_path: Current path to file
+        :param artifact_new_path: New path to file
+        :return: True if the move is successful
+        """
         try:
-            r = self._get(
-                f"api/move/{artifact_current_path}?to={artifact_new_path}&dry=1"
-            )
+            self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry=1")
             logging.info(f"Artifact {artifact_current_path} successfully moved")
-            return ArtifactStatsResponse(**r.json())
+            return True
         except ArtifactMoveException:
             logging.error(f"Cannot move artifact {artifact_current_path}")
             raise
