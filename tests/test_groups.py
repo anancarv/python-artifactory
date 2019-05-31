@@ -10,7 +10,7 @@ from pyartifactory.models.Group import Group
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 NEW_GROUP = Group(name="test_group", description="test_group")
-PASSWORD = PasswordModel(password="test_password")
+PASSWORD = PasswordModel(password="test")
 
 
 class TestGroup:
