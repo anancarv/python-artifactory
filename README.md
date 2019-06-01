@@ -14,12 +14,14 @@ This library requires at least Python 3.6
 * [Authentication](#Authentication)
 * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
 * [Admin objects](#Admin-objects)
-  * [User](#User)
-  * [Group](#Group)
+  * [User](#Users)
+  * [Group](#Groups)
   * [Security](#Security)
-  * [Repository](#Repository)
-  * [Permission](#Permission)
+  * [Repository](#Repositories)
+  * [Permission](#Permissions)
 * [Artifacts & Builds](#Artifacts-&-Builds)
+  * [Artifacts](#Artifacts)
+  * [Builds](#Builds)
     
     
 ## Usage
@@ -48,7 +50,7 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'),
 
 ### Admin objects
 
-#### User
+#### Users
 
 First, you need to create a new Artifactory object.
 ```python
@@ -84,7 +86,7 @@ Delete a user:
 art.users.delete("test_user")
 ```
 
-#### Group
+#### Groups
 
 Get the list of groups:
 ```python
@@ -123,7 +125,7 @@ art.security.create_api_key(          art.security.get_encrypted_password(  art.
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-#### Repository
+#### Repositories
 
 Get the list of repositories:
 ```python
@@ -158,9 +160,60 @@ art.repositories.delete("test_local_repo")
 ```
 
 
-#### Permission 
+#### Permissions
 TBD
 
 
+### Artifacts & Builds
+
 #### Artifacts
+Deploy an artifact:
+```python
+artifact = art.artifacts.deploy("<ARTIFACT_PATH_IN_ARTIFACTORY>","<LOCAL_FILE_LOCATION>")
+# artifact = art.artifacts.deploy("my-repository/my/new/artifact/directory/file.txt","Desktop/myNewFile.txt")
+```
+
+
+Download an artifact (The artifact will be downloaded in the current directory):
+```python
+artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact = art.artifacts.download("my-repository/my/new/artifact/directory/file.txt")
+```
+
+Retrieve artifact properties:
+```python
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
+>>> print(artifact_properties.json)
+```
+
+Retrieve artifact stats:
+```python
+artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
+>>> print(artifact_stats.json)
+```
+
+Copy artifact to a new location:
+```python
+artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
+
+# If you want to run a dryRun test, you can do the following:
+# artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>", dryrun=True)
+
+```
+
+Move artifact to a new location:
+```python
+artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
+
+# You can also run a dryRun test with the move operation
+```
+
+Delete an artifact:
+```python
+art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+```
+
+#### Builds
 TBD
