@@ -1,6 +1,6 @@
 import responses
 
-from pyartifactory import ArtfictorySecurity
+from pyartifactory import ArtifactorySecurity
 from pyartifactory.models import AuthModel, PasswordModel, ApiKeyModel
 
 URL = "http://localhost:8080/artifactory"
@@ -22,7 +22,7 @@ class TestSecurity:
             status=200,
         )
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.get_encrypted_password()
 
     @staticmethod
@@ -34,7 +34,7 @@ class TestSecurity:
             responses.POST, f"{URL}/api/security/apiKey", json=data, status=200
         )
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.create_api_key()
 
     @staticmethod
@@ -46,7 +46,7 @@ class TestSecurity:
             responses.PUT, f"{URL}/api/security/apiKey", json=data, status=200
         )
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.regenerate_api_key()
 
     @staticmethod
@@ -58,7 +58,7 @@ class TestSecurity:
             responses.GET, f"{URL}/api/security/apiKey", json=data, status=200
         )
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.get_api_key()
 
     @staticmethod
@@ -66,7 +66,7 @@ class TestSecurity:
     def test_revoke_api_key():
         responses.add(responses.DELETE, f"{URL}/api/security/apiKey", status=200)
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.revoke_api_key()
 
     @staticmethod
@@ -76,5 +76,5 @@ class TestSecurity:
             responses.DELETE, f"{URL}/api/security/apiKey/test_user", status=200
         )
 
-        artifactory_security = ArtfictorySecurity(AuthModel(url=URL, auth=AUTH))
+        artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
         artifactory_security.revoke_user_api_key("test_user")

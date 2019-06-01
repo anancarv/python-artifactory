@@ -114,11 +114,11 @@ class ArtifactoryAuth:
         return response
 
 
-class ArtfictoryUser(ArtifactoryAuth):
+class ArtifactoryUser(ArtifactoryAuth):
     _uri = "security/users"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryUser, self).__init__(artifactory)
+        super(ArtifactoryUser, self).__init__(artifactory)
 
     def create(self, user: NewUser) -> UserResponse:
         """
@@ -178,6 +178,7 @@ class ArtfictoryUser(ArtifactoryAuth):
             logging.info(f"User {username} successfully updated")
             return self.get(username)
         except UserNotFoundException:
+            logging.error(f"Cannot find user {username}")
             raise
 
     def delete(self, name: str) -> None:
@@ -191,19 +192,20 @@ class ArtfictoryUser(ArtifactoryAuth):
             self._delete(f"api/{self._uri}/{name}")
             logging.info(f"User {name} successfully deleted")
         except UserNotFoundException:
+            logging.error(f"Cannot find user {name}")
             raise
 
 
-class ArtfictorySecurity(ArtifactoryAuth):
+class ArtifactorySecurity(ArtifactoryAuth):
     _uri = "security"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictorySecurity, self).__init__(artifactory)
+        super(ArtifactorySecurity, self).__init__(artifactory)
 
     def get_encrypted_password(self) -> PasswordModel:
         """
         Get the encrypted password of the authenticated requestor.
-        :return: str
+        :return: PasswordModel
         """
         r = self._get(f"api/{self._uri}/encryptedPassword")
         logging.info(f"Encrypted password successfully delivered")
@@ -254,11 +256,11 @@ class ArtfictorySecurity(ArtifactoryAuth):
         logging.info(f"User API Key successfully revoked")
 
 
-class ArtfictoryGroup(ArtifactoryAuth):
+class ArtifactoryGroup(ArtifactoryAuth):
     _uri = "security/groups"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryGroup, self).__init__(artifactory)
+        super(ArtifactoryGroup, self).__init__(artifactory)
 
     def create(self, group: Group) -> Group:
         """
@@ -314,6 +316,7 @@ class ArtfictoryGroup(ArtifactoryAuth):
             logging.info(f"Group {group_name} successfully updated")
             return self.get(group_name)
         except GroupNotFoundException:
+            logging.error(f"Cannot find group {group_name}")
             raise
 
     def delete(self, name: str) -> None:
@@ -327,14 +330,15 @@ class ArtfictoryGroup(ArtifactoryAuth):
             self._delete(f"api/{self._uri}/{name}")
             logging.info(f"Group {name} successfully deleted")
         except GroupNotFoundException:
+            logging.error(f"Cannot find group {name}")
             raise
 
 
-class ArtfictoryRepository(ArtifactoryAuth):
+class ArtifactoryRepository(ArtifactoryAuth):
     _uri = "repositories"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryRepository, self).__init__(artifactory)
+        super(ArtifactoryRepository, self).__init__(artifactory)
 
     # Local repositories operations
     def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
@@ -386,6 +390,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
             logging.info(f"Repository {repo_name} successfully updated")
             return self.get_local_repo(repo_name)
         except RepositoryNotFoundException:
+            logging.error(f"Cannot find repository {repo_name}")
             raise
 
     # Virtual repositories operations
@@ -438,6 +443,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
             logging.info(f"Repository {repo_name} successfully updated")
             return self.get_virtual_repo(repo_name)
         except RepositoryNotFoundException:
+            logging.error(f"Cannot find repository {repo_name}")
             raise
 
     # Remote repositories operations
@@ -490,6 +496,7 @@ class ArtfictoryRepository(ArtifactoryAuth):
             logging.info(f"Repository {repo_name} successfully updated")
             return self.get_remote_repo(repo_name)
         except RepositoryNotFoundException:
+            logging.error(f"Cannot find repository {repo_name}")
             raise
 
     def list(self) -> List[SimpleRepository]:
@@ -511,14 +518,15 @@ class ArtfictoryRepository(ArtifactoryAuth):
             self._delete(f"api/{self._uri}/{repo_name}")
             logging.info(f"Repository {repo_name} successfully deleted")
         except RepositoryNotFoundException:
+            logging.error(f"Cannot find repository {repo_name}")
             raise
 
 
-class ArtfictoryPermission(ArtifactoryAuth):
+class ArtifactoryPermission(ArtifactoryAuth):
     _uri = "permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryPermission, self).__init__(artifactory)
+        super(ArtifactoryPermission, self).__init__(artifactory)
 
     def create(self):
         # ToDo
@@ -664,9 +672,9 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :return: None
         """
-        arifact_name = artifact_path.split("/")[-1]
         try:
             self._delete(f"{artifact_path}")
-            logging.info(f"Artifact {arifact_name} successfully deleted")
+            logging.info(f"Artifact {artifact_path} successfully deleted")
         except ArtifactNotFoundException:
+            logging.error(f"Cannot remove artifact {artifact_path}")
             raise
