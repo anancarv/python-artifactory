@@ -10,3 +10,4 @@ from .Repository import (
     RemoteRepositoryResponse,
     SimpleRepository,
 )
+from .Artifact import ArtifactPropertiesResponse, ArtifactStatsResponse

@@ -19,9 +19,14 @@ This library requires at least Python 3.6
   * [Security](#Security)
   * [Repository](#Repositories)
   * [Permission](#Permissions)
-* [Artifacts & Builds](#Artifacts-&-Builds)
-  * [Artifacts](#Artifacts)
-  * [Builds](#Builds)
+* [Artifacts](#Artifacts)
+  * [Deploy an artifact](#Deploy_an_artifact)
+  * [Download an artifact](#Download_an_artifact)
+  * [Retrieve artifact properties](#Retrieve_artifact_properties)
+  * [Retrieve artifact stats](#Retrieve_artifact_stats)
+  * [Copy artifact](#Copy_artifact_to_a_new_location)
+  * [Move artifact](#Move_artifact_to_a_new_location)
+  * [Delete an artifact](#Delete_an_artifact)
     
     
 ## Usage
@@ -164,56 +169,50 @@ art.repositories.delete("test_local_repo")
 TBD
 
 
-### Artifacts & Builds
+### Artifacts 
 
-#### Artifacts
-Deploy an artifact:
+#### Deploy an artifact:
 ```python
 artifact = art.artifacts.deploy("<ARTIFACT_PATH_IN_ARTIFACTORY>","<LOCAL_FILE_LOCATION>")
 # artifact = art.artifacts.deploy("my-repository/my/new/artifact/directory/file.txt","Desktop/myNewFile.txt")
 ```
 
-
-Download an artifact (The artifact will be downloaded in the current directory):
+#### Download an artifact (The artifact will be downloaded in the current directory):
 ```python
 artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact = art.artifacts.download("my-repository/my/new/artifact/directory/file.txt")
 ```
 
-Retrieve artifact properties:
+#### Retrieve artifact properties:
 ```python
 artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
 >>> print(artifact_properties.json)
 ```
 
-Retrieve artifact stats:
+#### Retrieve artifact stats:
 ```python
 artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
 >>> print(artifact_stats.json)
 ```
 
-Copy artifact to a new location:
+#### Copy artifact to a new location:
 ```python
 artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
 
 # If you want to run a dryRun test, you can do the following:
 # artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>", dryrun=True)
-
 ```
 
-Move artifact to a new location:
+#### Move artifact to a new location:
 ```python
 artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
 
 # You can also run a dryRun test with the move operation
 ```
 
-Delete an artifact:
+#### Delete an artifact:
 ```python
 art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
-
-#### Builds
-TBD

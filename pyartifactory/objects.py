@@ -667,7 +667,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
             logging.error(f"Cannot move artifact {artifact_current_path}")
             raise
 
-    def delete(self, artifact_path: str) -> None:
+    def delete(self, artifact_path: str) -> bool:
         """
         :param artifact_path: Path to file in Artifactory
         :return: None
@@ -675,6 +675,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         try:
             self._delete(f"{artifact_path}")
             logging.info(f"Artifact {artifact_path} successfully deleted")
+            return True
         except ArtifactNotFoundException:
             logging.error(f"Cannot remove artifact {artifact_path}")
             raise
