@@ -556,6 +556,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :param local_file_location: Location of the file to deploy
         """
+        artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
         try:
             with open(local_file_location, "rb") as f:
@@ -578,6 +579,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :return: File name
         """
+        artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
         try:
             with self._get(f"{artifact_path}", stream=True) as r:
@@ -597,6 +599,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :return: Artifact properties
         """
+        artifact_path = artifact_path.lstrip("/")
         try:
             r = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
             logging.info("Artifact Properties successfully retrieved")
@@ -610,6 +613,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :return: Artifact Stats
         """
+        artifact_path = artifact_path.lstrip("/")
         try:
             r = self._get(f"api/storage/{artifact_path}?stats")
             logging.info("Artifact stats successfully retrieved")
@@ -627,6 +631,8 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param dryrun: Dry run
         :return: True if the move is successful
         """
+        artifact_current_path = artifact_current_path.lstrip("/")
+        artifact_new_path = artifact_new_path.lstrip("/")
         if dryrun:
             dry = 1
         else:
@@ -651,6 +657,8 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param dryrun: Dry run
         :return: True if the move is successful
         """
+        artifact_current_path = artifact_current_path.lstrip("/")
+        artifact_new_path = artifact_new_path.lstrip("/")
 
         if dryrun:
             dry = 1
@@ -672,6 +680,7 @@ class ArtifactoryArtifact(ArtifactoryAuth):
         :param artifact_path: Path to file in Artifactory
         :return: None
         """
+        artifact_path = artifact_path.lstrip("/")
         try:
             self._delete(f"{artifact_path}")
             logging.info(f"Artifact {artifact_path} successfully deleted")
