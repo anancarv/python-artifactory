@@ -10,7 +10,10 @@ from pyartifactory.exception import (
     RepositoryAlreadyExistsException,
     GroupAlreadyExistsException,
     RepositoryNotFoundException,
+    PermissionAlreadyExistsException,
+    PermissionNotFoundException,
 )
+from pyartifactory.models.Permission import Permission, SimplePermission
 from pyartifactory.models.Auth import AuthModel, ApiKeyModel, PasswordModel
 from pyartifactory.models.Group import Group
 from pyartifactory.models.Repository import (
@@ -559,24 +562,91 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
 
-class ArtfictoryPermission(ArtifactoryAuth):
-    _uri = "permissions"
+class ArtifactoryPermission(ArtifactoryAuth):
+    _uri = "security/permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryPermission, self).__init__(artifactory)
+        super(ArtifactoryPermission, self).__init__(artifactory)
 
-    def create(self):
-        # ToDo
-        pass
+    def create(self, permission: Permission) -> Permission:
+        """
+        Creates a permission
+        :param permission: Permission object
+        :return: Permission
+        """
+        permission_name = permission.name
+        try:
+            self.get(permission_name)
+            logging.debug(f"Permission {permission_name} already exists")
+            raise PermissionAlreadyExistsException(
+                f"Permission {permission_name} already exists"
+            )
+        except PermissionNotFoundException:
+            request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
+            r = requests.put(
+                request_url,
+                json=permission.dict(),
+                auth=self._auth,
+                verify=self._verify,
+                cert=self._cert,
+            )
+            r.raise_for_status()
+            return self.get(permission_name)
 
-    def get(self):
-        # ToDo
-        pass
+    def get(self, permission_name: str) -> Permission:
+        """
+        Read permission from artifactory. Fill object if exist
+        :param permission_name: Name of the permission to retrieve
+        :return: Permission
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        if r.status_code == 404 or r.status_code == 400:
+            logging.debug(f"Permission {permission_name} does not exist")
+            raise PermissionNotFoundException(
+                f"Permission {permission_name} does not exist"
+            )
+        else:
+            logging.debug(f"Permission {permission_name} exists")
+            r.raise_for_status()
+            return Permission(**r.json())
 
-    def update(self):
-        # ToDo
-        pass
+    def list(self) -> List[SimplePermission]:
+        """
+        Lists all the permissions
+        :return: A list of permissions
+        """
+        request_url = f"{self._artifactory.url}/api/{self._uri}"
+        r = requests.get(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        r.raise_for_status()
 
-    def delete(self):
-        # ToDo
-        pass
+        permissions_list = []
+        for permission in r.json():
+            permissions_list.append(SimplePermission(**permission))
+
+        return permissions_list
+
+    def update(self, permission: Permission) -> Permission:
+        """
+        Updates an artifactory permission
+        :param permission: Permission object
+        :return: Permission
+        """
+        return self.create(permission)
+
+    def delete(self, permission_name: str) -> None:
+        """
+        Removes an artifactory permission
+        :param permission_name: Name of the permission to delete
+        :return: None
+        """
+        self.get(permission_name)
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        r.raise_for_status()

@@ -10,6 +10,10 @@ class RepositoryAlreadyExistsException(Exception):
     pass
 
 
+class PermissionAlreadyExistsException(Exception):
+    pass
+
+
 class UserNotFoundException(Exception):
     pass
 
@@ -19,4 +23,8 @@ class GroupNotFoundException(Exception):
 
 
 class RepositoryNotFoundException(Exception):
+    pass
+
+
+class PermissionNotFoundException(Exception):
     pass
