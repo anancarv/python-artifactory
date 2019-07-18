@@ -31,7 +31,7 @@ from pyartifactory.models import (
     NewUser,
     SimpleUser,
     Permission,
-    SimplePermission
+    SimplePermission,
 )
 
 

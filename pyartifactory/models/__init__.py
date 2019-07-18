@@ -10,4 +10,4 @@ from .Repository import (
     RemoteRepositoryResponse,
     SimpleRepository,
 )
-from.Permission import Permission, SimplePermission
+from .Permission import Permission, SimplePermission
