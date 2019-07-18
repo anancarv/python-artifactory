@@ -34,9 +34,7 @@ class TestUser:
     @responses.activate
     def test_create_user_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/security/users/{USER.name}",
-            status=404,
+            responses.GET, f"{URL}/api/security/users/{USER.name}", status=404
         )
         responses.add(
             responses.PUT,

@@ -34,9 +34,7 @@ class TestGroup:
     @responses.activate
     def test_create_group_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/security/groups/{NEW_GROUP.name}",
-            status=404,
+            responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
         responses.add(
             responses.PUT,

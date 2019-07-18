@@ -100,9 +100,7 @@ class TestRepositories:
     @responses.activate
     def test_create_local_repository_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-            status=404,
+            responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404
         )
         responses.add(
             responses.PUT,
@@ -158,9 +156,7 @@ class TestRepositories:
     @responses.activate
     def test_create_remote_repository_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-            status=404,
+            responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404
         )
         responses.add(
             responses.PUT,
