@@ -562,16 +562,16 @@ class ArtfictoryRepository(ArtifactoryAuth):
             raise
 
 
-class ArtfictoryPermission(ArtifactoryAuth):
+class ArtifactoryPermission(ArtifactoryAuth):
     _uri = "security/permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryPermission, self).__init__(artifactory)
+        super(ArtifactoryPermission, self).__init__(artifactory)
 
     def create(self, permission: Permission) -> Permission:
         """
         Creates a permission
-        :param permission: NewUser object
+        :param permission: Permission object
         :return: Permission
         """
         permission_name = permission.name
@@ -644,12 +644,9 @@ class ArtfictoryPermission(ArtifactoryAuth):
         :param permission_name: Name of the permission to delete
         :return: None
         """
-        try:
-            self.get(permission_name)
-            request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
-            r = requests.delete(
-                request_url, auth=self._auth, verify=self._verify, cert=self._cert
-            )
-            r.raise_for_status()
-        except PermissionNotFoundException:
-            raise
+        self.get(permission_name)
+        request_url = f"{self._artifactory.url}/api/{self._uri}/{permission_name}"
+        r = requests.delete(
+            request_url, auth=self._auth, verify=self._verify, cert=self._cert
+        )
+        r.raise_for_status()

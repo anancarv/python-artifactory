@@ -1,7 +1,7 @@
 import pytest
 import responses
 
-from pyartifactory import ArtfictoryPermission
+from pyartifactory import ArtifactoryPermission
 from pyartifactory.exception import (
     PermissionNotFoundException,
     PermissionAlreadyExistsException,
@@ -25,7 +25,7 @@ PERMISSION = Permission(
 )
 
 
-class TestGroup:
+class TestPermission:
     @staticmethod
     @responses.activate
     def test_create_permission_fail_if_group_already_exists(mocker):
@@ -36,12 +36,12 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
         with pytest.raises(PermissionAlreadyExistsException):
-            artifactory_permission.create(PERMISSION)
-
-        artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+            permission = artifactory_permission.create(PERMISSION)
+            artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+            assert permission == PERMISSION.dict()
 
     @staticmethod
     @responses.activate
@@ -59,12 +59,13 @@ class TestGroup:
             status=201,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
         with pytest.raises(PermissionNotFoundException):
-            artifactory_permission.create(PERMISSION)
-
+            permission = artifactory_permission.create(PERMISSION)
             artifactory_permission.get.assert_called_with(PERMISSION.name)
+            assert permission == PERMISSION.dict()
+
         assert artifactory_permission.get.call_count == 2
 
     @staticmethod
@@ -76,7 +77,7 @@ class TestGroup:
             status=404,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         with pytest.raises(PermissionNotFoundException):
             artifactory_permission.get(PERMISSION.name)
 
@@ -90,11 +91,12 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
-        artifactory_permission.get(PERMISSION.name)
-
+        permission = artifactory_permission.get(PERMISSION.name)
         artifactory_permission.get.assert_called_with(PERMISSION.name)
+
+        assert permission == PERMISSION.dict()
 
     @staticmethod
     @responses.activate
@@ -106,11 +108,12 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "list")
-        artifactory_permission.list()
-
+        permission_list = artifactory_permission.list()
         artifactory_permission.list.assert_called_once()
+
+        assert permission_list == [SIMPLE_PERMISSION.dict()]
 
     @staticmethod
     @responses.activate
@@ -121,13 +124,13 @@ class TestGroup:
             status=404,
         )
 
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
 
         with pytest.raises(PermissionNotFoundException):
             artifactory_permission.delete(PERMISSION.name)
 
-            artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+        artifactory_permission.get.assert_called_once_with(PERMISSION.name)
 
     @staticmethod
     @responses.activate
@@ -144,7 +147,7 @@ class TestGroup:
             f"{URL}/api/security/permissions/{PERMISSION.name}",
             status=204,
         )
-        artifactory_permission = ArtfictoryPermission(AuthModel(url=URL, auth=AUTH))
+        artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
         artifactory_permission.delete(PERMISSION.name)
 
