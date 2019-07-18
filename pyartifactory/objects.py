@@ -12,6 +12,8 @@ from pyartifactory.exception import (
     GroupAlreadyExistsException,
     RepositoryNotFoundException,
     ArtifactoryException,
+    PermissionAlreadyExistsException,
+    PermissionNotFoundException,
 )
 from pyartifactory.models import (
     AuthModel,
@@ -28,6 +30,8 @@ from pyartifactory.models import (
     UserResponse,
     NewUser,
     SimpleUser,
+    Permission,
+    SimplePermission
 )
 
 
@@ -96,11 +100,11 @@ class ArtifactoryAuth:
         return response
 
 
-class ArtfictoryUser(ArtifactoryAuth):
+class ArtifactoryUser(ArtifactoryAuth):
     _uri = "security/users"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryUser, self).__init__(artifactory)
+        super(ArtifactoryUser, self).__init__(artifactory)
 
     def create(self, user: NewUser) -> UserResponse:
         """
@@ -168,19 +172,16 @@ class ArtfictoryUser(ArtifactoryAuth):
         :param name: Name of the user to delete
         :return: None
         """
-        try:
-            self.get(name)
-            self._delete(f"api/{self._uri}/{name}")
-            logging.info(f"User {name} successfully deleted")
-        except UserNotFoundException:
-            raise
+        self.get(name)
+        self._delete(f"api/{self._uri}/{name}")
+        logging.info(f"User {name} successfully deleted")
 
 
-class ArtfictorySecurity(ArtifactoryAuth):
+class ArtifactorySecurity(ArtifactoryAuth):
     _uri = "security"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictorySecurity, self).__init__(artifactory)
+        super(ArtifactorySecurity, self).__init__(artifactory)
 
     def get_encrypted_password(self) -> PasswordModel:
         """
@@ -236,11 +237,11 @@ class ArtfictorySecurity(ArtifactoryAuth):
         logging.info(f"User API Key successfully revoked")
 
 
-class ArtfictoryGroup(ArtifactoryAuth):
+class ArtifactoryGroup(ArtifactoryAuth):
     _uri = "security/groups"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryGroup, self).__init__(artifactory)
+        super(ArtifactoryGroup, self).__init__(artifactory)
 
     def create(self, group: Group) -> Group:
         """
@@ -304,19 +305,16 @@ class ArtfictoryGroup(ArtifactoryAuth):
         :param name: Name of the group to delete
         :return: None
         """
-        try:
-            self.get(name)
-            self._delete(f"api/{self._uri}/{name}")
-            logging.info(f"Group {name} successfully deleted")
-        except GroupNotFoundException:
-            raise
+        self.get(name)
+        self._delete(f"api/{self._uri}/{name}")
+        logging.info(f"Group {name} successfully deleted")
 
 
-class ArtfictoryRepository(ArtifactoryAuth):
+class ArtifactoryRepository(ArtifactoryAuth):
     _uri = "repositories"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryRepository, self).__init__(artifactory)
+        super(ArtifactoryRepository, self).__init__(artifactory)
 
     # Local repositories operations
     def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
@@ -489,31 +487,76 @@ class ArtfictoryRepository(ArtifactoryAuth):
         :param repo_name: Name of the repository to delete
         :return: None
         """
-        try:
-            self._delete(f"api/{self._uri}/{repo_name}")
-            logging.info(f"Repository {repo_name} successfully deleted")
-        except RepositoryNotFoundException:
-            raise
+
+        self._delete(f"api/{self._uri}/{repo_name}")
+        logging.info(f"Repository {repo_name} successfully deleted")
 
 
-class ArtfictoryPermission(ArtifactoryAuth):
-    _uri = "permissions"
+class ArtifactoryPermission(ArtifactoryAuth):
+    _uri = "security/permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtfictoryPermission, self).__init__(artifactory)
+        super(ArtifactoryPermission, self).__init__(artifactory)
 
-    def create(self):
-        # ToDo
-        pass
+    def create(self, permission: Permission) -> Permission:
+        """
+        Creates a permission
+        :param permission: Permission object
+        :return: Permission
+        """
+        permission_name = permission.name
+        try:
+            self.get(permission_name)
+            logging.debug(f"Permission {permission_name} already exists")
+            raise PermissionAlreadyExistsException(
+                f"Permission {permission_name} already exists"
+            )
+        except PermissionNotFoundException:
+            self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
+            logging.info(f"Repository {permission_name} successfully created")
+            return self.get(permission_name)
 
-    def get(self):
-        # ToDo
-        pass
+    def get(self, permission_name: str) -> Permission:
+        """
+        Read permission from artifactory. Fill object if exist
+        :param permission_name: Name of the permission to retrieve
+        :return: Permission
+        """
+        try:
+            r = self._get(f"api/{self._uri}/{permission_name}")
+            logging.info(f"Permission {permission_name} exists")
+            return Permission(**r.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404 or e.response.status_code == 400:
+                logging.error(f"Permission {permission_name} does not exist")
+                raise PermissionNotFoundException(
+                    f"Permission {permission_name} does not exist"
+                )
+            raise ArtifactoryException from e
 
-    def update(self):
-        # ToDo
-        pass
+    def list(self) -> List[SimplePermission]:
+        """
+        Lists all the permissions
+        :return: A list of permissions
+        """
+        r = self._get(f"api/{self._uri}")
+        logging.info("List all permissions successful")
+        return [SimplePermission(**permission) for permission in r.json()]
 
-    def delete(self):
-        # ToDo
-        pass
+    def update(self, permission: Permission) -> Permission:
+        """
+        Updates an artifactory permission
+        :param permission: Permission object
+        :return: Permission
+        """
+        return self.create(permission)
+
+    def delete(self, permission_name: str) -> None:
+        """
+        Removes an artifactory permission
+        :param permission_name: Name of the permission to delete
+        :return: None
+        """
+        self.get(permission_name)
+        self._delete(f"api/{self._uri}/{permission_name}")
+        logging.info(f"Repository {permission_name} successfully deleted")

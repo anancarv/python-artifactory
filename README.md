@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
 
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
+
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
 This library requires at least Python 3.6
 
@@ -20,7 +21,7 @@ This library requires at least Python 3.6
   * [Repository](#Repository)
   * [Permission](#Permission)
 * [Artifacts & Builds](#Artifacts-&-Builds)
-    
+   * [Artifacts](#Artifacts)
     
 ## Usage
 
@@ -114,16 +115,18 @@ Delete a group:
 art.groups.delete("test_group")
 ```
 
+
 #### Security
 
-A set of methods are available in the security object in order to perform operations on apiKeys, passwords ...
+A set of methods for performing operations on apiKeys, passwords ...
 ```python
 >>> art.security.
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-#### Repository
+
+### Repository
 
 Get the list of repositories:
 ```python
@@ -145,7 +148,7 @@ from pyartifactory.models.Repository import LocalRepository, VirtualRepository, 
 local_repo = LocalRepository(key="test_local_repo")
 new_local_repo = art.repositories.create_local_repo(local_repo)
 
-# Update repository
+# Update a repository
 local_repo.description = "test_local_repo"
 updated_local_repo = art.repositories.update_local_repo(local_repo)
 
@@ -158,9 +161,45 @@ art.repositories.delete("test_local_repo")
 ```
 
 
-#### Permission 
-TBD
+#### Permission
+Get the list of permissions:
+```python
+permissions = art.permissions.list()
+```
 
+Get a single permission:
+```python
+users = art.permissions.get("test_permission")
+```
+
+Create/Update a permission:
+```python
+from pyartifactory.models.Permission import Permission
+
+# Create a permission
+permission = Permission(
+    **{
+        "name": "test_permission",
+        "repositories": ["test_repository"],
+        "principals": {
+            "users": {"test_user": ["r", "w", "n", "d"]},
+            "groups": {"developers": ["r"]},
+        },
+    }
+)
+perm = art.permissions.create(permission)
+
+# Update permission
+permission.repositories = ["test_repository_2"]
+updated_permission = art.permissions.update(permission)
+```
+
+Delete a permission:
+```python
+art.permissions.delete("test_permission")
+```
+
+### Admin objects
 
 #### Artifacts
 TBD

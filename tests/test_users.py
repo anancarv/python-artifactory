@@ -1,7 +1,7 @@
 import pytest
 import responses
 
-from pyartifactory import ArtfictoryUser
+from pyartifactory import ArtifactoryUser
 from pyartifactory.exception import UserAlreadyExistsException, UserNotFoundException
 from pyartifactory.models import AuthModel, NewUser, UserResponse, SimpleUser
 
@@ -23,7 +23,7 @@ class TestUser:
             status=200,
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
         with pytest.raises(UserAlreadyExistsException):
             artifactory_user.create(NEW_USER)
@@ -36,7 +36,6 @@ class TestUser:
         responses.add(
             responses.GET,
             f"{URL}/api/security/users/{USER.name}",
-            json=USER.dict(),
             status=404,
         )
         responses.add(
@@ -45,14 +44,20 @@ class TestUser:
             json=USER.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/security/users/{USER.name}",
+            json=USER.dict(),
+            status=200,
+        )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
-        with pytest.raises(UserNotFoundException):
-            artifactory_user.create(NEW_USER)
+        user = artifactory_user.create(NEW_USER)
 
         artifactory_user.get.assert_called_with(NEW_USER.name)
         assert artifactory_user.get.call_count == 2
+        assert user == USER.dict()
 
     @staticmethod
     @responses.activate
@@ -61,7 +66,7 @@ class TestUser:
             responses.GET, f"{URL}/api/security/users/{USER.name}", status=404
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         with pytest.raises(UserNotFoundException):
             artifactory_user.get(NEW_USER.name)
 
@@ -75,7 +80,7 @@ class TestUser:
             status=200,
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
         artifactory_user.get(NEW_USER.name)
 
@@ -91,7 +96,7 @@ class TestUser:
             status=200,
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "list")
         artifactory_user.list()
 
@@ -104,7 +109,7 @@ class TestUser:
             responses.GET, f"{URL}/api/security/users/{NEW_USER.name}", status=404
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
         with pytest.raises(UserNotFoundException):
             artifactory_user.update(NEW_USER)
@@ -127,7 +132,7 @@ class TestUser:
             json=USER.dict(),
             status=200,
         )
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
         artifactory_user.update(NEW_USER)
 
@@ -141,7 +146,7 @@ class TestUser:
             responses.GET, f"{URL}/api/security/users/{NEW_USER.name}", status=404
         )
 
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
 
         with pytest.raises(UserNotFoundException):
@@ -162,7 +167,7 @@ class TestUser:
         responses.add(
             responses.DELETE, f"{URL}/api/security/users/{NEW_USER.name}", status=204
         )
-        artifactory_user = ArtfictoryUser(AuthModel(url=URL, auth=AUTH))
+        artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
         artifactory_user.delete(NEW_USER.name)
 
