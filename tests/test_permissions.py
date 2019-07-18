@@ -39,9 +39,8 @@ class TestPermission:
         artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
         with pytest.raises(PermissionAlreadyExistsException):
-            permission = artifactory_permission.create(PERMISSION)
-            artifactory_permission.get.assert_called_once_with(PERMISSION.name)
-            assert permission == PERMISSION.dict()
+            artifactory_permission.create(PERMISSION)
+        artifactory_permission.get.assert_called_once_with(PERMISSION.name)
 
     @staticmethod
     @responses.activate
