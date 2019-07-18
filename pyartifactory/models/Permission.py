@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 
 from pydantic import BaseModel
 
@@ -18,13 +18,13 @@ class PermissionEnum(str, Enum):
 
 
 class PrincipalsPermission(BaseModel):
-    users: Optional[Dict[str, List[PermissionEnum]]] = None
-    groups: Optional[Dict[str, List[PermissionEnum]]] = None
+    users: Optional[Dict[str, Set[PermissionEnum]]] = None
+    groups: Optional[Dict[str, Set[PermissionEnum]]] = None
 
 
 class Permission(BaseModel):
     name: str
     includesPattern: str = "**"
     excludesPattern: str = ""
-    repositories: List[str]
+    repositories: Set[str]
     principals: PrincipalsPermission
