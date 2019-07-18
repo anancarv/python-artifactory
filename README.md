@@ -6,7 +6,7 @@
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
-This library requires at least Python 3.6
+It requires at least Python 3.6
 
 ## Table of contents
 

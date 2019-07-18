@@ -156,15 +156,12 @@ class ArtifactoryUser(ArtifactoryAuth):
         :return: UserModel
         """
         username = user.name
-        try:
-            self.get(username)
-            data = user.dict()
-            data["password"] = user.password.get_secret_value()
-            self._post(f"api/{self._uri}/{username}", json=data)
-            logging.info(f"User {username} successfully updated")
-            return self.get(username)
-        except UserNotFoundException:
-            raise
+        self.get(username)
+        data = user.dict()
+        data["password"] = user.password.get_secret_value()
+        self._post(f"api/{self._uri}/{username}", json=data)
+        logging.info(f"User {username} successfully updated")
+        return self.get(username)
 
     def delete(self, name: str) -> None:
         """
@@ -291,13 +288,10 @@ class ArtifactoryGroup(ArtifactoryAuth):
         :return: Updated group
         """
         group_name = group.name
-        try:
-            self.get(group_name)
-            self._post(f"api/{self._uri}/{group_name}", json=group.dict())
-            logging.info(f"Group {group_name} successfully updated")
-            return self.get(group_name)
-        except GroupNotFoundException:
-            raise
+        self.get(group_name)
+        self._post(f"api/{self._uri}/{group_name}", json=group.dict())
+        logging.info(f"Group {group_name} successfully updated")
+        return self.get(group_name)
 
     def delete(self, name: str) -> None:
         """
@@ -360,13 +354,10 @@ class ArtifactoryRepository(ArtifactoryAuth):
         :return: LocalRepositoryResponse
         """
         repo_name = repo.key
-        try:
-            self.get_local_repo(repo_name)
-            self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.info(f"Repository {repo_name} successfully updated")
-            return self.get_local_repo(repo_name)
-        except RepositoryNotFoundException:
-            raise
+        self.get_local_repo(repo_name)
+        self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+        logging.info(f"Repository {repo_name} successfully updated")
+        return self.get_local_repo(repo_name)
 
     # Virtual repositories operations
     def create_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
@@ -412,13 +403,10 @@ class ArtifactoryRepository(ArtifactoryAuth):
         :return: VirtualRepositoryResponse
         """
         repo_name = repo.key
-        try:
-            self.get_virtual_repo(repo_name)
-            self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.info(f"Repository {repo_name} successfully updated")
-            return self.get_virtual_repo(repo_name)
-        except RepositoryNotFoundException:
-            raise
+        self.get_virtual_repo(repo_name)
+        self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+        logging.info(f"Repository {repo_name} successfully updated")
+        return self.get_virtual_repo(repo_name)
 
     # Remote repositories operations
     def create_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
@@ -464,13 +452,10 @@ class ArtifactoryRepository(ArtifactoryAuth):
         :return: VirtualRepositoryResponse
         """
         repo_name = repo.key
-        try:
-            self.get_remote_repo(repo_name)
-            self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.info(f"Repository {repo_name} successfully updated")
-            return self.get_remote_repo(repo_name)
-        except RepositoryNotFoundException:
-            raise
+        self.get_remote_repo(repo_name)
+        self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+        logging.info(f"Repository {repo_name} successfully updated")
+        return self.get_remote_repo(repo_name)
 
     def list(self) -> List[SimpleRepository]:
         """
