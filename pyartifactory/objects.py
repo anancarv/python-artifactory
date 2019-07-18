@@ -36,8 +36,6 @@ from pyartifactory.models import (
     UserResponse,
     NewUser,
     SimpleUser,
-)
-from pyartifactory.models.Artifact import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
 )
