@@ -199,7 +199,7 @@ Delete a permission:
 art.permissions.delete("test_permission")
 ```
 
-### Admin objects
+### Artifacts & Builds
 
 #### Artifacts
 TBD
