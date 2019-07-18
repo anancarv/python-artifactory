@@ -49,7 +49,6 @@ class TestPermission:
         responses.add(
             responses.GET,
             f"{URL}/api/security/permissions/{PERMISSION.name}",
-            json=PERMISSION.dict(),
             status=404,
         )
         responses.add(
@@ -58,13 +57,18 @@ class TestPermission:
             json=PERMISSION.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/security/permissions/{PERMISSION.name}",
+            json=PERMISSION.dict(),
+            status=200,
+        )
 
         artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_permission, "get")
-        with pytest.raises(PermissionNotFoundException):
-            permission = artifactory_permission.create(PERMISSION)
-            artifactory_permission.get.assert_called_with(PERMISSION.name)
-            assert permission == PERMISSION.dict()
+        permission = artifactory_permission.create(PERMISSION)
+        artifactory_permission.get.assert_called_with(PERMISSION.name)
+        assert permission == PERMISSION.dict()
 
         assert artifactory_permission.get.call_count == 2
 
