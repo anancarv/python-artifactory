@@ -5,8 +5,6 @@ dist: xenial
 stages:
   - lint
   - test
-  - name: deploy              # The deploy stage is only enabled if Travis finds a tagged commit
-    if: tag IS present
 
 cache:
   pip: true
@@ -28,9 +26,6 @@ jobs:
         - poetry install -v
       script:
         - pytest
-    - stage: deploy
-      script:
-        - echo Deploying to PyPI...
 
 before_deploy:
   # User and password environment variables are set as hidden variables through
@@ -45,7 +40,6 @@ deploy:
   script: poetry publish
   skip_cleanup: true
   on:
-    all_branches: true  # Travis recognizes tag names as "branches"
-    condition: $TRAVIS_BUILD_STAGE_NAME = Deploy
     repo: anancarv/python-artifactory     # Deploy only when the build occurs on a particular repository
     tags: true
+  if: tag IS present            # Deploy enabled only if Travis is finds a tagged commit
