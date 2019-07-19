@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-artifactory"
+name = "PyArtifactory"
 version = "1.0.0"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>"]
