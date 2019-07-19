@@ -42,4 +42,3 @@ deploy:
   on:
     repo: anancarv/python-artifactory     # Deploy only when the build occurs on a particular repository
     tags: true
-  if: tag IS present            # Deploy enabled only if Travis is finds a tagged commit

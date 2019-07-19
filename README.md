@@ -12,16 +12,16 @@ It requires at least Python 3.6
 
 
 * [Usage](#Usage)
-* [Authentication](#Authentication)
-* [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
-* [Admin objects](#Admin-objects)
-  * [User](#User)
-  * [Group](#Group)
-  * [Security](#Security)
-  * [Repository](#Repository)
-  * [Permission](#Permission)
-* [Artifacts & Builds](#Artifacts-&-Builds)
-   * [Artifacts](#Artifacts)
+    * [Authentication](#Authentication)
+    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
+    * [Admin objects](#Admin-objects)
+        * [User](#User)
+        * [Group](#Group)
+        * [Security](#Security)
+        * [Repository](#Repository)
+        * [Permission](#Permission)
+    * [Artifacts & Builds](#Artifacts-&-Builds)
+        * [Artifacts](#Artifacts)
     
 ## Usage
 
