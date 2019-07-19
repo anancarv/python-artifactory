@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, SecretStr
+from pydantic import BaseModel, EmailStr, SecretStr, UrlStr
 
 
 class SimpleUser(BaseModel):
-    name: str = None
-    uri: str = None
-    realm: str = None
+    name: str
+    uri: UrlStr
+    realm: Optional[str] = None
 
 
 class BaseUserModel(BaseModel):
@@ -25,6 +25,6 @@ class NewUser(BaseUserModel):
 
 class UserResponse(BaseUserModel):
     email: EmailStr
-    lastLoggedIn: datetime = None
-    realm: str = None
+    lastLoggedIn: Optional[datetime] = None
+    realm: Optional[str] = None
     offlineMode: bool = False

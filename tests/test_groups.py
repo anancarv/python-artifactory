@@ -1,10 +1,9 @@
 import pytest
 import responses
 
-from pyartifactory import ArtfictoryGroup
+from pyartifactory import ArtifactoryGroup
 from pyartifactory.exception import GroupNotFoundException, GroupAlreadyExistsException
-from pyartifactory.models.Auth import AuthModel, PasswordModel
-from pyartifactory.models.Group import Group
+from pyartifactory.models import AuthModel, PasswordModel, Group
 
 
 URL = "http://localhost:8080/artifactory"
@@ -24,7 +23,7 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
         with pytest.raises(GroupAlreadyExistsException):
             artifactory_group.create(NEW_GROUP)
@@ -35,10 +34,7 @@ class TestGroup:
     @responses.activate
     def test_create_group_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/security/groups/{NEW_GROUP.name}",
-            json=NEW_GROUP.dict(),
-            status=404,
+            responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
         responses.add(
             responses.PUT,
@@ -46,14 +42,20 @@ class TestGroup:
             json=NEW_GROUP.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/security/groups/{NEW_GROUP.name}",
+            json=NEW_GROUP.dict(),
+            status=200,
+        )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
-        with pytest.raises(GroupNotFoundException):
-            artifactory_group.create(NEW_GROUP)
+        group = artifactory_group.create(NEW_GROUP)
 
         artifactory_group.get.assert_called_with(NEW_GROUP.name)
         assert artifactory_group.get.call_count == 2
+        assert group == NEW_GROUP.dict()
 
     @staticmethod
     @responses.activate
@@ -62,7 +64,7 @@ class TestGroup:
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         with pytest.raises(GroupNotFoundException):
             artifactory_group.get(NEW_GROUP.name)
 
@@ -76,7 +78,7 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
         artifactory_group.get(NEW_GROUP.name)
 
@@ -92,7 +94,7 @@ class TestGroup:
             status=200,
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "list")
         artifactory_group.list()
 
@@ -105,7 +107,7 @@ class TestGroup:
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
         with pytest.raises(GroupNotFoundException):
             artifactory_group.update(NEW_GROUP)
@@ -128,7 +130,7 @@ class TestGroup:
             json=NEW_GROUP.dict(),
             status=200,
         )
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
         artifactory_group.update(NEW_GROUP)
 
@@ -142,7 +144,7 @@ class TestGroup:
             responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
 
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
 
         with pytest.raises(GroupNotFoundException):
@@ -163,7 +165,7 @@ class TestGroup:
         responses.add(
             responses.DELETE, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=204
         )
-        artifactory_group = ArtfictoryGroup(AuthModel(url=URL, auth=AUTH))
+        artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
         artifactory_group.delete(NEW_GROUP.name)
 

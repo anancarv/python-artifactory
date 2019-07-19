@@ -1,18 +1,18 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from pydantic import BaseModel, SecretStr
 
 
 class AuthModel(BaseModel):
     url: str
-    auth: Tuple[str, SecretStr] = None
+    auth: Tuple[str, SecretStr]
     verify: bool = True
-    cert: str = None
+    cert: Optional[str] = None
 
 
 class ApiKeyModel(BaseModel):
-    apiKey: SecretStr = None
+    apiKey: SecretStr
 
 
 class PasswordModel(BaseModel):
-    password: SecretStr = None
+    password: SecretStr

@@ -4,10 +4,25 @@
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
 
 `python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, builds and artifacts in your applications.
-This library requires at least Python 3.6
+
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
+It requires at least Python 3.6
+
+## Table of contents
 
 
+* [Usage](#Usage)
+    * [Authentication](#Authentication)
+    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
+    * [Admin objects](#Admin-objects)
+        * [User](#User)
+        * [Group](#Group)
+        * [Security](#Security)
+        * [Repository](#Repository)
+        * [Permission](#Permission)
+    * [Artifacts & Builds](#Artifacts-&-Builds)
+        * [Artifacts](#Artifacts)
+    
 ## Usage
 
 ### Authentication
@@ -17,7 +32,7 @@ from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 ```
 
-#### SSL Cert Verification Options
+### SSL Cert Verification Options
 Specify a local cert to use as client side certificate
 
 ```python
@@ -32,9 +47,9 @@ from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False)
 ```
 
-### Security
+### Admin objects
 
-#### Users
+#### User
 
 First, you need to create a new Artifactory object.
 ```python
@@ -70,16 +85,7 @@ Delete a user:
 art.users.delete("test_user")
 ```
 
-#### User Security
-
-A set of methods for performing operations on apiKeys, passwords ...
-```python
->>> art.security.
-art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
-art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
-```
-
-#### Groups
+#### Group
 
 Get the list of groups:
 ```python
@@ -110,7 +116,52 @@ art.groups.delete("test_group")
 ```
 
 
-#### Permissions
+#### Security
+
+A set of methods for performing operations on apiKeys, passwords ...
+```python
+>>> art.security.
+art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
+art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
+```
+
+
+### Repository
+
+Get the list of repositories:
+```python
+repositories = art.repositories.list()
+```
+
+Get a single repository (Local, Virtual or Remote):
+```python
+local_repo = art.groups.get_local_repo("local_repo_name")
+virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
+remote_repo = art.groups.get_remote_repo("remote_repo_name")
+```
+
+Create/Update a repository:
+```python
+from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
+
+# Create a repository
+local_repo = LocalRepository(key="test_local_repo")
+new_local_repo = art.repositories.create_local_repo(local_repo)
+
+# Update a repository
+local_repo.description = "test_local_repo"
+updated_local_repo = art.repositories.update_local_repo(local_repo)
+
+# Same process for Virtual and Remote repositories
+```
+
+Delete a repository:
+```python
+art.repositories.delete("test_local_repo")
+```
+
+
+#### Permission
 Get the list of permissions:
 ```python
 permissions = art.permissions.list()
@@ -148,40 +199,7 @@ Delete a permission:
 art.permissions.delete("test_permission")
 ```
 
-### Repositories
+### Artifacts & Builds
 
-Get the list of repositories:
-```python
-repositories = art.repositories.list()
-```
-
-Get a single repository (Local, Virtual or Remote):
-```python
-local_repo = art.groups.get_local_repo("local_repo_name")
-virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
-remote_repo = art.groups.get_remote_repo("remote_repo_name")
-```
-
-Create/Update a repository:
-```python
-from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
-
-# Create a repository
-local_repo = LocalRepository(key="test_local_repo")
-new_local_repo = art.repositories.create_local_repo(local_repo)
-
-# Update a repository
-local_repo.description = "test_local_repo"
-updated_local_repo = art.repositories.update_local_repo(local_repo)
-
-# Same process for Virtual and Remote repositories
-```
-
-Delete a repository:
-```python
-art.repositories.delete("test_local_repo")
-```
-
-### Builds
-
-### Artifacts
+#### Artifacts
+TBD

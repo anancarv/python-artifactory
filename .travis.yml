@@ -26,3 +26,19 @@ jobs:
         - poetry install -v
       script:
         - pytest
+
+before_deploy:
+  # User and password environment variables are set as hidden variables through
+  # the web interface in the project settings.
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry config http-basic.pypi $PYPI_USER $PYPI_PASS
+  - poetry build
+
+deploy:
+  provider: script
+  script: poetry publish
+  skip_cleanup: true
+  on:
+    repo: anancarv/python-artifactory     # Deploy only when the build occurs on a particular repository
+    tags: true

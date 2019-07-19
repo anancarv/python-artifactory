@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 
 class Group(BaseModel):
     name: str
-    description: str = None
+    description: Optional[str] = None
     autoJoin: bool = False
     adminPrivileges: bool = False
     realm: Optional[str] = None
