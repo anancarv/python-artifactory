@@ -1,8 +1,13 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.0.1"
+version = "1.0.2"
 description = "Typed interactions with the Jfrog Artifactory REST API"
-authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>"]
+authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>", "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/anancarv/python-artifactory"
+documentation = "https://github.com/anancarv/python-artifactory"
+keywords = ["artifactory"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
