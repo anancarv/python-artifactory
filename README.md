@@ -10,7 +10,7 @@ It requires at least Python 3.6
 
 ## Table of contents
 
-
+* [Install](#Install)
 * [Usage](#Usage)
     * [Authentication](#Authentication)
     * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
@@ -23,6 +23,12 @@ It requires at least Python 3.6
     * [Artifacts & Builds](#Artifacts-&-Builds)
         * [Artifacts](#Artifacts)
     
+## Install
+
+```python
+pip install pyartifactory 
+```
+
 ## Usage
 
 ### Authentication
