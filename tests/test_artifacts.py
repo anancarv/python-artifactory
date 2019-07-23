@@ -1,8 +1,12 @@
 import os
 import responses
 
-from pyartifactory import ArtifactoryArtifact, AuthModel
-from pyartifactory.models import ArtifactPropertiesResponse, ArtifactStatsResponse
+from pyartifactory import ArtifactoryArtifact
+from pyartifactory.models import (
+    ArtifactPropertiesResponse,
+    ArtifactStatsResponse,
+    AuthModel,
+)
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")

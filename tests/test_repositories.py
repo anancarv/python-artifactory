@@ -100,10 +100,7 @@ class TestRepositories:
     @responses.activate
     def test_create_local_repository_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-            json=LOCAL_REPOSITORY_RESPONSE.dict(),
-            status=404,
+            responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404
         )
         responses.add(
             responses.PUT,
@@ -111,14 +108,20 @@ class TestRepositories:
             json=LOCAL_REPOSITORY_RESPONSE.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
+            json=LOCAL_REPOSITORY_RESPONSE.dict(),
+            status=200,
+        )
 
         artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_repo, "get_local_repo")
-        with pytest.raises(RepositoryNotFoundException):
-            artifactory_repo.create_local_repo(LOCAL_REPOSITORY)
+        local_repo = artifactory_repo.create_local_repo(LOCAL_REPOSITORY)
 
-            artifactory_repo.get_local_repo.assert_called_with(LOCAL_REPOSITORY.key)
+        artifactory_repo.get_local_repo.assert_called_with(LOCAL_REPOSITORY.key)
         assert artifactory_repo.get_local_repo.call_count == 2
+        assert local_repo == LOCAL_REPOSITORY_RESPONSE.dict()
 
     @staticmethod
     @responses.activate
@@ -126,7 +129,6 @@ class TestRepositories:
         responses.add(
             responses.GET,
             f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-            json=VIRTUAL_REPOSITORY_RESPONSE.dict(),
             status=404,
         )
         responses.add(
@@ -135,23 +137,26 @@ class TestRepositories:
             json=VIRTUAL_REPOSITORY_RESPONSE.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
+            json=VIRTUAL_REPOSITORY_RESPONSE.dict(),
+            status=200,
+        )
 
         artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_repo, "get_virtual_repo")
-        with pytest.raises(RepositoryNotFoundException):
-            artifactory_repo.create_virtual_repo(VIRTUAL_REPOSITORY)
+        virtual_repo = artifactory_repo.create_virtual_repo(VIRTUAL_REPOSITORY)
 
-            artifactory_repo.get_virtual_repo.assert_called_with(LOCAL_REPOSITORY.key)
+        artifactory_repo.get_virtual_repo.assert_called_with(VIRTUAL_REPOSITORY.key)
         assert artifactory_repo.get_virtual_repo.call_count == 2
+        assert virtual_repo == VIRTUAL_REPOSITORY_RESPONSE.dict()
 
     @staticmethod
     @responses.activate
     def test_create_remote_repository_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-            json=REMOTE_REPOSITORY_RESPONSE.dict(),
-            status=404,
+            responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404
         )
         responses.add(
             responses.PUT,
@@ -159,14 +164,20 @@ class TestRepositories:
             json=REMOTE_REPOSITORY_RESPONSE.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
+            json=REMOTE_REPOSITORY_RESPONSE.dict(),
+            status=200,
+        )
 
         artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_repo, "get_remote_repo")
-        with pytest.raises(RepositoryNotFoundException):
-            artifactory_repo.create_remote_repo(REMOTE_REPOSITORY)
+        remote_repo = artifactory_repo.create_remote_repo(REMOTE_REPOSITORY)
 
-            artifactory_repo.get_remote_repo.assert_called_with(REMOTE_REPOSITORY.key)
+        artifactory_repo.get_remote_repo.assert_called_with(REMOTE_REPOSITORY.key)
         assert artifactory_repo.get_remote_repo.call_count == 2
+        assert remote_repo == REMOTE_REPOSITORY_RESPONSE.dict()
 
     @staticmethod
     @responses.activate

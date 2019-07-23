@@ -7,7 +7,7 @@ from pyartifactory.models import AuthModel, NewUser, UserResponse, SimpleUser
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-SIMPLE_USER = SimpleUser(name="test_user", uri="https:some.uri")
+SIMPLE_USER = SimpleUser(name="test_user", uri="https://some.uri")
 USER = UserResponse(name="test_user", email="test.test@test.com")
 NEW_USER = NewUser(name="test_user", password="test", email="test.test@test.com")
 
@@ -34,10 +34,7 @@ class TestUser:
     @responses.activate
     def test_create_user_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/security/users/{USER.name}",
-            json=USER.dict(),
-            status=404,
+            responses.GET, f"{URL}/api/security/users/{USER.name}", status=404
         )
         responses.add(
             responses.PUT,
@@ -45,14 +42,20 @@ class TestUser:
             json=USER.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/security/users/{USER.name}",
+            json=USER.dict(),
+            status=200,
+        )
 
         artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_user, "get")
-        with pytest.raises(UserNotFoundException):
-            artifactory_user.create(NEW_USER)
+        user = artifactory_user.create(NEW_USER)
 
         artifactory_user.get.assert_called_with(NEW_USER.name)
         assert artifactory_user.get.call_count == 2
+        assert user == USER.dict()
 
     @staticmethod
     @responses.activate

@@ -14,6 +14,10 @@ class RepositoryAlreadyExistsException(ArtifactoryException):
     pass
 
 
+class PermissionAlreadyExistsException(ArtifactoryException):
+    pass
+
+
 class UserNotFoundException(ArtifactoryException):
     pass
 
@@ -47,4 +51,8 @@ class ArtifactCopyException(ArtifactoryException):
 
 
 class ArtifactMoveException(ArtifactoryException):
+    pass
+
+
+class PermissionNotFoundException(ArtifactoryException):
     pass

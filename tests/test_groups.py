@@ -34,10 +34,7 @@ class TestGroup:
     @responses.activate
     def test_create_group_success(mocker):
         responses.add(
-            responses.GET,
-            f"{URL}/api/security/groups/{NEW_GROUP.name}",
-            json=NEW_GROUP.dict(),
-            status=404,
+            responses.GET, f"{URL}/api/security/groups/{NEW_GROUP.name}", status=404
         )
         responses.add(
             responses.PUT,
@@ -45,14 +42,20 @@ class TestGroup:
             json=NEW_GROUP.dict(),
             status=201,
         )
+        responses.add(
+            responses.GET,
+            f"{URL}/api/security/groups/{NEW_GROUP.name}",
+            json=NEW_GROUP.dict(),
+            status=200,
+        )
 
         artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory_group, "get")
-        with pytest.raises(GroupNotFoundException):
-            artifactory_group.create(NEW_GROUP)
+        group = artifactory_group.create(NEW_GROUP)
 
         artifactory_group.get.assert_called_with(NEW_GROUP.name)
         assert artifactory_group.get.call_count == 2
+        assert group == NEW_GROUP.dict()
 
     @staticmethod
     @responses.activate

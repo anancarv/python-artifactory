@@ -1,34 +1,40 @@
-# Python Artifactory
+# PyArtifactory
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
 
-`python-artifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
+`pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
+
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
-This library requires at least Python 3.6
+It requires at least Python 3.6
 
 ## Table of contents
 
-
+* [Install](#Install)
 * [Usage](#Usage)
-* [Authentication](#Authentication)
-* [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
-* [Admin objects](#Admin-objects)
-  * [User](#Users)
-  * [Group](#Groups)
-  * [Security](#Security)
-  * [Repository](#Repositories)
-  * [Permission](#Permissions)
-* [Artifacts](#Artifacts)
-  * [Deploy an artifact](#Deploy_an_artifact)
-  * [Download an artifact](#Download_an_artifact)
-  * [Retrieve artifact properties](#Retrieve_artifact_properties)
-  * [Retrieve artifact stats](#Retrieve_artifact_stats)
-  * [Copy artifact](#Copy_artifact_to_a_new_location)
-  * [Move artifact](#Move_artifact_to_a_new_location)
-  * [Delete an artifact](#Delete_an_artifact)
+    * [Authentication](#Authentication)
+    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
+    * [Admin objects](#Admin-objects)
+        * [User](#User)
+        * [Group](#Group)
+        * [Security](#Security)
+        * [Repository](#Repository)
+        * [Permission](#Permission)
+    * [Artifacts](#Artifacts)
+        * [Deploy an artifact](#Deploy_an_artifact)
+        * [Download an artifact](#Download_an_artifact)
+        * [Retrieve artifact properties](#Retrieve_artifact_properties)
+        * [Retrieve artifact stats](#Retrieve_artifact_stats)
+        * [Copy artifact](#Copy_artifact_to_a_new_location)
+        * [Move artifact](#Move_artifact_to_a_new_location)
+        * [Delete an artifact](#Delete_an_artifact)
     
-    
+## Install
+
+```python
+pip install pyartifactory 
+```
+
 ## Usage
 
 ### Authentication
@@ -55,7 +61,7 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'),
 
 ### Admin objects
 
-#### Users
+#### User
 
 First, you need to create a new Artifactory object.
 ```python
@@ -91,7 +97,7 @@ Delete a user:
 art.users.delete("test_user")
 ```
 
-#### Groups
+#### Group
 
 Get the list of groups:
 ```python
@@ -121,16 +127,18 @@ Delete a group:
 art.groups.delete("test_group")
 ```
 
+
 #### Security
 
-A set of methods are available in the security object in order to perform operations on apiKeys, passwords ...
+A set of methods for performing operations on apiKeys, passwords ...
 ```python
 >>> art.security.
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-#### Repositories
+
+### Repository
 
 Get the list of repositories:
 ```python
@@ -152,7 +160,7 @@ from pyartifactory.models.Repository import LocalRepository, VirtualRepository, 
 local_repo = LocalRepository(key="test_local_repo")
 new_local_repo = art.repositories.create_local_repo(local_repo)
 
-# Update repository
+# Update a repository
 local_repo.description = "test_local_repo"
 updated_local_repo = art.repositories.update_local_repo(local_repo)
 
@@ -165,8 +173,43 @@ art.repositories.delete("test_local_repo")
 ```
 
 
-#### Permissions
-TBD
+#### Permission
+Get the list of permissions:
+```python
+permissions = art.permissions.list()
+```
+
+Get a single permission:
+```python
+users = art.permissions.get("test_permission")
+```
+
+Create/Update a permission:
+```python
+from pyartifactory.models.Permission import Permission
+
+# Create a permission
+permission = Permission(
+    **{
+        "name": "test_permission",
+        "repositories": ["test_repository"],
+        "principals": {
+            "users": {"test_user": ["r", "w", "n", "d"]},
+            "groups": {"developers": ["r"]},
+        },
+    }
+)
+perm = art.permissions.create(permission)
+
+# Update permission
+permission.repositories = ["test_repository_2"]
+updated_permission = art.permissions.update(permission)
+```
+
+Delete a permission:
+```python
+art.permissions.delete("test_permission")
+```
 
 
 ### Artifacts 
