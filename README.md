@@ -2,6 +2,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
+[![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
