@@ -141,9 +141,9 @@ repositories = art.repositories.list()
 
 Get a single repository (Local, Virtual or Remote):
 ```python
-local_repo = art.groups.get_local_repo("local_repo_name")
-virtual_repo = art.groups.get_virtual_repo("virtual_repo_name")
-remote_repo = art.groups.get_remote_repo("remote_repo_name")
+local_repo = art.repositories.get_local_repo("local_repo_name")
+virtual_repo = art.repositories.get_virtual_repo("virtual_repo_name")
+remote_repo = art.repositories.get_remote_repo("remote_repo_name")
 ```
 
 Create/Update a repository:
