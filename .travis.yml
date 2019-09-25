@@ -5,7 +5,6 @@ dist: xenial
 stages:
   - lint
   - test
-  - coverage
   - deploy
 
 cache:
@@ -27,14 +26,7 @@ jobs:
         - pip install poetry
         - poetry install -v
       script:
-        - pytest
-    - stage: coverage
-      install:
-        - pip install --upgrade pip
-        - pip install poetry
-        - poetry install -v
-      script:
-        - coverage xml
+        - pytest --cov=pyartifactory --cov-branch --cov-report=xml
         - python-codacy-coverage -r coverage.xml
     - stage: deploy
       script:
