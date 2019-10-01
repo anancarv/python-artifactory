@@ -217,8 +217,8 @@ art.permissions.delete("test_permission")
 
 #### Deploy an artifact
 ```python
-artifact = art.artifacts.deploy("<ARTIFACT_PATH_IN_ARTIFACTORY>","<LOCAL_FILE_LOCATION>")
-# artifact = art.artifacts.deploy("my-repository/my/new/artifact/directory/file.txt","Desktop/myNewFile.txt")
+artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt")
 ```
 
 #### Download an artifact

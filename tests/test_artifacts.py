@@ -40,7 +40,7 @@ class TestArtifact:
         )
         artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
         mocker.spy(artifactory, "properties")
-        artifact = artifactory.deploy(ARTIFACT_PATH, LOCAL_FILE_LOCATION)
+        artifact = artifactory.deploy(LOCAL_FILE_LOCATION, ARTIFACT_PATH)
 
         artifactory.properties.assert_called_once_with(ARTIFACT_PATH)
         assert artifact.dict() == ARTIFACT_PROPERTIES.dict()

@@ -578,7 +578,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         super(ArtifactoryArtifact, self).__init__(artifactory)
 
     def deploy(
-        self, artifact_path: str, local_file_location: str
+        self, local_file_location: str, artifact_path: str
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
