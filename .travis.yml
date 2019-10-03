@@ -26,7 +26,8 @@ jobs:
         - pip install poetry
         - poetry install -v
       script:
-        - pytest
+        - pytest --cov=pyartifactory --cov-branch --cov-report=xml
+        - python-codacy-coverage -r coverage.xml
     - stage: deploy
       script:
         - pip install --upgrade pip
