@@ -1,4 +1,3 @@
-import os
 import responses
 
 from pyartifactory import ArtifactoryArtifact
@@ -14,9 +13,17 @@ ARTIFACT_PATH = "my-repository/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
+LOCAL_FILE_PATH = "/tmp/pytest"
 ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
     repo="my-repository", path=ARTIFACT_SHORT_PATH, createdBy="myself", uri="my_uri"
 )
+NEW_ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
+    repo="my-second-repository",
+    path=ARTIFACT_SHORT_PATH,
+    createdBy="myself",
+    uri="my_uri",
+)
+
 ARTIFACT_STATS = ArtifactStatsResponse(
     uri="my_uri",
     downloadCount=0,
@@ -52,10 +59,9 @@ def test_download_artifact_success():
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact = artifactory.download(ARTIFACT_PATH)
-    os.remove("file.txt")
+    artifact = artifactory.download(ARTIFACT_PATH, LOCAL_FILE_PATH)
 
-    assert artifact == artifact_name
+    assert artifact == f"{LOCAL_FILE_PATH}/{artifact_name}"
 
 
 @responses.activate
@@ -93,10 +99,16 @@ def test_copy_artifact_success():
         f"{URL}/api/copy/{ARTIFACT_PATH}?to={ARTIFACT_NEW_PATH}&dry=0",
         status=200,
     )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        status=200,
+        json=NEW_ARTIFACT_PROPERTIES.dict(),
+    )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    is_artifact_copied = artifactory.copy(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert is_artifact_copied is True
+    artifact_copied = artifactory.copy(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
+    assert artifact_copied.dict() == NEW_ARTIFACT_PROPERTIES.dict()
 
 
 @responses.activate
@@ -106,10 +118,16 @@ def test_move_artifact_success():
         f"{URL}/api/move/{ARTIFACT_PATH}?to={ARTIFACT_NEW_PATH}&dry=0",
         status=200,
     )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        status=200,
+        json=NEW_ARTIFACT_PROPERTIES.dict(),
+    )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    is_artifact_moved = artifactory.move(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert is_artifact_moved is True
+    artifact_moved = artifactory.move(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
+    assert artifact_moved.dict() == NEW_ARTIFACT_PROPERTIES.dict()
 
 
 @responses.activate
@@ -117,5 +135,4 @@ def test_delete_artifact_success():
     responses.add(responses.DELETE, f"{URL}/{ARTIFACT_PATH}", status=200)
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    is_artifact_deleted = artifactory.delete(ARTIFACT_PATH)
-    assert is_artifact_deleted is True
+    artifactory.delete(ARTIFACT_PATH)

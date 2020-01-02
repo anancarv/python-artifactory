@@ -4,6 +4,7 @@ from typing import List, Tuple
 import requests
 from requests import Response
 from requests_toolbelt.multipart import encoder
+from pathlib import Path
 
 from pyartifactory.exception import (
     UserNotFoundException,
@@ -15,12 +16,6 @@ from pyartifactory.exception import (
     ArtifactoryException,
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
-    ArtifactDeployException,
-    ArtifactDownloadException,
-    ArtifactPropertiesException,
-    ArtifactCopyException,
-    ArtifactMoveException,
-    ArtifactNotFoundException,
 )
 
 from pyartifactory.models import (
@@ -580,41 +575,41 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
-        try:
-            with open(local_file_location, "rb") as f:
-                form = encoder.MultipartEncoder(
-                    {
-                        "documents": (local_filename, f, "application/octet-stream"),
-                        "composite": "NONE",
-                    }
-                )
-                headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
-                self._put(f"{artifact_path}", headers=headers, data=form)
-                logging.info(f"Artifact {local_filename} successfully deployed")
-                return self.properties(artifact_path)
-        except ArtifactDeployException:
-            logging.error(f"Cannot deploy artifact {local_filename}")
-            raise
+        with open(local_file_location, "rb") as f:
+            form = encoder.MultipartEncoder(
+                {
+                    "documents": (local_filename, f, "application/octet-stream"),
+                    "composite": "NONE",
+                }
+            )
+            headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
+            self._put(f"{artifact_path}", headers=headers, data=form)
+            logging.info(f"Artifact {local_filename} successfully deployed")
+            return self.properties(artifact_path)
 
-    def download(self, artifact_path: str) -> str:
+    def download(self, artifact_path: str, local_file_path: str = None) -> str:
         """
         :param artifact_path: Path to file in Artifactory
+        :param local_file_path: Local path to where the artifact will be imported
         :return: File name
         """
         artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
-        try:
-            with self._get(f"{artifact_path}", stream=True) as r:
-                with open(local_filename, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:  # filter out keep-alive new chunks
-                            f.write(chunk)
-                            # f.flush()
-            logging.info(f"Artifact {local_filename} successfully downloaded")
-            return local_filename
-        except ArtifactDownloadException:
-            logging.error(f"Cannot download artifact {local_filename}")
-            raise
+
+        if local_file_path:
+            Path(local_file_path).mkdir(parents=True, exist_ok=True)
+            local_file_full_path = f"{local_file_path}/{local_filename}"
+        else:
+            local_file_full_path = local_filename
+
+        with self._get(f"{artifact_path}", stream=True) as r:
+            with open(local_file_full_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        f.write(chunk)
+                        # f.flush()
+        logging.info(f"Artifact {local_filename} successfully downloaded")
+        return local_file_full_path
 
     def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
         """
@@ -622,13 +617,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :return: Artifact properties
         """
         artifact_path = artifact_path.lstrip("/")
-        try:
-            r = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
-            logging.info("Artifact Properties successfully retrieved")
-            return ArtifactPropertiesResponse(**r.json())
-        except ArtifactPropertiesException:
-            logging.error(f"Cannot retrieve artifact properties")
-            raise
+        r = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
+        logging.info("Artifact Properties successfully retrieved")
+        return ArtifactPropertiesResponse(**r.json())
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
         """
@@ -636,22 +627,18 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :return: Artifact Stats
         """
         artifact_path = artifact_path.lstrip("/")
-        try:
-            r = self._get(f"api/storage/{artifact_path}?stats")
-            logging.info("Artifact stats successfully retrieved")
-            return ArtifactStatsResponse(**r.json())
-        except ArtifactPropertiesException:
-            logging.error(f"Cannot retrieve artifact stats")
-            raise
+        r = self._get(f"api/storage/{artifact_path}?stats")
+        logging.info("Artifact stats successfully retrieved")
+        return ArtifactStatsResponse(**r.json())
 
     def copy(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> bool:
+    ) -> ArtifactPropertiesResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: True if the move is successful
+        :return: ArtifactPropertiesResponse: properties of the copied artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -660,24 +647,18 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             dry = 0
 
-        try:
-            self._post(
-                f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}"
-            )
-            logging.info(f"Artifact {artifact_current_path} successfully copied")
-            return True
-        except ArtifactCopyException:
-            logging.error(f"Cannot copy artifact {artifact_current_path}")
-            raise
+        self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        logging.info(f"Artifact {artifact_current_path} successfully copied")
+        return self.properties(artifact_new_path)
 
     def move(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> bool:
+    ) -> ArtifactPropertiesResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: True if the move is successful
+        :return: ArtifactPropertiesResponse: properties of the moved artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -687,26 +668,15 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             dry = 0
 
-        try:
-            self._post(
-                f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}"
-            )
-            logging.info(f"Artifact {artifact_current_path} successfully moved")
-            return True
-        except ArtifactMoveException:
-            logging.error(f"Cannot move artifact {artifact_current_path}")
-            raise
+        self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        logging.info(f"Artifact {artifact_current_path} successfully moved")
+        return self.properties(artifact_new_path)
 
-    def delete(self, artifact_path: str) -> bool:
+    def delete(self, artifact_path: str) -> None:
         """
         :param artifact_path: Path to file in Artifactory
         :return: bool
         """
         artifact_path = artifact_path.lstrip("/")
-        try:
-            self._delete(f"{artifact_path}")
-            logging.info(f"Artifact {artifact_path} successfully deleted")
-            return True
-        except ArtifactNotFoundException:
-            logging.error(f"Cannot remove artifact {artifact_path}")
-            raise
+        self._delete(f"{artifact_path}")
+        logging.info(f"Artifact {artifact_path} successfully deleted")

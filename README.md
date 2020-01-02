@@ -223,10 +223,10 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 
 #### Download an artifact
 ```python
-artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>")
-# artifact = art.artifacts.download("my-repository/my/new/artifact/directory/file.txt")
-# The artifact name is returned by the download method
-# The artifact will be downloaded in the current directory
+artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_FILE_PATH>")
+# artifact = art.artifacts.download("my-artifactory-repository/my/new/artifact/file.txt", "Desktop/my/local/directory")
+# The artifact location is returned by the download method
+# If you have not set a <LOCAL_FILE_PATH>, the artifact will be downloaded in the current directory
 ```
 
 #### Retrieve artifact properties
@@ -249,6 +249,7 @@ artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 
 # If you want to run a dryRun test, you can do the following:
 # artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>", dryrun=True)
+# It will return properties of the newly copied artifact
 ```
 
 #### Move artifact to a new location
@@ -256,6 +257,7 @@ artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
 
 # You can also run a dryRun test with the move operation
+# It will return properties of the newly moved artifact
 ```
 
 #### Delete an artifact
