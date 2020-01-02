@@ -10,27 +10,29 @@
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
 It requires at least Python 3.6
 
-## Table of contents
+<!-- toc -->
 
-* [Install](#Install)
-* [Usage](#Usage)
-    * [Authentication](#Authentication)
-    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
-    * [Admin objects](#Admin-objects)
-        * [User](#User)
-        * [Group](#Group)
-        * [Security](#Security)
-        * [Repository](#Repository)
-        * [Permission](#Permission)
-    * [Artifacts](#Artifacts)
-        * [Deploy an artifact](#Deploy-an-artifact)
-        * [Download an artifact](#Download-an-artifact)
-        * [Retrieve artifact properties](#Retrieve-artifact-properties)
-        * [Retrieve artifact stats](#Retrieve-artifact-stats)
-        * [Copy artifact](#Copy-artifact-to-a-new-location)
-        * [Move artifact](#Move-artifact-to-a-new-location)
-        * [Delete an artifact](#Delete-an-artifact)
-    
+- [Install](#install)
+- [Usage](#usage)
+  * [Authentication](#authentication)
+  * [SSL Cert Verification Options](#ssl-cert-verification-options)
+  * [Admin objects](#admin-objects)
+    + [User](#user)
+    + [Group](#group)
+    + [Security](#security)
+  * [Repository](#repository)
+    + [Permission](#permission)
+  * [Artifacts](#artifacts)
+    + [Deploy an artifact](#deploy-an-artifact)
+    + [Download an artifact](#download-an-artifact)
+    + [Retrieve artifact properties](#retrieve-artifact-properties)
+    + [Retrieve artifact stats](#retrieve-artifact-stats)
+    + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
+    + [Move artifact to a new location](#move-artifact-to-a-new-location)
+    + [Delete an artifact](#delete-an-artifact)
+
+<!-- tocstop -->
+
 ## Install
 
 ```python
@@ -129,7 +131,6 @@ Delete a group:
 art.groups.delete("test_group")
 ```
 
-
 #### Security
 
 A set of methods for performing operations on apiKeys, passwords ...
@@ -138,7 +139,6 @@ A set of methods for performing operations on apiKeys, passwords ...
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
-
 
 ### Repository
 
@@ -173,7 +173,6 @@ Delete a repository:
 ```python
 art.repositories.delete("test_local_repo")
 ```
-
 
 #### Permission
 Get the list of permissions:
@@ -212,7 +211,6 @@ Delete a permission:
 ```python
 art.permissions.delete("test_permission")
 ```
-
 
 ### Artifacts
 

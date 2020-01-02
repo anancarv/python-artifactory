@@ -17,3 +17,7 @@ repos:
     hooks:
     - id: bandit
       args: ['--exclude', 'tests/*,venv,.venv']
+-   repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+    rev: v1.1.0
+    hooks:
+    -   id: markdown-toc
