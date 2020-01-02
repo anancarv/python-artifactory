@@ -158,7 +158,6 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"User {name} exists")
             return UserResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -290,7 +289,6 @@ class ArtifactoryGroup(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"Group {name} exists")
             return Group(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -363,7 +361,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return LocalRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -412,7 +409,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return VirtualRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -461,7 +457,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return RemoteRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -535,7 +530,6 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{permission_name}")
-            logging.debug(f"Permission {permission_name} exists")
             return Permission(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -570,7 +564,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         self.get(permission_name)
         self._delete(f"api/{self._uri}/{permission_name}")
-        logging.debug(f"Repository {permission_name} successfully deleted")
+        logging.debug(f"Permission {permission_name} successfully deleted")
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
@@ -706,7 +700,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def delete(self, artifact_path: str) -> bool:
         """
         :param artifact_path: Path to file in Artifactory
-        :return: None
+        :return: bool
         """
         artifact_path = artifact_path.lstrip("/")
         try:

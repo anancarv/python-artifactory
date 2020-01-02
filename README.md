@@ -42,7 +42,7 @@ pip install pyartifactory
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
 ```
 
 ### SSL Cert Verification Options
@@ -213,7 +213,7 @@ art.permissions.delete("test_permission")
 ```
 
 
-### Artifacts 
+### Artifacts
 
 #### Deploy an artifact
 ```python
@@ -225,8 +225,8 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 ```python
 artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact = art.artifacts.download("my-repository/my/new/artifact/directory/file.txt")
+# The artifact name is returned by the download method
 # The artifact will be downloaded in the current directory
-
 ```
 
 #### Retrieve artifact properties
