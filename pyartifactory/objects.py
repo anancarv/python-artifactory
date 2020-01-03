@@ -19,6 +19,7 @@ from pyartifactory.models import (
     AuthModel,
     ApiKeyModel,
     PasswordModel,
+    AccessTokenModel,
     Group,
     LocalRepository,
     VirtualRepository,
@@ -31,7 +32,7 @@ from pyartifactory.models import (
     NewUser,
     SimpleUser,
     Permission,
-    SimplePermission,
+    SimplePermission
 )
 
 
@@ -185,9 +186,55 @@ class ArtifactorySecurity(ArtifactoryObject):
         Get the encrypted password of the authenticated requestor.
         :return: str
         """
-        r = self._get(f"api/{self._uri}/encryptedPassword")
-        logging.debug(f"Encrypted password successfully delivered")
-        return PasswordModel(**r.json())
+        response = self._get(f"api/{self._uri}/encryptedPassword")
+        logging.debug("Encrypted password successfully delivered")
+        return PasswordModel(**response.json())
+
+    def create_access_token(self,
+                            user_name: str = None,
+                            expires_in: int = None,
+                            refreshable: bool = False,
+                            groups: list = None
+                            ) -> AccessTokenModel:
+        """
+        Creates an access token.
+
+        :param user_name: Name of the user to whom an access key should be granted. transient token created if not set.
+        :param expires_in: Expiry time for the token in seconds. For eternal tokens specify 0.
+        :param refreshable: If set to true token can be refreshed using the refresh token returned. defaults False.
+        :param groups: A list of groups the token has membership of. If username is specified, groups are implied.
+        :return: AccessToken
+        """
+        payload = {k: v for k, v in (
+            ('username', user_name),
+            ('expires_in', expires_in),
+            ('refreshable', refreshable),
+        ) if v is not None}
+        if groups:
+            scope = r'member-of-groups:"'+', '.join(groups)+'"'
+            payload.update({'scope': scope})
+        response = self._post(f'api/{self._uri}/token', data=payload)
+        return AccessTokenModel(**response.json())
+
+    def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
+        """
+        Revokes an access token.
+
+        :param token: The token to revoke
+        :param token_id: The id of a token to revoke
+        :return: bool True or False indicating success or failure of token revocation attempt.
+        """
+        if not any([token, token_id]):
+            logging.error('Neither a token or a token id was specified')
+            raise InvalidTokenDataException
+        payload = {'token': token} if token else {'token_id': token_id}
+        response = self._post(f'api/{self._uri}/token/revoke', data=payload)
+        print(payload)
+        if response.ok:
+            logging.info('Token revoked successfully, or token did not exist')
+            return True
+        logging.error('Token revocation unsuccessful')
+        return False
 
     def create_api_key(self) -> ApiKeyModel:
         """
