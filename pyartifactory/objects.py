@@ -514,7 +514,7 @@ class ArtifactoryPermission(ArtifactoryObject):
             )
         except PermissionNotFoundException:
             self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-            logging.debug(f"Repository {permission_name} successfully created")
+            logging.debug(f"Permission {permission_name} successfully created")
             return self.get(permission_name)
 
     def get(self, permission_name: str) -> Permission:
@@ -549,7 +549,10 @@ class ArtifactoryPermission(ArtifactoryObject):
         :param permission: Permission object
         :return: Permission
         """
-        return self.create(permission)
+        permission_name = permission.name
+        self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
+        logging.debug(f"Permission {permission_name} successfully updated")
+        return self.get(permission_name)
 
     def delete(self, permission_name: str) -> None:
         """
