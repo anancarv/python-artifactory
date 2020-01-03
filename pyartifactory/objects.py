@@ -33,6 +33,7 @@ from pyartifactory.models import (
     UserResponse,
     NewUser,
     SimpleUser,
+    User,
     Permission,
     SimplePermission,
     ArtifactPropertiesResponse,
@@ -169,7 +170,7 @@ class ArtifactoryUser(ArtifactoryObject):
         logging.debug("List all users successful")
         return [SimpleUser(**user) for user in r.json()]
 
-    def update(self, user: NewUser) -> UserResponse:
+    def update(self, user: User) -> UserResponse:
         """
         Updates an artifactory user
         :param user: NewUser object
@@ -177,9 +178,7 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         username = user.name
         self.get(username)
-        data = user.dict()
-        data["password"] = user.password.get_secret_value()
-        self._post(f"api/{self._uri}/{username}", json=data)
+        self._post(f"api/{self._uri}/{username}", json=user.dict())
         logging.debug(f"User {username} successfully updated")
         return self.get(username)
 

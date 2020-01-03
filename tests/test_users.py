@@ -3,12 +3,13 @@ import responses
 
 from pyartifactory import ArtifactoryUser
 from pyartifactory.exception import UserAlreadyExistsException, UserNotFoundException
-from pyartifactory.models import AuthModel, NewUser, UserResponse, SimpleUser
+from pyartifactory.models import AuthModel, NewUser, User, UserResponse, SimpleUser
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 SIMPLE_USER = SimpleUser(name="test_user", uri="https://some.uri")
 USER = UserResponse(name="test_user", email="test.test@test.com")
+USER_TO_UPDATE = User(name="test_user", email="test.test2@test.com")
 NEW_USER = NewUser(name="test_user", password="test", email="test.test@test.com")
 
 
@@ -98,13 +99,13 @@ def test_list_user_success(mocker):
 @responses.activate
 def test_update_user_fail_if_user_not_found(mocker):
     responses.add(
-        responses.GET, f"{URL}/api/security/users/{NEW_USER.name}", status=404
+        responses.GET, f"{URL}/api/security/users/{USER_TO_UPDATE.name}", status=404
     )
 
     artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_user, "get")
     with pytest.raises(UserNotFoundException):
-        artifactory_user.update(NEW_USER)
+        artifactory_user.update(USER_TO_UPDATE)
 
     artifactory_user.get.assert_called_once_with(NEW_USER.name)
 
@@ -113,20 +114,20 @@ def test_update_user_fail_if_user_not_found(mocker):
 def test_update_user_success(mocker):
     responses.add(
         responses.GET,
-        f"{URL}/api/security/users/{NEW_USER.name}",
+        f"{URL}/api/security/users/{USER_TO_UPDATE.name}",
         json=USER.dict(),
         status=200,
     )
 
     responses.add(
         responses.POST,
-        f"{URL}/api/security/users/{NEW_USER.name}",
+        f"{URL}/api/security/users/{USER_TO_UPDATE.name}",
         json=USER.dict(),
         status=200,
     )
     artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_user, "get")
-    artifactory_user.update(NEW_USER)
+    artifactory_user.update(USER_TO_UPDATE)
 
     artifactory_user.get.assert_called_with(NEW_USER.name)
     assert artifactory_user.get.call_count == 2

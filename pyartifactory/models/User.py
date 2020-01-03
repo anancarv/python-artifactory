@@ -23,6 +23,10 @@ class NewUser(BaseUserModel):
     password: SecretStr
 
 
+class User(BaseUserModel):
+    email: Optional[EmailStr] = None
+
+
 class UserResponse(BaseUserModel):
     email: EmailStr
     lastLoggedIn: Optional[datetime] = None

@@ -82,12 +82,12 @@ users = art.users.list()
 
 Get a single user:
 ```python
-users = art.users.get("test_user")
+user = art.users.get("test_user")
 ```
 
-Create/Update a user:
+Create a user:
 ```python
-from pyartifactory.models.User import NewUser
+from pyartifactory.models import NewUser
 
 # Create User
 user = NewUser(name="test_user", password="test_password", email="user@user.com")
@@ -96,6 +96,17 @@ new_user = art.users.create(user)
 # Update user
 user.email = "test@test.com"
 updated_user = art.users.update(user)
+```
+
+Update a user:
+```python
+from pyartifactory.models import User
+
+user = art.users.get("test_user")
+
+# Update user
+user.email = "test@test.com"
+updated_user = art.users.update(User(**user.dict()))
 ```
 
 Delete a user:
@@ -117,7 +128,7 @@ users = art.groups.get("group_name")
 
 Create/Update a group:
 ```python
-from pyartifactory.models.Group import Group
+from pyartifactory.models import Group
 
 # Create a Group
 group = Group(name="test_group", description="test_group")
@@ -158,7 +169,7 @@ remote_repo = art.repositories.get_remote_repo("remote_repo_name")
 
 Create/Update a repository:
 ```python
-from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
+from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
 
 # Create a repository
 local_repo = LocalRepository(key="test_local_repo")
@@ -189,7 +200,7 @@ users = art.permissions.get("test_permission")
 
 Create/Update a permission:
 ```python
-from pyartifactory.models.Permission import Permission
+from pyartifactory.models import Permission
 
 # Create a permission
 permission = Permission(
