@@ -23,7 +23,7 @@ It requires at least Python 3.6
     + [Group](#group)
     + [Security](#security)
   * [Repository](#repository)
-    + [Permission](#permission)
+  * [Permission](#permission)
   * [Artifacts](#artifacts)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
@@ -187,7 +187,7 @@ Delete a repository:
 art.repositories.delete("test_local_repo")
 ```
 
-#### Permission
+### Permission
 Get the list of permissions:
 ```python
 permissions = art.permissions.list()
