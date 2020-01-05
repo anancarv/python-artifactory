@@ -1,0 +1,48 @@
+name: Check code
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [3.6, 3.7]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+       pip install pre-commit
+    - name: Lint with pre-commit
+      run: |
+        pre-commit install-hooks
+        pre-commit run --all-files
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [3.6, 3.7]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+       pip install --upgrade pip
+       pip install poetry
+       poetry install -v
+    - name: Run pytest
+      run: |
+        pytest --cov=pyartifactory --cov-branch --cov-report=xml
+        python-codacy-coverage -r coverage.xml
+      env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
