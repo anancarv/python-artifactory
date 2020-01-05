@@ -4,17 +4,13 @@ on: [push]
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 2
-      matrix:
-        python-version: [3.6, 3.7]
+    runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.6
       uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.6
     - name: Install dependencies
       run: |
        pip install pre-commit
@@ -24,25 +20,22 @@ jobs:
         pre-commit run --all-files
 
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 2
-      matrix:
-        python-version: [3.6, 3.7]
+    runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-       pip install --upgrade pip
-       pip install poetry
-       poetry install -v
+      uses: abatilo/actions-poetry@17ab23e62cad7c84b553b04a733c8be8c6f798c5
+      with:
+        python_version: 3.6
+        poetry_version: 0.12
+        args: install
     - name: Run pytest
-      run: |
-        pytest --cov=pyartifactory --cov-branch --cov-report=xml
-        python-codacy-coverage -r coverage.xml
+      uses: abatilo/actions-poetry@17ab23e62cad7c84b553b04a733c8be8c6f798c5
+      with:
+        python_version: 3.6
+        poetry_version: 0.12
+        args: EXIT_STATUS=0; pytest --cov=consumption --cov-branch --cov-report=xml
+          || EXIT_STATUS=$?; python-codacy-coverage -r coverage.xml || EXIT_STATUS=$?;
+          exit $EXIT_STATUS
       env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
