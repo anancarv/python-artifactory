@@ -30,7 +30,7 @@ jobs:
           python-version: 3.6
 
       - name: Install Poetry
-        uses: dschep/install-poetry-action@v1.2
+        uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
         with:
           version: 0.12.16
 
