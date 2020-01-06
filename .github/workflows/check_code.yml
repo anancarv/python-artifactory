@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   lint:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.6
@@ -20,22 +20,24 @@ jobs:
         pre-commit run --all-files
 
   test:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Install dependencies
-      uses: abatilo/actions-poetry@17ab23e62cad7c84b553b04a733c8be8c6f798c5
-      with:
-        python_version: 3.6
-        poetry_version: 0.12
-        args: install
-    - name: Run pytest
-      uses: abatilo/actions-poetry@17ab23e62cad7c84b553b04a733c8be8c6f798c5
-      with:
-        python_version: 3.6
-        poetry_version: 0.12
-        args: EXIT_STATUS=0; pytest --cov=consumption --cov-branch --cov-report=xml
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.6
+        uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.in-project true
+          poetry install -v
+      - name: Run pytest
+        run: |
+          # https://stackoverflow.com/a/16081218
+          EXIT_STATUS=0; pytest --cov=consumption --cov-branch --cov-report=xml
           || EXIT_STATUS=$?; python-codacy-coverage -r coverage.xml || EXIT_STATUS=$?;
           exit $EXIT_STATUS
-      env:
-        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
