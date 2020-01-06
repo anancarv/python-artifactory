@@ -23,29 +23,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
       - name: Set up Python 3.6
         uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
         with:
           python-version: 3.6
+
       - name: Install Poetry
-        run: |
-          pip install --upgrade pip
-          pip install poetry==0.12.16
+        uses: dschep/install-poetry-action@v1.2
+        with:
+          version: 0.12.16
+
       - name: Cache Poetry virtualenv
-        uses: actions/cache@a631fadf14ae5be452ecb86c94f71c2777361961
+        uses: actions/cache@v1
         id: cache
         with:
           path: ~/.virtualenvs
           key: poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             poetry-${{ hashFiles('**/poetry.lock') }}
+
       - name: Set Poetry config
         run: |
           poetry config settings.virtualenvs.in-project false
           poetry config settings.virtualenvs.path ~/.virtualenvs
+
       - name: Install Dependencies
         run: poetry install
         if: steps.cache.outputs.cache-hit != 'true'
+
       - name: Run pytest
         run: |
           # https://stackoverflow.com/a/16081218
