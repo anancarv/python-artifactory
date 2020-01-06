@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Deploy Python Package
 
 on:
   release:
@@ -40,7 +40,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Build
-        run: echo "test build"
+        run: poetry build
 
       - name: Publish
-        run: echo "test publish"
+        run: poetry publish
