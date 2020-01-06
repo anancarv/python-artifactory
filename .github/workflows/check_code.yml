@@ -55,8 +55,9 @@ jobs:
       - name: Run pytest
         run: |
           # https://stackoverflow.com/a/16081218
-          EXIT_STATUS=0; poetry run pytest --cov=pyartifactory --cov-branch --cov-report=xml
-          || EXIT_STATUS=$?; poetry run python-codacy-coverage -r coverage.xml || EXIT_STATUS=$?;
+          EXIT_STATUS=0
+          poetry run pytest --cov=pyartifactory --cov-branch --cov-report=xml || EXIT_STATUS=$?
+          poetry run python-codacy-coverage -r coverage.xml || EXIT_STATUS=$?
           exit $EXIT_STATUS
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
