@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 import requests
 from requests import Response
@@ -220,7 +220,7 @@ class ArtifactorySecurity(ArtifactoryObject):
             return AccessTokenModel(**response.json())
         raise InvalidTokenDataException(response.json().get('error_description', 'Unknown error'))
 
-    def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
+    def revoke_access_token(self, token: Optional[str] = None, token_id: Optional[str] = None) -> bool:
         """
         Revokes an access token.
 
