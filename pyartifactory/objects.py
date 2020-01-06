@@ -14,7 +14,7 @@ from pyartifactory.exception import (
     ArtifactoryException,
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
-    InvalidTokenDataException
+    InvalidTokenDataException,
 )
 from pyartifactory.models import (
     AuthModel,
@@ -33,7 +33,7 @@ from pyartifactory.models import (
     NewUser,
     SimpleUser,
     Permission,
-    SimplePermission
+    SimplePermission,
 )
 
 
@@ -89,7 +89,7 @@ class ArtifactoryObject:
         :param kwargs: Additional parameters to add the request
         :return: An HTTP response
         """
-        raise_for_status = kwargs.pop('raise_for_status', True)
+        raise_for_status = kwargs.pop("raise_for_status", True)
         http_method = getattr(self.session, method)
         response = http_method(
             f"{self._artifactory.url}/{route}",
@@ -192,12 +192,13 @@ class ArtifactorySecurity(ArtifactoryObject):
         logging.debug("Encrypted password successfully delivered")
         return PasswordModel(**response.json())
 
-    def create_access_token(self,
-                            user_name: str,
-                            expires_in: int = 3600,
-                            refreshable: bool = False,
-                            groups: list = None
-                            ) -> AccessTokenModel:
+    def create_access_token(
+        self,
+        user_name: str,
+        expires_in: int = 3600,
+        refreshable: bool = False,
+        groups: list = None,
+    ) -> AccessTokenModel:
         """
         Creates an access token.
 
@@ -207,18 +208,24 @@ class ArtifactorySecurity(ArtifactoryObject):
         :param groups: A list of groups the token has membership of. If username is specified, groups are implied.
         :return: AccessToken
         """
-        payload = {'username': user_name,
-                   'expires_in': expires_in,
-                   'refreshable': refreshable}
+        payload = {
+            "username": user_name,
+            "expires_in": expires_in,
+            "refreshable": refreshable,
+        }
         if groups:
             if not isinstance(groups, list):
                 raise ValueError(groups)
             scope = f'member-of-groups:"{", ".join(groups)}"'
-            payload.update({'scope': scope})
-        response = self._post(f'api/{self._uri}/token', data=payload, raise_for_status=False)
+            payload.update({"scope": scope})
+        response = self._post(
+            f"api/{self._uri}/token", data=payload, raise_for_status=False
+        )
         if response.ok:
             return AccessTokenModel(**response.json())
-        raise InvalidTokenDataException(response.json().get('error_description', 'Unknown error'))
+        raise InvalidTokenDataException(
+            response.json().get("error_description", "Unknown error")
+        )
 
     def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
         """
@@ -229,14 +236,18 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: bool True or False indicating success or failure of token revocation attempt.
         """
         if not any([token, token_id]):
-            logging.error('Neither a token or a token id was specified')
+            logging.error("Neither a token or a token id was specified")
             raise InvalidTokenDataException
-        payload: Dict[str, Optional[str]] = {'token': token} if token else {'token_id': token_id}
-        response = self._post(f'api/{self._uri}/token/revoke', data=payload, raise_for_status=False)
+        payload: Dict[str, Optional[str]] = {"token": token} if token else {
+            "token_id": token_id
+        }
+        response = self._post(
+            f"api/{self._uri}/token/revoke", data=payload, raise_for_status=False
+        )
         if response.ok:
-            logging.info('Token revoked successfully, or token did not exist')
+            logging.info("Token revoked successfully, or token did not exist")
             return True
-        logging.error('Token revocation unsuccessful, response was %s', response.text)
+        logging.error("Token revocation unsuccessful, response was %s", response.text)
         return False
 
     def create_api_key(self) -> ApiKeyModel:
