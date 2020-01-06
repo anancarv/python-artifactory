@@ -1,29 +1,40 @@
 # PyArtifactory
 
 [![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
+[![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/b4a37e92d42d4815938dd77a7099dfd1)](https://www.codacy.com/manual/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Coverage)
+![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
 It requires at least Python 3.6
 
-## Table of contents
+<!-- toc -->
 
-* [Install](#Install)
-* [Usage](#Usage)
-    * [Authentication](#Authentication)
-    * [SSL Cert Verification Options](#SSL-Cert-Verification-Options)
-    * [Admin objects](#Admin-objects)
-        * [User](#User)
-        * [Group](#Group)
-        * [Security](#Security)
-        * [Repository](#Repository)
-        * [Permission](#Permission)
-    * [Artifacts & Builds](#Artifacts-&-Builds)
-        * [Artifacts](#Artifacts)
-    
+- [Install](#install)
+- [Usage](#usage)
+  * [Authentication](#authentication)
+  * [SSL Cert Verification Options](#ssl-cert-verification-options)
+  * [Admin objects](#admin-objects)
+    + [User](#user)
+    + [Group](#group)
+    + [Security](#security)
+  * [Repository](#repository)
+  * [Permission](#permission)
+  * [Artifacts](#artifacts)
+    + [Deploy an artifact](#deploy-an-artifact)
+    + [Download an artifact](#download-an-artifact)
+    + [Retrieve artifact properties](#retrieve-artifact-properties)
+    + [Retrieve artifact stats](#retrieve-artifact-stats)
+    + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
+    + [Move artifact to a new location](#move-artifact-to-a-new-location)
+    + [Delete an artifact](#delete-an-artifact)
+
+<!-- tocstop -->
+
 ## Install
 
 ```python
@@ -36,7 +47,7 @@ pip install pyartifactory
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
 ```
 
 ### SSL Cert Verification Options
@@ -71,16 +82,27 @@ users = art.users.list()
 
 Get a single user:
 ```python
-users = art.users.get("test_user")
+user = art.users.get("test_user")
 ```
 
-Create/Update a user:
+Create a user:
 ```python
-from pyartifactory.models.User import NewUser
+from pyartifactory.models import NewUser
 
 # Create User
 user = NewUser(name="test_user", password="test_password", email="user@user.com")
 new_user = art.users.create(user)
+
+# Update user
+user.email = "test@test.com"
+updated_user = art.users.update(user)
+```
+
+Update a user:
+```python
+from pyartifactory.models import User
+
+user = art.users.get("test_user")
 
 # Update user
 user.email = "test@test.com"
@@ -106,7 +128,7 @@ users = art.groups.get("group_name")
 
 Create/Update a group:
 ```python
-from pyartifactory.models.Group import Group
+from pyartifactory.models import Group
 
 # Create a Group
 group = Group(name="test_group", description="test_group")
@@ -122,7 +144,6 @@ Delete a group:
 art.groups.delete("test_group")
 ```
 
-
 #### Security
 
 A set of methods for performing operations on apiKeys, passwords ...
@@ -131,7 +152,6 @@ A set of methods for performing operations on apiKeys, passwords ...
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
-
 
 ### Repository
 
@@ -149,7 +169,7 @@ remote_repo = art.repositories.get_remote_repo("remote_repo_name")
 
 Create/Update a repository:
 ```python
-from pyartifactory.models.Repository import LocalRepository, VirtualRepository, RemoteRepository
+from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
 
 # Create a repository
 local_repo = LocalRepository(key="test_local_repo")
@@ -167,8 +187,7 @@ Delete a repository:
 art.repositories.delete("test_local_repo")
 ```
 
-
-#### Permission
+### Permission
 Get the list of permissions:
 ```python
 permissions = art.permissions.list()
@@ -181,7 +200,7 @@ users = art.permissions.get("test_permission")
 
 Create/Update a permission:
 ```python
-from pyartifactory.models.Permission import Permission
+from pyartifactory.models import Permission
 
 # Create a permission
 permission = Permission(
@@ -206,7 +225,54 @@ Delete a permission:
 art.permissions.delete("test_permission")
 ```
 
-### Artifacts & Builds
+### Artifacts
 
-#### Artifacts
-TBD
+#### Deploy an artifact
+```python
+artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt")
+```
+
+#### Download an artifact
+```python
+artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRECTORY_PATH>")
+# artifact = art.artifacts.download("my-artifactory-repository/my/new/artifact/file.txt", "Desktop/my/local/directory")
+# The artifact location is returned by the download method
+# If you have not set a <LOCAL_DIRECTORY_PATH>, the artifact will be downloaded in the current directory
+```
+
+#### Retrieve artifact properties
+```python
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
+>>> print(artifact_properties.json)
+```
+
+#### Retrieve artifact stats
+```python
+artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
+>>> print(artifact_stats.json)
+```
+
+#### Copy artifact to a new location
+```python
+artifact = art.artifacts.copy("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
+
+# If you want to run a dryRun test, you can do the following:
+# artifact = art.artifacts.copy("my-repository/current/artifact/path/file.txt","my-repository/new/artifact/path/file.txt", dryrun=True)
+# It will return properties of the newly copied artifact
+```
+
+#### Move artifact to a new location
+```python
+artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ARTIFACT_PATH_IN_ARTIFACTORY>")
+
+# You can also run a dryRun test with the move operation
+# It will return properties of the newly moved artifact
+```
+
+#### Delete an artifact
+```python
+art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+```
