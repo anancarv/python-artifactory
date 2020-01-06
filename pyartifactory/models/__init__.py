@@ -1,6 +1,6 @@
 from .Auth import AuthModel, ApiKeyModel, PasswordModel
 from .Group import Group, SimpleGroup
-from .User import NewUser, UserResponse, BaseUserModel, SimpleUser
+from .User import NewUser, UserResponse, BaseUserModel, SimpleUser, User
 from .Repository import (
     LocalRepository,
     LocalRepositoryResponse,
@@ -10,4 +10,6 @@ from .Repository import (
     RemoteRepositoryResponse,
     SimpleRepository,
 )
+
+from .Artifact import ArtifactPropertiesResponse, ArtifactStatsResponse
 from .Permission import Permission, SimplePermission

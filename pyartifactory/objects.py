@@ -1,8 +1,10 @@
 import logging
-from typing import List
+from typing import List, Tuple
 
 import requests
 from requests import Response
+from requests_toolbelt.multipart import encoder
+from pathlib import Path
 
 from pyartifactory.exception import (
     UserNotFoundException,
@@ -15,6 +17,7 @@ from pyartifactory.exception import (
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
 )
+
 from pyartifactory.models import (
     AuthModel,
     ApiKeyModel,
@@ -30,9 +33,28 @@ from pyartifactory.models import (
     UserResponse,
     NewUser,
     SimpleUser,
+    User,
     Permission,
     SimplePermission,
+    ArtifactPropertiesResponse,
+    ArtifactStatsResponse,
 )
+
+
+class Artifactory:
+    def __init__(
+        self,
+        url: str,
+        auth: Tuple[str, str] = None,
+        verify: bool = True,
+        cert: str = None,
+    ):
+        self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
+        self.users = ArtifactoryUser(self.artifactory)
+        self.groups = ArtifactoryGroup(self.artifactory)
+        self.security = ArtifactorySecurity(self.artifactory)
+        self.repositories = ArtifactoryRepository(self.artifactory)
+        self.artifacts = ArtifactoryArtifact(self.artifactory)
 
 
 class ArtifactoryObject:
@@ -132,7 +154,6 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"User {name} exists")
             return UserResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -149,7 +170,7 @@ class ArtifactoryUser(ArtifactoryObject):
         logging.debug("List all users successful")
         return [SimpleUser(**user) for user in r.json()]
 
-    def update(self, user: NewUser) -> UserResponse:
+    def update(self, user: User) -> UserResponse:
         """
         Updates an artifactory user
         :param user: NewUser object
@@ -157,9 +178,7 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         username = user.name
         self.get(username)
-        data = user.dict()
-        data["password"] = user.password.get_secret_value()
-        self._post(f"api/{self._uri}/{username}", json=data)
+        self._post(f"api/{self._uri}/{username}", json=user.dict())
         logging.debug(f"User {username} successfully updated")
         return self.get(username)
 
@@ -264,7 +283,6 @@ class ArtifactoryGroup(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{name}")
-            logging.debug(f"Group {name} exists")
             return Group(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -337,7 +355,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return LocalRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -386,7 +403,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return VirtualRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -435,7 +451,6 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{repo_name}")
-            logging.debug(f"Repository {repo_name} exists")
             return RemoteRepositoryResponse(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -498,7 +513,7 @@ class ArtifactoryPermission(ArtifactoryObject):
             )
         except PermissionNotFoundException:
             self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-            logging.debug(f"Repository {permission_name} successfully created")
+            logging.debug(f"Permission {permission_name} successfully created")
             return self.get(permission_name)
 
     def get(self, permission_name: str) -> Permission:
@@ -509,7 +524,6 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         try:
             r = self._get(f"api/{self._uri}/{permission_name}")
-            logging.debug(f"Permission {permission_name} exists")
             return Permission(**r.json())
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404 or e.response.status_code == 400:
@@ -534,7 +548,10 @@ class ArtifactoryPermission(ArtifactoryObject):
         :param permission: Permission object
         :return: Permission
         """
-        return self.create(permission)
+        permission_name = permission.name
+        self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
+        logging.debug(f"Permission {permission_name} successfully updated")
+        return self.get(permission_name)
 
     def delete(self, permission_name: str) -> None:
         """
@@ -544,4 +561,124 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         self.get(permission_name)
         self._delete(f"api/{self._uri}/{permission_name}")
-        logging.debug(f"Repository {permission_name} successfully deleted")
+        logging.debug(f"Permission {permission_name} successfully deleted")
+
+
+class ArtifactoryArtifact(ArtifactoryObject):
+    def __init__(self, artifactory: AuthModel) -> None:
+        super(ArtifactoryArtifact, self).__init__(artifactory)
+
+    def deploy(
+        self, local_file_location: str, artifact_path: str
+    ) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_path: Path to file in Artifactory
+        :param local_file_location: Location of the file to deploy
+        """
+        artifact_path = artifact_path.lstrip("/")
+        local_filename = artifact_path.split("/")[-1]
+        with open(local_file_location, "rb") as f:
+            form = encoder.MultipartEncoder(
+                {
+                    "documents": (local_filename, f, "application/octet-stream"),
+                    "composite": "NONE",
+                }
+            )
+            headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
+            self._put(f"{artifact_path}", headers=headers, data=form)
+            logging.info(f"Artifact {local_filename} successfully deployed")
+            return self.properties(artifact_path)
+
+    def download(self, artifact_path: str, local_directory_path: str = None) -> str:
+        """
+        :param artifact_path: Path to file in Artifactory
+        :param local_directory_path: Local path to where the artifact will be imported
+        :return: File name
+        """
+        artifact_path = artifact_path.lstrip("/")
+        local_filename = artifact_path.split("/")[-1]
+
+        if local_directory_path:
+            Path(local_directory_path).mkdir(parents=True, exist_ok=True)
+            local_file_full_path = f"{local_directory_path}/{local_filename}"
+        else:
+            local_file_full_path = local_filename
+
+        with self._get(f"{artifact_path}", stream=True) as r:
+            with open(local_file_full_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        f.write(chunk)
+                        # f.flush()
+        logging.info(f"Artifact {local_filename} successfully downloaded")
+        return local_file_full_path
+
+    def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_path: Path to file in Artifactory
+        :return: Artifact properties
+        """
+        artifact_path = artifact_path.lstrip("/")
+        r = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
+        logging.info("Artifact Properties successfully retrieved")
+        return ArtifactPropertiesResponse(**r.json())
+
+    def stats(self, artifact_path: str) -> ArtifactStatsResponse:
+        """
+        :param artifact_path: Path to file in Artifactory
+        :return: Artifact Stats
+        """
+        artifact_path = artifact_path.lstrip("/")
+        r = self._get(f"api/storage/{artifact_path}?stats")
+        logging.info("Artifact stats successfully retrieved")
+        return ArtifactStatsResponse(**r.json())
+
+    def copy(
+        self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
+    ) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_current_path: Current path to file
+        :param artifact_new_path: New path to file
+        :param dryrun: Dry run
+        :return: ArtifactPropertiesResponse: properties of the copied artifact
+        """
+        artifact_current_path = artifact_current_path.lstrip("/")
+        artifact_new_path = artifact_new_path.lstrip("/")
+        if dryrun:
+            dry = 1
+        else:
+            dry = 0
+
+        self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        logging.info(f"Artifact {artifact_current_path} successfully copied")
+        return self.properties(artifact_new_path)
+
+    def move(
+        self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
+    ) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_current_path: Current path to file
+        :param artifact_new_path: New path to file
+        :param dryrun: Dry run
+        :return: ArtifactPropertiesResponse: properties of the moved artifact
+        """
+        artifact_current_path = artifact_current_path.lstrip("/")
+        artifact_new_path = artifact_new_path.lstrip("/")
+
+        if dryrun:
+            dry = 1
+        else:
+            dry = 0
+
+        self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        logging.info(f"Artifact {artifact_current_path} successfully moved")
+        return self.properties(artifact_new_path)
+
+    def delete(self, artifact_path: str) -> None:
+        """
+        :param artifact_path: Path to file in Artifactory
+        :return: bool
+        """
+        artifact_path = artifact_path.lstrip("/")
+        self._delete(f"{artifact_path}")
+        logging.info(f"Artifact {artifact_path} successfully deleted")
