@@ -13,7 +13,6 @@ ARTIFACT_PATH = "my-repository/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
-LOCAL_DIRECTORY_PATH = "/tmp/pytest"
 ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
     repo="my-repository", path=ARTIFACT_SHORT_PATH, createdBy="myself", uri="my_uri"
 )
@@ -52,16 +51,17 @@ def test_deploy_artifact_success(mocker):
 
 
 @responses.activate
-def test_download_artifact_success():
+def test_download_artifact_success(tmp_path):
     artifact_name = ARTIFACT_PATH.split("/")[1]
     responses.add(
         responses.GET, f"{URL}/{ARTIFACT_PATH}", json=artifact_name, status=200
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact = artifactory.download(ARTIFACT_PATH, LOCAL_DIRECTORY_PATH)
+    artifact = artifactory.download(ARTIFACT_PATH, str(tmp_path.resolve()))
 
-    assert artifact == f"{LOCAL_DIRECTORY_PATH}/{artifact_name}"
+    assert artifact == f"{tmp_path.resolve()}/{artifact_name}"
+    assert (tmp_path / artifact_name).is_file()
 
 
 @responses.activate
