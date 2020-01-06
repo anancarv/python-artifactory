@@ -1,6 +1,6 @@
 # PyArtifactory
 
-[![GitHub Actions workflow](https://github.com/anancarv/python-artifactory/blob/github-actions/.github/workflows/check_code.yml/badge.svg)](https://github.com/anancarv/python-artifactory/actions)
+[![GitHub Actions workflow](https://github.com/anancarv/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/anancarv/python-artifactory/actions)
 [![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/b4a37e92d42d4815938dd77a7099dfd1)](https://www.codacy.com/manual/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Coverage)
