@@ -21,7 +21,7 @@ mypy = "^0.700.0"
 black = { version = "^19.3b0", allows-prereleases = true }
 pre-commit = "^1.15"
 responses = "^0.10.6"
-pytest-mock = "^1.10"
+pytest-mock = "^2.0.0"
 detect-secrets = "^0.12.4"
 pytest-cov = "^2.7"
 codacy-coverage = "^1.3"
