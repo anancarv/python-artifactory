@@ -106,7 +106,7 @@ user = art.users.get("test_user")
 
 # Update user
 user.email = "test@test.com"
-updated_user = art.users.update(User(**user.dict()))
+updated_user = art.users.update(user)
 ```
 
 Delete a user:
@@ -235,10 +235,10 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 
 #### Download an artifact
 ```python
-artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_FILE_PATH>")
+artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRECTORY_PATH>")
 # artifact = art.artifacts.download("my-artifactory-repository/my/new/artifact/file.txt", "Desktop/my/local/directory")
 # The artifact location is returned by the download method
-# If you have not set a <LOCAL_FILE_PATH>, the artifact will be downloaded in the current directory
+# If you have not set a <LOCAL_DIRECTORY_PATH>, the artifact will be downloaded in the current directory
 ```
 
 #### Retrieve artifact properties

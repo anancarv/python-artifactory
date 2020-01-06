@@ -589,18 +589,18 @@ class ArtifactoryArtifact(ArtifactoryObject):
             logging.info(f"Artifact {local_filename} successfully deployed")
             return self.properties(artifact_path)
 
-    def download(self, artifact_path: str, local_file_path: str = None) -> str:
+    def download(self, artifact_path: str, local_directory_path: str = None) -> str:
         """
         :param artifact_path: Path to file in Artifactory
-        :param local_file_path: Local path to where the artifact will be imported
+        :param local_directory_path: Local path to where the artifact will be imported
         :return: File name
         """
         artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
 
-        if local_file_path:
-            Path(local_file_path).mkdir(parents=True, exist_ok=True)
-            local_file_full_path = f"{local_file_path}/{local_filename}"
+        if local_directory_path:
+            Path(local_directory_path).mkdir(parents=True, exist_ok=True)
+            local_file_full_path = f"{local_directory_path}/{local_filename}"
         else:
             local_file_full_path = local_filename
 
