@@ -22,8 +22,8 @@ It requires at least Python 3.6
     + [User](#user)
     + [Group](#group)
     + [Security](#security)
-  * [Repository](#repository)
-  * [Permission](#permission)
+    + [Repository](#repository)
+    + [Permission](#permission)
   * [Artifacts](#artifacts)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
@@ -153,7 +153,7 @@ art.security.create_api_key(          art.security.get_encrypted_password(  art.
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-### Repository
+#### Repository
 
 Get the list of repositories:
 ```python
@@ -187,7 +187,7 @@ Delete a repository:
 art.repositories.delete("test_local_repo")
 ```
 
-### Permission
+#### Permission
 Get the list of permissions:
 ```python
 permissions = art.permissions.list()
