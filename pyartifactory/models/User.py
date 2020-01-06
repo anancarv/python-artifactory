@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, SecretStr, UrlStr
+from pydantic import BaseModel, EmailStr, SecretStr, HttpUrl
 
 
 class SimpleUser(BaseModel):
     name: str
-    uri: UrlStr
+    uri: HttpUrl
     realm: Optional[str] = None
 
 
@@ -21,6 +21,10 @@ class BaseUserModel(BaseModel):
 class NewUser(BaseUserModel):
     email: EmailStr
     password: SecretStr
+
+
+class User(BaseUserModel):
+    email: Optional[EmailStr] = None
 
 
 class UserResponse(BaseUserModel):
