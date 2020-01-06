@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import requests
 from requests import Response
@@ -220,7 +220,7 @@ class ArtifactorySecurity(ArtifactoryObject):
             return AccessTokenModel(**response.json())
         raise InvalidTokenDataException(response.json().get('error_description', 'Unknown error'))
 
-    def revoke_access_token(self, token: Optional[str] = None, token_id: Optional[str] = None) -> bool:
+    def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
         """
         Revokes an access token.
 
@@ -231,7 +231,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         if not any([token, token_id]):
             logging.error('Neither a token or a token id was specified')
             raise InvalidTokenDataException
-        payload = {'token': token} if token else {'token_id': token_id}
+        payload: Dict[str, Optional[str]] = {'token': token} if token else {'token_id': token_id}
         response = self._post(f'api/{self._uri}/token/revoke', data=payload, raise_for_status=False)
         if response.ok:
             logging.info('Token revoked successfully, or token did not exist')
