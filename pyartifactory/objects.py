@@ -14,6 +14,7 @@ from pyartifactory.exception import (
     ArtifactoryException,
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
+    InvalidTokenDataException
 )
 from pyartifactory.models import (
     AuthModel,
@@ -88,6 +89,7 @@ class ArtifactoryObject:
         :param kwargs: Additional parameters to add the request
         :return: An HTTP response
         """
+        raise_for_status = kwargs.pop('raise_for_status', True)
         http_method = getattr(self.session, method)
         response = http_method(
             f"{self._artifactory.url}/{route}",
@@ -96,8 +98,8 @@ class ArtifactoryObject:
             verify=self._verify,
             cert=self._cert,
         )
-
-        response.raise_for_status()
+        if raise_for_status:
+            response.raise_for_status()
         return response
 
 
@@ -191,8 +193,8 @@ class ArtifactorySecurity(ArtifactoryObject):
         return PasswordModel(**response.json())
 
     def create_access_token(self,
-                            user_name: str = None,
-                            expires_in: int = None,
+                            user_name: str,
+                            expires_in: int = 3600,
                             refreshable: bool = False,
                             groups: list = None
                             ) -> AccessTokenModel:
@@ -205,16 +207,18 @@ class ArtifactorySecurity(ArtifactoryObject):
         :param groups: A list of groups the token has membership of. If username is specified, groups are implied.
         :return: AccessToken
         """
-        payload = {k: v for k, v in (
-            ('username', user_name),
-            ('expires_in', expires_in),
-            ('refreshable', refreshable),
-        ) if v is not None}
+        payload = {'username': user_name,
+                   'expires_in': expires_in,
+                   'refreshable': refreshable}
         if groups:
-            scope = r'member-of-groups:"'+', '.join(groups)+'"'
+            if not isinstance(groups, list):
+                raise ValueError(groups)
+            scope = f'member-of-groups:"{", ".join(groups)}"'
             payload.update({'scope': scope})
-        response = self._post(f'api/{self._uri}/token', data=payload)
-        return AccessTokenModel(**response.json())
+        response = self._post(f'api/{self._uri}/token', data=payload, raise_for_status=False)
+        if response.ok:
+            return AccessTokenModel(**response.json())
+        raise InvalidTokenDataException(response.json().get('error_description', 'Unknown error'))
 
     def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
         """
@@ -228,12 +232,11 @@ class ArtifactorySecurity(ArtifactoryObject):
             logging.error('Neither a token or a token id was specified')
             raise InvalidTokenDataException
         payload = {'token': token} if token else {'token_id': token_id}
-        response = self._post(f'api/{self._uri}/token/revoke', data=payload)
-        print(payload)
+        response = self._post(f'api/{self._uri}/token/revoke', data=payload, raise_for_status=False)
         if response.ok:
             logging.info('Token revoked successfully, or token did not exist')
             return True
-        logging.error('Token revocation unsuccessful')
+        logging.error('Token revocation unsuccessful, response was %s', response.text)
         return False
 
     def create_api_key(self) -> ApiKeyModel:
