@@ -32,3 +32,7 @@ class RepositoryNotFoundException(ArtifactoryException):
 
 class PermissionNotFoundException(ArtifactoryException):
     pass
+
+
+class AqlException(ArtifactoryException):
+    pass
