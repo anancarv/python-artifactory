@@ -33,6 +33,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)
     + [Delete an artifact](#delete-an-artifact)
+  * [Artifactory Query Language](#artifactory-query-language)
   * [Contributing](#contributing)
 
 <!-- tocstop -->
@@ -320,6 +321,26 @@ artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
 
+### Artifactory Query Language
+You can use [Artifactory Query Language](https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language) to uncover data related to the artifacts and builds stored within Artifactory
+```python
+from pyartifactory import Artifactory
+from pyartifactory.models import Aql
+
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
+
+# Create an Aql object with your query parameters
+aql_obj = Aql(**{
+  "domain":"items", 
+  "find":{"name" : {"$match":"*.jar"}}, 
+  "sort": { "$asc" : ["repo","name"] }, 
+  "limit": 100
+})
+
+result = art.aql.query(aql_obj)
+>> print(result)
+[{'repo': 'my-repo', 'path': 'my/path', 'name': 'test.jar', 'type': 'file', 'size': 1111, 'created': 'some-date', 'created_by': 'some-date', 'modified': 'some-data', 'modified_by': 'some-user', 'updated': 'some-data'}]
+```
 
 ### Contributing
 Please read the [Development - Contributing](./CONTRIBUTING.md) guidelines.

@@ -1,6 +1,7 @@
 """
 Definition of all artifactory objects.
 """
+import json
 import warnings
 import logging
 import os
@@ -24,6 +25,7 @@ from pyartifactory.exception import (
     PermissionNotFoundException,
     InvalidTokenDataException,
     PropertyNotFoundException,
+    AqlException,
     ArtifactNotFoundException,
 )
 
@@ -48,6 +50,7 @@ from pyartifactory.models import (
     User,
     Permission,
     SimplePermission,
+    Aql,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
     ArtifactInfoResponse,
@@ -73,6 +76,7 @@ class Artifactory:
         self.repositories = ArtifactoryRepository(self.artifactory)
         self.artifacts = ArtifactoryArtifact(self.artifactory)
         self.permissions = ArtifactoryPermission(self.artifactory)
+        self.aql = ArtifactoryAql(self.artifactory)
 
 
 class ArtifactoryObject:
@@ -950,3 +954,53 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_path = artifact_path.lstrip("/")
         self._delete(f"{artifact_path}")
         logger.debug("Artifact %s successfully deleted", artifact_path)
+
+
+def create_aql_query(aql_object: Aql):
+    "Create Artifactory query"
+    aql_query_text = f"{aql_object.domain}.find"
+
+    if aql_object.find:
+        aql_query_text += f"({json.dumps(aql_object.find)})"
+    else:
+        aql_query_text += "()"
+
+    if aql_object.include:
+        format_include = (
+            json.dumps(aql_object.include).replace("[", "").replace("]", "")
+        )
+        aql_query_text += f".include({format_include})"
+
+    if aql_object.sort:
+        sort_key = list(aql_object.sort.keys())[0]
+        sort_value = json.dumps(aql_object.sort[sort_key])
+        aql_query_text += f'.sort({{"{sort_key.value}": {sort_value}}})'
+
+    if aql_object.offset:
+        aql_query_text += f".offset({aql_object.offset})"
+
+    if aql_object.limit:
+        aql_query_text += f".limit({aql_object.limit})"
+
+    return aql_query_text
+
+
+class ArtifactoryAql(ArtifactoryObject):
+    "Artifactory Query Language support"
+    _uri = "search/aql"
+
+    def query(self, aql_object: Aql) -> List[Dict[str, Union[str, List]]]:
+        "Send Artifactory query"
+        aql_query = create_aql_query(aql_object)
+        try:
+            response = self._post(f"api/{self._uri}", data=aql_query)
+            response_content: List[Dict[str, Union[str, List]]] = response.json()[
+                "results"
+            ]
+            logging.debug("Successful query")
+            return response_content
+        except requests.exceptions.HTTPError as error:
+            raise AqlException(
+                "Bad Aql Query: please check your parameters."
+                "Doc: https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language"
+            ) from error

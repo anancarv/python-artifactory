@@ -49,3 +49,7 @@ class PropertyNotFoundException(ArtifactoryException):
 
 class InvalidTokenDataException(ArtifactoryException):
     """The token contains invalid data."""
+
+
+class AqlException(ArtifactoryException):
+    """AQL search failed"""
