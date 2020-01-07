@@ -20,7 +20,7 @@ class PasswordModel(BaseModel):
 
 class AccessTokenModel(BaseModel):
     access_token: str
-    expires_in: Optional[int] = 0
+    expires_in: Optional[int] = 3600
     scope: Optional[str] = None
     refresh_token: Optional[bool] = False
     token_type: str
