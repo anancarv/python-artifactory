@@ -32,6 +32,7 @@ It requires at least Python 3.6
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)
     + [Delete an artifact](#delete-an-artifact)
+  * [Contributing](#contributing)
 
 <!-- tocstop -->
 
@@ -276,3 +277,7 @@ artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 ```python
 art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
+
+
+### Contributing
+Please read the [Development - Contributing](./CONTRIBUTING.md) guidelines.

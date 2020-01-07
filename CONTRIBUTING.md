@@ -2,7 +2,7 @@
 
 # Requirements
 * [poetry](https://github.com/python-poetry/poetry): For dependency management and packaging in Python
-* [pre-commit](https://github.com/pre-commit/pre-commit): For identifying code issues before submission to code review
+* [pre-commit][pre-commit]: For identifying code issues before submission to code review
 
 ## Developing
 
@@ -26,9 +26,11 @@ After having installed pre-commit, before each commit, pre-commit hooks are run 
 
 Tests are run with [Pytest](https://docs.pytest.org/en/latest/).
 ```bash
-pytest --cov=pyartifactory --cov-branch --cov-report=xml
+pytest --cov=pyartifactory --cov-branch
 ```
 
 This command generates a coverage XML file `.coverage.xml`. 
 
 Please, make sure to write tests for each feature you want to implement.
+
+[pre-commit]: https://github.com/pre-commit/pre-commit
