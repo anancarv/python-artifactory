@@ -85,7 +85,6 @@ def test_create_access_token():
             "expires_in": 3600,
             "scope": "api:* member-of-groups:g1, g2",
             "token_type": "Bearer",
-            "refresh_token": False,
         },
     )
 
@@ -93,7 +92,6 @@ def test_create_access_token():
     access_token = artifactory_security.create_access_token(
         user_name="my-username", expires_in=3600, refreshable=False, groups=["g1", "g2"]
     )
-    assert access_token.refresh_token is False
     assert access_token.scope == "api:* member-of-groups:g1, g2"
 
 
@@ -112,5 +110,4 @@ def test_revoke_access_token_fail_no_token_provided():
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(InvalidTokenDataException):
-        result = artifactory_security.revoke_access_token()
-        assert result is False
+        artifactory_security.revoke_access_token()
