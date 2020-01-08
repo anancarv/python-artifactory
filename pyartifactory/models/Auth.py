@@ -22,5 +22,5 @@ class AccessTokenModel(BaseModel):
     access_token: str
     expires_in: Optional[int] = 3600
     scope: Optional[str] = None
-    refresh_token: Optional[bool] = False
+    refresh_token: Optional[str] = None
     token_type: str
