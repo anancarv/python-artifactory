@@ -9,7 +9,7 @@
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories & artifacts in your applications.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications.
 It requires at least Python 3.6
 
 <!-- toc -->
@@ -151,6 +151,24 @@ A set of methods for performing operations on apiKeys, passwords ...
 >>> art.security.
 art.security.create_api_key(          art.security.get_encrypted_password(  art.security.revoke_api_key(
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
+```
+
+Create an access token (for a transient user):
+```python
+token = art.security.create_access_token(user_name='transient_artifactory_user', 
+                                         groups=['g1', 'g2'],
+                                         refreshable=True)
+```
+
+Create an access token for an existing user (groups are implied from the existing user):
+```python
+token = art.security.create_access_token(user_name='existing_artifactory_user', 
+                                         refreshable=True)
+```
+
+Revoke an existing revocable token:
+```python
+art.security.revoke_access_token(token.access_token)
 ```
 
 ### Repository
