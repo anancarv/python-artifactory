@@ -76,19 +76,23 @@ def test_revoke_user_api_key():
 
 @responses.activate
 def test_create_access_token():
-    responses.add(responses.POST, f"{URL}/api/security/token", status=200, json={
-        "access_token": "<the access token>",
-        "expires_in": 3600,
-        "scope": "api:* member-of-groups:g1, g2",
-        "token_type": "Bearer",
-        "refresh_token": False
-    })
+    responses.add(
+        responses.POST,
+        f"{URL}/api/security/token",
+        status=200,
+        json={
+            "access_token": "<the access token>",
+            "expires_in": 3600,
+            "scope": "api:* member-of-groups:g1, g2",
+            "token_type": "Bearer",
+            "refresh_token": False,
+        },
+    )
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    access_token = artifactory_security.create_access_token(user_name="my-username",
-                                                            expires_in=3600,
-                                                            refreshable=False,
-                                                            groups=["g1", "g2"])
+    access_token = artifactory_security.create_access_token(
+        user_name="my-username", expires_in=3600, refreshable=False, groups=["g1", "g2"]
+    )
     assert access_token.refresh_token is False
     assert access_token.scope == "api:* member-of-groups:g1, g2"
 
