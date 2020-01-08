@@ -103,7 +103,7 @@ class ArtifactoryObject:
         return self._generic_http_method_request("delete", route, **kwargs)
 
     def _generic_http_method_request(
-        self, method: str, route: str, **kwargs
+        self, method: str, route: str, raise_for_status: bool = True, **kwargs
     ) -> Response:
         """
         :param method: HTTP method to use
@@ -111,7 +111,7 @@ class ArtifactoryObject:
         :param kwargs: Additional parameters to add the request
         :return: An HTTP response
         """
-        raise_for_status = kwargs.pop("raise_for_status", True)
+
         http_method = getattr(self.session, method)
         response = http_method(
             f"{self._artifactory.url}/{route}",
