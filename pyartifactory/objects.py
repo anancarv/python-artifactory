@@ -216,7 +216,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         user_name: str,
         expires_in: int = 3600,
         refreshable: bool = False,
-        groups: list = None,
+        groups: Optional[List[str]] = None,
     ) -> AccessTokenModel:
         """
         Creates an access token.
