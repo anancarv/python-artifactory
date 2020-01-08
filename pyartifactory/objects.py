@@ -221,10 +221,12 @@ class ArtifactorySecurity(ArtifactoryObject):
         """
         Creates an access token.
 
-        :param user_name: Name of the user to whom an access key should be granted. transient token created if not set.
+        :param user_name: Name of the user to whom an access key should be granted. transient token created if
+                          user doesn't exist in artifactory.
         :param expires_in: Expiry time for the token in seconds. For eternal tokens specify 0.
         :param refreshable: If set to true token can be refreshed using the refresh token returned. defaults False.
-        :param groups: A list of groups the token has membership of. If username is specified, groups are implied.
+        :param groups: A list of groups the token has membership of. If an existing user in artifactory is used with
+                       existing memberships those groups are automatically implied without specification.
         :return: AccessToken
         """
         payload = {
