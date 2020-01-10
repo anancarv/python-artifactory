@@ -5,6 +5,7 @@ from pydantic import BaseModel, SecretStr
 
 
 class PackageTypeEnum(str, Enum):
+    """Enumerates package types."""
     maven = "maven"
     gradle = "gradle"
     ivy = "ivy"
@@ -32,29 +33,34 @@ class PackageTypeEnum(str, Enum):
 
 
 class RClassEnum(str, Enum):
+    """Enumerates remote types."""
     local = "local"
     virtual = "virtual"
     remote = "remote"
 
 
 class ChecksumPolicyType(str, Enum):
+    """Enumerates checksum policy types."""
     client_checksums = "client-checksums"
     server_generated_checksums = "server-generated-checksums"
 
 
 class SnapshotVersionBehavior(str, Enum):
+    """Enumerates snapshot version behavior options."""
     unique = "unique"
     non_unique = "non-unique"
     deployer = "deployer"
 
 
 class PomRepoRefCleanupPolicy(str, Enum):
+    """Models a repo reference cleanup policy."""
     discard_active_reference = "discard_active_reference"
     discard_any_reference = "discard_any_reference"
     nothing = "nothing"
 
 
 class VcsGitProviderEnum(str, Enum):
+    """Enumerates the available vcs providers."""
     github = "GITHUB"
     bitbucket = "BITBUCKET"
     oldstash = "OLDSTASH"
@@ -64,18 +70,22 @@ class VcsGitProviderEnum(str, Enum):
 
 
 class Statistics(BaseModel):
+    """Models statistics."""
     enabled: bool = False
 
 
 class Properties(BaseModel):
+    """Models properties."""
     enabled: bool = False
 
 
 class Source(BaseModel):
+    """Models a source."""
     originAbsenceDetection: bool = False
 
 
 class ContentSynchronisation(BaseModel):
+    """Models a content synchronization."""
     enabled: bool = False
     statistics: Statistics = Statistics()
     properties: Properties = Properties()
@@ -83,12 +93,14 @@ class ContentSynchronisation(BaseModel):
 
 
 class Nuget(BaseModel):
+    """Models a nuget feed."""
     feedContextPath: str = "api/v2"
     downloadContextPath: str = "api/v2/package"
     v3FeedUrl: str = "https://api.nuget.org/v3/index.json"
 
 
 class SimpleRepository(BaseModel):
+    """Models a simple repository."""
     key: str
     type: str
     description: Optional[str] = None
@@ -97,6 +109,7 @@ class SimpleRepository(BaseModel):
 
 
 class BaseRepositoryModel(BaseModel):
+    """Models a base repository."""
     key: str
     rclass: RClassEnum = RClassEnum.local
     packageType: PackageTypeEnum = PackageTypeEnum.generic
@@ -108,6 +121,7 @@ class BaseRepositoryModel(BaseModel):
 
 
 class LocalRepository(BaseRepositoryModel):
+    """Models a local repository."""
     checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
     handleReleases: bool = True
     handleSnapshots: bool = True
@@ -129,6 +143,7 @@ class LocalRepository(BaseRepositoryModel):
 
 
 class LocalRepositoryResponse(LocalRepository):
+    """Models a local repository response."""
     enableComposerSupport: bool = False
     enableNuGetSupport: bool = False
     enableGemsSupport: bool = False
@@ -147,6 +162,7 @@ class LocalRepositoryResponse(LocalRepository):
 
 
 class VirtualRepository(BaseRepositoryModel):
+    """Models a virtual repository."""
     repositories: Optional[List[str]] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
@@ -160,6 +176,7 @@ class VirtualRepository(BaseRepositoryModel):
 
 
 class VirtualRepositoryResponse(LocalRepository):
+    """Models a virtual repository response."""
     dockerApiVersion: str = "V2"
     enableComposerSupport: bool = False
     enableNuGetSupport: bool = False
@@ -179,6 +196,7 @@ class VirtualRepositoryResponse(LocalRepository):
 
 
 class RemoteRepository(BaseRepositoryModel):
+    """Models a remote Repository."""
     url: str
     username: Optional[str] = None
     password: Optional[SecretStr] = None
@@ -224,6 +242,7 @@ class RemoteRepository(BaseRepositoryModel):
 
 
 class RemoteRepositoryResponse(RemoteRepository):
+    """Models a RemoteRepositoryResponse."""
     dockerApiVersion: str = "V2"
     debianTrivialLayout: bool = False
     enableComposerSupport: bool = False

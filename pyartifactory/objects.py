@@ -42,6 +42,7 @@ from pyartifactory.models import (
 
 
 class Artifactory:
+    """Models artifactory."""
     def __init__(
         self,
         url: str,
@@ -58,6 +59,7 @@ class Artifactory:
 
 
 class ArtifactoryObject:
+    """Models the artifactory object."""
     def __init__(self, artifactory: AuthModel) -> None:
         self._artifactory = artifactory
         self._auth = (
@@ -123,6 +125,7 @@ class ArtifactoryObject:
 
 
 class ArtifactoryUser(ArtifactoryObject):
+    """Models an artifactory user."""
     _uri = "security/users"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -194,6 +197,7 @@ class ArtifactoryUser(ArtifactoryObject):
 
 
 class ArtifactorySecurity(ArtifactoryObject):
+    """Models artifactory security."""
     _uri = "security"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -254,6 +258,7 @@ class ArtifactorySecurity(ArtifactoryObject):
 
 
 class ArtifactoryGroup(ArtifactoryObject):
+    """Models artifactory groups."""
     _uri = "security/groups"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -323,6 +328,7 @@ class ArtifactoryGroup(ArtifactoryObject):
 
 
 class ArtifactoryRepository(ArtifactoryObject):
+    """Models an artifactory repository."""
     _uri = "repositories"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -493,6 +499,7 @@ class ArtifactoryRepository(ArtifactoryObject):
 
 
 class ArtifactoryPermission(ArtifactoryObject):
+    """Models an artifactory permission."""
     _uri = "security/permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -565,6 +572,7 @@ class ArtifactoryPermission(ArtifactoryObject):
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
+    """Models an artifactory artifact."""
     def __init__(self, artifactory: AuthModel) -> None:
         super(ArtifactoryArtifact, self).__init__(artifactory)
 

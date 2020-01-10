@@ -4,12 +4,14 @@ from pydantic import BaseModel, EmailStr, SecretStr, HttpUrl
 
 
 class SimpleUser(BaseModel):
+    """Models a simple user."""
     name: str
     uri: HttpUrl
     realm: Optional[str] = None
 
 
 class BaseUserModel(BaseModel):
+    """Models a base user."""
     name: str
     admin: Optional[bool] = False
     profileUpdatable: Optional[bool] = True
@@ -19,15 +21,18 @@ class BaseUserModel(BaseModel):
 
 
 class NewUser(BaseUserModel):
+    """Models a new user."""
     email: EmailStr
     password: SecretStr
 
 
 class User(BaseUserModel):
+    """Models a user."""
     email: Optional[EmailStr] = None
 
 
 class UserResponse(BaseUserModel):
+    """Models a user response."""
     email: EmailStr
     lastLoggedIn: Optional[datetime] = None
     realm: Optional[str] = None

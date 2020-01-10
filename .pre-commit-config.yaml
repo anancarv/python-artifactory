@@ -21,3 +21,10 @@ repos:
     rev: v1.1.0
     hooks:
     -   id: markdown-toc
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
