@@ -11,12 +11,29 @@ jobs:
       uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
       with:
         python-version: 3.6
-    - name: Install dependencies
+
+    - name: Cache Poetry virtualenv
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.virtualenvs # location of th cache files
+        # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
+    - name: Set Poetry config
       run: |
-       pip install pre-commit
+        poetry config settings.virtualenvs.in-project false
+        poetry config settings.virtualenvs.path ~/.virtualenvs
+
+    - name: Install Dependencies
+      run: poetry install
+      if: steps.cache.outputs.cache-hit != 'true'
+
     - name: Lint with pre-commit
       run: |
-        pre-commit run --all-files
+        poetry run pre-commit run --all-files
 
   test:
     runs-on: ubuntu-latest
