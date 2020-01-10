@@ -16,7 +16,6 @@ jobs:
        pip install pre-commit
     - name: Lint with pre-commit
       run: |
-        pre-commit install-hooks
         pre-commit run --all-files
 
   test:
@@ -38,10 +37,11 @@ jobs:
         uses: actions/cache@v1
         id: cache
         with:
-          path: ~/.virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          path: ~/.virtualenvs # location of th cache files
+          # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
-            poetry-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-poetry-
 
       - name: Set Poetry config
         run: |
@@ -51,6 +51,10 @@ jobs:
       - name: Install Dependencies
         run: poetry install
         if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Lint with pre-commit
+        run: |
+          pre-commit run --all-files
 
       - name: Run pytest
         run: |

@@ -24,20 +24,18 @@ jobs:
         uses: actions/cache@v1
         id: cache
         with:
-          path: ~/.virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          path: ~/.virtualenvs # location of th cache files
+          # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          # matches cache keys prefixed with ${{ runner.os }}-poetry-
           restore-keys: |
-            poetry-${{ hashFiles('**/poetry.lock') }}
+            ${{ runner.os }}-poetry-
 
       - name: Set Poetry config
         run: |
           poetry config settings.virtualenvs.in-project false
           poetry config settings.virtualenvs.path ~/.virtualenvs
           poetry config http-basic.pypi ${{ secrets.$PYPI_USER }} ${{ secrets.$PYPI_PASS }}
-
-      - name: Install Dependencies
-        run: poetry install
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Build
         run: poetry build
