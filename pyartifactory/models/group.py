@@ -4,6 +4,7 @@ from typing import Optional
 
 class Group(BaseModel):
     """Models a group."""
+
     name: str
     description: Optional[str] = None
     autoJoin: bool = False
@@ -14,5 +15,6 @@ class Group(BaseModel):
 
 class SimpleGroup(BaseModel):
     """Models a simple group."""
+
     name: str
     uri: str

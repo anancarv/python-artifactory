@@ -25,6 +25,6 @@ repos:
     hooks:
     -   id: pylint
         name: pylint
-        entry: pylint
+        entry: pylint --disable=all -e C0103
         language: system
         types: [python]

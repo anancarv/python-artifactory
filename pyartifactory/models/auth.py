@@ -5,6 +5,7 @@ from pydantic import BaseModel, SecretStr
 
 class AuthModel(BaseModel):
     """Models an auth response."""
+
     url: str
     auth: Tuple[str, SecretStr]
     verify: bool = True
@@ -13,9 +14,11 @@ class AuthModel(BaseModel):
 
 class ApiKeyModel(BaseModel):
     """Models an api key."""
+
     apiKey: SecretStr
 
 
 class PasswordModel(BaseModel):
     """Models a password."""
+
     password: SecretStr

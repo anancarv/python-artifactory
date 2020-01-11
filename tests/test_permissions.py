@@ -6,8 +6,8 @@ from pyartifactory.exception import (
     PermissionNotFoundException,
     PermissionAlreadyExistsException,
 )
-from pyartifactory.models.Auth import AuthModel
-from pyartifactory.models.Permission import Permission, SimplePermission
+from pyartifactory.models.auth import AuthModel
+from pyartifactory.models.permission import Permission, SimplePermission
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")

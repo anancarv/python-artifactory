@@ -1,7 +1,7 @@
-from .Auth import AuthModel, ApiKeyModel, PasswordModel
-from .Group import Group, SimpleGroup
-from .User import NewUser, UserResponse, BaseUserModel, SimpleUser, User
-from .Repository import (
+from .auth import AuthModel, ApiKeyModel, PasswordModel
+from .group import Group, SimpleGroup
+from .user import NewUser, UserResponse, BaseUserModel, SimpleUser, User
+from .repository import (
     LocalRepository,
     LocalRepositoryResponse,
     VirtualRepository,
@@ -11,5 +11,5 @@ from .Repository import (
     SimpleRepository,
 )
 
-from .Artifact import ArtifactPropertiesResponse, ArtifactStatsResponse
-from .Permission import Permission, SimplePermission
+from .artifact import ArtifactPropertiesResponse, ArtifactStatsResponse
+from .permission import Permission, SimplePermission

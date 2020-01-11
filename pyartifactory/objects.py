@@ -43,6 +43,7 @@ from pyartifactory.models import (
 
 class Artifactory:
     """Models artifactory."""
+
     def __init__(
         self,
         url: str,
@@ -60,6 +61,7 @@ class Artifactory:
 
 class ArtifactoryObject:
     """Models the artifactory object."""
+
     def __init__(self, artifactory: AuthModel) -> None:
         self._artifactory = artifactory
         self._auth = (
@@ -126,6 +128,7 @@ class ArtifactoryObject:
 
 class ArtifactoryUser(ArtifactoryObject):
     """Models an artifactory user."""
+
     _uri = "security/users"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -156,22 +159,22 @@ class ArtifactoryUser(ArtifactoryObject):
         :return: UserModel
         """
         try:
-            r = self._get(f"api/{self._uri}/{name}")
-            return UserResponse(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{name}")
+            return UserResponse(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 logging.error(f"User {name} does not exist")
                 raise UserNotFoundException(f"{name} does not exist")
-            raise ArtifactoryException from e
+            raise ArtifactoryException from error
 
     def list(self) -> List[SimpleUser]:
         """
         Lists all the users
         :return: UserList
         """
-        r = self._get(f"api/{self._uri}")
+        response = self._get(f"api/{self._uri}")
         logging.debug("List all users successful")
-        return [SimpleUser(**user) for user in r.json()]
+        return [SimpleUser(**user) for user in response.json()]
 
     def update(self, user: User) -> UserResponse:
         """
@@ -198,6 +201,7 @@ class ArtifactoryUser(ArtifactoryObject):
 
 class ArtifactorySecurity(ArtifactoryObject):
     """Models artifactory security."""
+
     _uri = "security"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -208,36 +212,36 @@ class ArtifactorySecurity(ArtifactoryObject):
         Get the encrypted password of the authenticated requestor.
         :return: str
         """
-        r = self._get(f"api/{self._uri}/encryptedPassword")
+        response = self._get(f"api/{self._uri}/encryptedPassword")
         logging.debug(f"Encrypted password successfully delivered")
-        return PasswordModel(**r.json())
+        return PasswordModel(**response.json())
 
     def create_api_key(self) -> ApiKeyModel:
         """
         Create an API key for the current user.
         :return: Error if API key already exists - use regenerate API key instead.
         """
-        r = self._post(f"api/{self._uri}/apiKey")
+        response = self._post(f"api/{self._uri}/apiKey")
         logging.debug(f"API Key successfully created")
-        return ApiKeyModel(**r.json())
+        return ApiKeyModel(**response.json())
 
     def regenerate_api_key(self) -> ApiKeyModel:
         """
         Regenerate an API key for the current user
         :return: API key
         """
-        r = self._put(f"api/{self._uri}/apiKey")
+        response = self._put(f"api/{self._uri}/apiKey")
         logging.debug(f"API Key successfully regenerated")
-        return ApiKeyModel(**r.json())
+        return ApiKeyModel(**response.json())
 
     def get_api_key(self) -> ApiKeyModel:
         """
         Get the current user's own API key
         :return: API key
         """
-        r = self._get(f"api/{self._uri}/apiKey")
+        response = self._get(f"api/{self._uri}/apiKey")
         logging.debug(f"API Key successfully delivered")
-        return ApiKeyModel(**r.json())
+        return ApiKeyModel(**response.json())
 
     def revoke_api_key(self) -> None:
         """
@@ -259,6 +263,7 @@ class ArtifactorySecurity(ArtifactoryObject):
 
 class ArtifactoryGroup(ArtifactoryObject):
     """Models artifactory groups."""
+
     _uri = "security/groups"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -287,22 +292,22 @@ class ArtifactoryGroup(ArtifactoryObject):
         :return: Found artifactory group
         """
         try:
-            r = self._get(f"api/{self._uri}/{name}")
-            return Group(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{name}")
+            return Group(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 logging.error(f"Group {name} does not exist")
                 raise GroupNotFoundException(f"Group {name} does not exist")
-            raise ArtifactoryException from e
+            raise ArtifactoryException from error
 
     def list(self) -> List[Group]:
         """
         Lists all the groups
         :return: GroupList
         """
-        r = self._get(f"api/{self._uri}")
+        response = self._get(f"api/{self._uri}")
         logging.debug("List all groups successful")
-        return [Group(**group) for group in r.json()]
+        return [Group(**group) for group in response.json()]
 
     def update(self, group: Group) -> Group:
         """
@@ -329,6 +334,7 @@ class ArtifactoryGroup(ArtifactoryObject):
 
 class ArtifactoryRepository(ArtifactoryObject):
     """Models an artifactory repository."""
+
     _uri = "repositories"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -360,15 +366,15 @@ class ArtifactoryRepository(ArtifactoryObject):
         :return: LocalRepositoryResponse object
         """
         try:
-            r = self._get(f"api/{self._uri}/{repo_name}")
-            return LocalRepositoryResponse(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{repo_name}")
+            return LocalRepositoryResponse(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
-            raise ArtifactoryException from e
+            raise ArtifactoryException from error
 
     def update_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
@@ -408,15 +414,15 @@ class ArtifactoryRepository(ArtifactoryObject):
         :return: VirtualRepositoryResponse object
         """
         try:
-            r = self._get(f"api/{self._uri}/{repo_name}")
-            return VirtualRepositoryResponse(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{repo_name}")
+            return VirtualRepositoryResponse(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
-            raise ArtifactoryException from e
+            raise ArtifactoryException from error
 
     def update_virtual_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
         """
@@ -456,15 +462,15 @@ class ArtifactoryRepository(ArtifactoryObject):
         :return: RemoteRepositoryResponse object
         """
         try:
-            r = self._get(f"api/{self._uri}/{repo_name}")
-            return RemoteRepositoryResponse(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{repo_name}")
+            return RemoteRepositoryResponse(**response.json())
+        except requests.exceptions.HTTPError as errror:
+            if errror.response.status_code == 404 or errror.response.status_code == 400:
                 logging.error(f"Repository {repo_name} does not exist")
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
-            raise ArtifactoryException from e
+            raise ArtifactoryException from errror
 
     def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
         """
@@ -483,9 +489,9 @@ class ArtifactoryRepository(ArtifactoryObject):
         Lists all the repositories
         :return: A list of repositories
         """
-        r = self._get(f"api/{self._uri}")
+        response = self._get(f"api/{self._uri}")
         logging.debug("List all repositories successful")
-        return [SimpleRepository(**repository) for repository in r.json()]
+        return [SimpleRepository(**repository) for repository in response.json()]
 
     def delete(self, repo_name: str) -> None:
         """
@@ -500,6 +506,7 @@ class ArtifactoryRepository(ArtifactoryObject):
 
 class ArtifactoryPermission(ArtifactoryObject):
     """Models an artifactory permission."""
+
     _uri = "security/permissions"
 
     def __init__(self, artifactory: AuthModel) -> None:
@@ -530,24 +537,24 @@ class ArtifactoryPermission(ArtifactoryObject):
         :return: Permission
         """
         try:
-            r = self._get(f"api/{self._uri}/{permission_name}")
-            return Permission(**r.json())
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404 or e.response.status_code == 400:
+            response = self._get(f"api/{self._uri}/{permission_name}")
+            return Permission(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 logging.error(f"Permission {permission_name} does not exist")
                 raise PermissionNotFoundException(
                     f"Permission {permission_name} does not exist"
                 )
-            raise ArtifactoryException from e
+            raise ArtifactoryException from error
 
     def list(self) -> List[SimplePermission]:
         """
         Lists all the permissions
         :return: A list of permissions
         """
-        r = self._get(f"api/{self._uri}")
+        response = self._get(f"api/{self._uri}")
         logging.debug("List all permissions successful")
-        return [SimplePermission(**permission) for permission in r.json()]
+        return [SimplePermission(**permission) for permission in response.json()]
 
     def update(self, permission: Permission) -> Permission:
         """
@@ -573,6 +580,7 @@ class ArtifactoryPermission(ArtifactoryObject):
 
 class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
+
     def __init__(self, artifactory: AuthModel) -> None:
         super(ArtifactoryArtifact, self).__init__(artifactory)
 
@@ -585,10 +593,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
-        with open(local_file_location, "rb") as f:
+        with open(local_file_location, "rb") as file:
             form = encoder.MultipartEncoder(
                 {
-                    "documents": (local_filename, f, "application/octet-stream"),
+                    "documents": (local_filename, file, "application/octet-stream"),
                     "composite": "NONE",
                 }
             )
@@ -612,12 +620,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             local_file_full_path = local_filename
 
-        with self._get(f"{artifact_path}", stream=True) as r:
-            with open(local_file_full_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
+        with self._get(f"{artifact_path}", stream=True) as response:
+            with open(local_file_full_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # filter out keep-alive new chunks
-                        f.write(chunk)
-                        # f.flush()
+                        file.write(chunk)
         logging.info(f"Artifact {local_filename} successfully downloaded")
         return local_file_full_path
 
@@ -627,9 +634,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :return: Artifact properties
         """
         artifact_path = artifact_path.lstrip("/")
-        r = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
+        response = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
         logging.info("Artifact Properties successfully retrieved")
-        return ArtifactPropertiesResponse(**r.json())
+        return ArtifactPropertiesResponse(**response.json())
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
         """
@@ -637,9 +644,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :return: Artifact Stats
         """
         artifact_path = artifact_path.lstrip("/")
-        r = self._get(f"api/storage/{artifact_path}?stats")
+        response = self._get(f"api/storage/{artifact_path}?stats")
         logging.info("Artifact stats successfully retrieved")
-        return ArtifactStatsResponse(**r.json())
+        return ArtifactStatsResponse(**response.json())
 
     def copy(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
