@@ -9,7 +9,7 @@
 To start working on this project, here are some guidelines to set up your environment:
   1. `git clone https://github.com/anancarv/python-artifactory.git`
   2. `cd python-artifactory`
-  3. [Install poetry version 0.12.16](https://python-poetry.org/docs/#installation)
+  3. [Install poetry](https://python-poetry.org/docs/#installation)
   4. Activate virtualenv`poetry shell`
   5. Install dependencies: `poetry install`
   6. Run `pre-commit install --install-hooks` to install [precommit hooks][pre-commit]
