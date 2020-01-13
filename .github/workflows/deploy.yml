@@ -1,0 +1,44 @@
+name: Deploy Python Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+        with:
+          python-version: 3.6
+
+      - name: Install Poetry
+        uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+        with:
+          version: 0.12.16
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs # location of th cache files
+          # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          # matches cache keys prefixed with ${{ runner.os }}-poetry-
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Set Poetry config
+        run: |
+          poetry config settings.virtualenvs.in-project false
+          poetry config settings.virtualenvs.path ~/.virtualenvs
+          poetry config http-basic.pypi ${{ secrets.$PYPI_USER }} ${{ secrets.$PYPI_PASS }}
+
+      - name: Build
+        run: poetry build
+
+      - name: Publish
+        run: poetry publish
