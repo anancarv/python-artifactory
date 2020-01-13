@@ -1,7 +1,10 @@
 import responses
+import pytest
 
 from pyartifactory import ArtifactorySecurity
 from pyartifactory.models import AuthModel, PasswordModel, ApiKeyModel
+from pyartifactory.exception import InvalidTokenDataException
+
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
@@ -69,3 +72,42 @@ def test_revoke_user_api_key():
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
     artifactory_security.revoke_user_api_key("test_user")
+
+
+@responses.activate
+def test_create_access_token():
+    responses.add(
+        responses.POST,
+        f"{URL}/api/security/token",
+        status=200,
+        json={
+            "access_token": "<the access token>",
+            "expires_in": 3600,
+            "scope": "api:* member-of-groups:g1, g2",
+            "token_type": "Bearer",
+        },
+    )
+
+    artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
+    access_token = artifactory_security.create_access_token(
+        user_name="my-username", expires_in=3600, refreshable=False, groups=["g1", "g2"]
+    )
+    assert access_token.scope == "api:* member-of-groups:g1, g2"
+
+
+@responses.activate
+def test_revoke_access_token_success():
+    responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=200)
+
+    artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
+    result = artifactory_security.revoke_access_token(token="my-token")
+    assert result is True
+
+
+@responses.activate
+def test_revoke_access_token_fail_no_token_provided():
+    responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=400)
+
+    artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
+    with pytest.raises(InvalidTokenDataException):
+        artifactory_security.revoke_access_token()
