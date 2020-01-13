@@ -1,6 +1,6 @@
 # PyArtifactory
 
-[![Build Status](https://travis-ci.org/anancarv/python-artifactory.svg?branch=master)](https://travis-ci.org/anancarv/python-artifactory)
+[![GitHub Actions workflow](https://github.com/anancarv/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/anancarv/python-artifactory/actions)
 [![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b22b5118d67471f81b4de2feefc5763)](https://app.codacy.com/app/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Grade_Dashboard)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/b4a37e92d42d4815938dd77a7099dfd1)](https://www.codacy.com/manual/Ananias/python-artifactory?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Coverage)
@@ -22,8 +22,8 @@ It requires at least Python 3.6
     + [User](#user)
     + [Group](#group)
     + [Security](#security)
-  * [Repository](#repository)
-  * [Permission](#permission)
+    + [Repository](#repository)
+    + [Permission](#permission)
   * [Artifacts](#artifacts)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
@@ -32,6 +32,7 @@ It requires at least Python 3.6
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)
     + [Delete an artifact](#delete-an-artifact)
+  * [Contributing](#contributing)
 
 <!-- tocstop -->
 
@@ -153,7 +154,7 @@ art.security.create_api_key(          art.security.get_encrypted_password(  art.
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-### Repository
+#### Repository
 
 Get the list of repositories:
 ```python
@@ -187,7 +188,7 @@ Delete a repository:
 art.repositories.delete("test_local_repo")
 ```
 
-### Permission
+#### Permission
 Get the list of permissions:
 ```python
 permissions = art.permissions.list()
@@ -276,3 +277,7 @@ artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 ```python
 art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
+
+
+### Contributing
+Please read the [Development - Contributing](./CONTRIBUTING.md) guidelines.
