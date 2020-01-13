@@ -35,7 +35,7 @@ jobs:
         run: |
           poetry config settings.virtualenvs.in-project false
           poetry config settings.virtualenvs.path ~/.virtualenvs
-          poetry config http-basic.pypi ${{ secrets.$PYPI_USER }} ${{ secrets.$PYPI_PASS }}
+          poetry config http-basic.pypi ${{ secrets.PYPI_USER }} ${{ secrets.PYPI_PASS }}
 
       - name: Build
         run: poetry build
