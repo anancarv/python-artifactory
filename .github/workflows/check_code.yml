@@ -15,7 +15,7 @@ jobs:
     - name: Install Poetry
       uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
       with:
-        version: 0.12.16
+        version: 1.0.2
 
     - name: Cache Poetry virtualenv
       uses: actions/cache@v1
@@ -29,8 +29,8 @@ jobs:
 
     - name: Set Poetry config
       run: |
-        poetry config settings.virtualenvs.in-project false
-        poetry config settings.virtualenvs.path ~/.virtualenvs
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
 
     - name: Install Dependencies
       run: poetry install
@@ -53,7 +53,7 @@ jobs:
       - name: Install Poetry
         uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
         with:
-          version: 0.12.16
+          version: 1.0.2
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v1
@@ -67,8 +67,8 @@ jobs:
 
       - name: Set Poetry config
         run: |
-          poetry config settings.virtualenvs.in-project false
-          poetry config settings.virtualenvs.path ~/.virtualenvs
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
 
       - name: Install Dependencies
         run: poetry install
