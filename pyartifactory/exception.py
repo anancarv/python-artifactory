@@ -36,3 +36,7 @@ class PermissionNotFoundException(ArtifactoryException):
 
 class AqlException(ArtifactoryException):
     pass
+
+
+class InvalidTokenDataException(ArtifactoryException):
+    pass

@@ -16,3 +16,11 @@ class ApiKeyModel(BaseModel):
 
 class PasswordModel(BaseModel):
     password: SecretStr
+
+
+class AccessTokenModel(BaseModel):
+    access_token: str
+    expires_in: Optional[int] = 3600
+    scope: str
+    refresh_token: Optional[str] = None
+    token_type: str
