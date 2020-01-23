@@ -9,6 +9,7 @@ extension-pkg-whitelist=
 # paths.
 ignore=CVS
 
+
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
 ignore-patterns=
@@ -139,7 +140,8 @@ disable=print-statement,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
-        too-few-public-methods
+        too-few-public-methods,
+        C0330
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

@@ -25,6 +25,7 @@ repos:
     hooks:
     -   id: pylint
         name: pylint
-        entry: pylint --disable=all -e C0103
+        entry: pylint . #--disable=all -e C0330
         language: system
         types: [python]
+        files: ^pyartifactory/

@@ -1,10 +1,10 @@
 import logging
 from typing import List, Tuple
 
+from pathlib import Path
 import requests
 from requests import Response
 from requests_toolbelt.multipart import encoder
-from pathlib import Path
 
 from pyartifactory.exception import (
     UserNotFoundException,
@@ -131,9 +131,6 @@ class ArtifactoryUser(ArtifactoryObject):
 
     _uri = "security/users"
 
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactoryUser, self).__init__(artifactory)
-
     def create(self, user: NewUser) -> UserResponse:
         """
         Create user
@@ -204,9 +201,6 @@ class ArtifactorySecurity(ArtifactoryObject):
 
     _uri = "security"
 
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactorySecurity, self).__init__(artifactory)
-
     def get_encrypted_password(self) -> PasswordModel:
         """
         Get the encrypted password of the authenticated requestor.
@@ -265,9 +259,6 @@ class ArtifactoryGroup(ArtifactoryObject):
     """Models artifactory groups."""
 
     _uri = "security/groups"
-
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactoryGroup, self).__init__(artifactory)
 
     def create(self, group: Group) -> Group:
         """
@@ -336,9 +327,6 @@ class ArtifactoryRepository(ArtifactoryObject):
     """Models an artifactory repository."""
 
     _uri = "repositories"
-
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactoryRepository, self).__init__(artifactory)
 
     # Local repositories operations
     def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
@@ -509,9 +497,6 @@ class ArtifactoryPermission(ArtifactoryObject):
 
     _uri = "security/permissions"
 
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactoryPermission, self).__init__(artifactory)
-
     def create(self, permission: Permission) -> Permission:
         """
         Creates a permission
@@ -580,9 +565,6 @@ class ArtifactoryPermission(ArtifactoryObject):
 
 class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
-
-    def __init__(self, artifactory: AuthModel) -> None:
-        super(ArtifactoryArtifact, self).__init__(artifactory)
 
     def deploy(
         self, local_file_location: str, artifact_path: str
