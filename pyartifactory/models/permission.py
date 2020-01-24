@@ -1,3 +1,7 @@
+"""
+Definition of all permission models.
+"""
+
 from enum import Enum
 from typing import List, Dict, Optional
 

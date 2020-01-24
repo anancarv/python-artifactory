@@ -1,3 +1,8 @@
+"""
+Definition of all exceptions.
+"""
+
+
 class ArtifactoryException(Exception):
     """Generic artifactory exception."""
 

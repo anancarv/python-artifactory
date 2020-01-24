@@ -1,3 +1,7 @@
+"""
+Import all object definitions here.
+"""
+
 from pyartifactory.objects import (
     ArtifactoryUser,
     ArtifactoryGroup,

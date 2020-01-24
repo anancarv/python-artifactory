@@ -1,3 +1,7 @@
+"""
+Definition of all autho models.
+"""
+
 from typing import Tuple, Optional
 
 from pydantic import BaseModel, SecretStr

@@ -1,3 +1,6 @@
+"""
+Definition of all repository models.
+"""
 from typing import Optional, List
 from enum import Enum
 
@@ -183,8 +186,7 @@ class VirtualRepository(BaseRepositoryModel):
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
     keyPair: Optional[str] = None
-    pomRepositoryReferencesCleanupPolicy: \
-        PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
+    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference  # pylint: disable=line-too-long
     defaultDeploymentRepo: Optional[str] = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False

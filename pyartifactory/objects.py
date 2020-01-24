@@ -1,3 +1,7 @@
+"""
+Definition of all artifactory objects.
+"""
+
 import logging
 from typing import List, Tuple
 

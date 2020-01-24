@@ -1,3 +1,8 @@
+"""
+Definition of all artifact models.
+"""
+
+
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel
