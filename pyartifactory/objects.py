@@ -140,13 +140,13 @@ class ArtifactoryUser(ArtifactoryObject):
         username = user.name
         try:
             self.get(username)
-            logging.error(f"User {username} already exists")
+            logging.error("User %s already exists", username)
             raise UserAlreadyExistsException(f"User {username} already exists")
         except UserNotFoundException:
             data = user.dict()
             data["password"] = user.password.get_secret_value()
             self._put(f"api/{self._uri}/{username}", json=data)
-            logging.debug(f"User {username} successfully created")
+            logging.debug("User %s successfully created", username)
             return self.get(user.name)
 
     def get(self, name: str) -> UserResponse:
@@ -160,7 +160,7 @@ class ArtifactoryUser(ArtifactoryObject):
             return UserResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error(f"User {name} does not exist")
+                logging.error("User %s does not exist", name)
                 raise UserNotFoundException(f"{name} does not exist")
             raise ArtifactoryException from error
 
@@ -182,7 +182,7 @@ class ArtifactoryUser(ArtifactoryObject):
         username = user.name
         self.get(username)
         self._post(f"api/{self._uri}/{username}", json=user.dict())
-        logging.debug(f"User {username} successfully updated")
+        logging.debug("User %s successfully updated", username)
         return self.get(username)
 
     def delete(self, name: str) -> None:
@@ -193,7 +193,7 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         self.get(name)
         self._delete(f"api/{self._uri}/{name}")
-        logging.debug(f"User {name} successfully deleted")
+        logging.debug("User %s successfully deleted", name)
 
 
 class ArtifactorySecurity(ArtifactoryObject):
@@ -207,7 +207,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: str
         """
         response = self._get(f"api/{self._uri}/encryptedPassword")
-        logging.debug(f"Encrypted password successfully delivered")
+        logging.debug("Encrypted password successfully delivered")
         return PasswordModel(**response.json())
 
     def create_api_key(self) -> ApiKeyModel:
@@ -216,7 +216,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: Error if API key already exists - use regenerate API key instead.
         """
         response = self._post(f"api/{self._uri}/apiKey")
-        logging.debug(f"API Key successfully created")
+        logging.debug("API Key successfully created")
         return ApiKeyModel(**response.json())
 
     def regenerate_api_key(self) -> ApiKeyModel:
@@ -225,7 +225,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: API key
         """
         response = self._put(f"api/{self._uri}/apiKey")
-        logging.debug(f"API Key successfully regenerated")
+        logging.debug("API Key successfully regenerated")
         return ApiKeyModel(**response.json())
 
     def get_api_key(self) -> ApiKeyModel:
@@ -234,7 +234,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: API key
         """
         response = self._get(f"api/{self._uri}/apiKey")
-        logging.debug(f"API Key successfully delivered")
+        logging.debug("API Key successfully delivered")
         return ApiKeyModel(**response.json())
 
     def revoke_api_key(self) -> None:
@@ -243,7 +243,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: None
         """
         self._delete(f"api/{self._uri}/apiKey")
-        logging.debug(f"API Key successfully revoked")
+        logging.debug("API Key successfully revoked")
 
     def revoke_user_api_key(self, name: str) -> None:
         """
@@ -252,7 +252,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         :return: None
         """
         self._delete(f"api/{self._uri}/apiKey/{name}")
-        logging.debug(f"User API Key successfully revoked")
+        logging.debug("User API Key successfully revoked")
 
 
 class ArtifactoryGroup(ArtifactoryObject):
@@ -269,11 +269,11 @@ class ArtifactoryGroup(ArtifactoryObject):
         group_name = group.name
         try:
             self.get(group_name)
-            logging.error(f"Group {group_name} already exists")
+            logging.error("Group %s already exists", group_name)
             raise GroupAlreadyExistsException(f"Group {group_name} already exists")
         except GroupNotFoundException:
             self._put(f"api/{self._uri}/{group_name}", json=group.dict())
-            logging.debug(f"Group {group_name} successfully created")
+            logging.debug("Group %s successfully created", group_name)
             return self.get(group.name)
 
     def get(self, name: str) -> Group:
@@ -287,7 +287,7 @@ class ArtifactoryGroup(ArtifactoryObject):
             return Group(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error(f"Group {name} does not exist")
+                logging.error("Group %s does not exist", name)
                 raise GroupNotFoundException(f"Group {name} does not exist")
             raise ArtifactoryException from error
 
@@ -309,7 +309,7 @@ class ArtifactoryGroup(ArtifactoryObject):
         group_name = group.name
         self.get(group_name)
         self._post(f"api/{self._uri}/{group_name}", json=group.dict())
-        logging.debug(f"Group {group_name} successfully updated")
+        logging.debug("Group %s successfully updated", group_name)
         return self.get(group_name)
 
     def delete(self, name: str) -> None:
@@ -320,7 +320,7 @@ class ArtifactoryGroup(ArtifactoryObject):
         """
         self.get(name)
         self._delete(f"api/{self._uri}/{name}")
-        logging.debug(f"Group {name} successfully deleted")
+        logging.debug("Group %s successfully deleted", name)
 
 
 class ArtifactoryRepository(ArtifactoryObject):
@@ -338,13 +338,13 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         try:
             self.get_local_repo(repo_name)
-            logging.error(f"Repository {repo_name} already exists")
+            logging.error("Repository %s already exists", repo_name)
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.debug(f"Repository {repo_name} successfully created")
+            logging.debug("Repository %s successfully created", repo_name)
             return self.get_local_repo(repo_name)
 
     def get_local_repo(self, repo_name: str) -> LocalRepositoryResponse:
@@ -358,7 +358,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             return LocalRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error(f"Repository {repo_name} does not exist")
+                logging.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -373,7 +373,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_local_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.debug(f"Repository {repo_name} successfully updated")
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_local_repo(repo_name)
 
     # Virtual repositories operations
@@ -386,13 +386,13 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         try:
             self.get_virtual_repo(repo_name)
-            logging.error(f"Repository {repo_name} already exists")
+            logging.error("Repository %s already exists", repo_name)
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.debug(f"Repository {repo_name} successfully created")
+            logging.debug("Repository %s successfully created", repo_name)
             return self.get_virtual_repo(repo_name)
 
     def get_virtual_repo(self, repo_name: str) -> VirtualRepositoryResponse:
@@ -406,7 +406,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             return VirtualRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error(f"Repository {repo_name} does not exist")
+                logging.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -421,7 +421,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_virtual_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.debug(f"Repository {repo_name} successfully updated")
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_virtual_repo(repo_name)
 
     # Remote repositories operations
@@ -434,13 +434,13 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         try:
             self.get_remote_repo(repo_name)
-            logging.error(f"Repository {repo_name} already exists")
+            logging.error("Repository %s already exists", repo_name)
             raise RepositoryAlreadyExistsException(
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.debug(f"Repository {repo_name} successfully created")
+            logging.debug("Repository %s successfully created", repo_name)
             return self.get_remote_repo(repo_name)
 
     def get_remote_repo(self, repo_name: str) -> RemoteRepositoryResponse:
@@ -454,7 +454,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             return RemoteRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as errror:
             if errror.response.status_code == 404 or errror.response.status_code == 400:
-                logging.error(f"Repository {repo_name} does not exist")
+                logging.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -469,7 +469,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_remote_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.debug(f"Repository {repo_name} successfully updated")
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_remote_repo(repo_name)
 
     def list(self) -> List[SimpleRepository]:
@@ -489,7 +489,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
 
         self._delete(f"api/{self._uri}/{repo_name}")
-        logging.debug(f"Repository {repo_name} successfully deleted")
+        logging.debug("Repository %s successfully deleted", repo_name)
 
 
 class ArtifactoryPermission(ArtifactoryObject):
@@ -506,13 +506,13 @@ class ArtifactoryPermission(ArtifactoryObject):
         permission_name = permission.name
         try:
             self.get(permission_name)
-            logging.debug(f"Permission {permission_name} already exists")
+            logging.debug("Permission %s already exists", permission_name)
             raise PermissionAlreadyExistsException(
                 f"Permission {permission_name} already exists"
             )
         except PermissionNotFoundException:
             self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-            logging.debug(f"Permission {permission_name} successfully created")
+            logging.debug("Permission %s successfully created", permission_name)
             return self.get(permission_name)
 
     def get(self, permission_name: str) -> Permission:
@@ -526,7 +526,7 @@ class ArtifactoryPermission(ArtifactoryObject):
             return Permission(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error(f"Permission {permission_name} does not exist")
+                logging.error("Permission %s does not exist", permission_name)
                 raise PermissionNotFoundException(
                     f"Permission {permission_name} does not exist"
                 )
@@ -549,7 +549,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         permission_name = permission.name
         self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-        logging.debug(f"Permission {permission_name} successfully updated")
+        logging.debug("Permission %s successfully updated", permission_name)
         return self.get(permission_name)
 
     def delete(self, permission_name: str) -> None:
@@ -560,7 +560,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         self.get(permission_name)
         self._delete(f"api/{self._uri}/{permission_name}")
-        logging.debug(f"Permission {permission_name} successfully deleted")
+        logging.debug("Permission %s successfully deleted", permission_name)
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
@@ -584,7 +584,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             )
             headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
             self._put(f"{artifact_path}", headers=headers, data=form)
-            logging.info(f"Artifact {local_filename} successfully deployed")
+            logging.info("Artifact %s successfully deployed", local_filename)
             return self.properties(artifact_path)
 
     def download(self, artifact_path: str, local_directory_path: str = None) -> str:
@@ -607,7 +607,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # filter out keep-alive new chunks
                         file.write(chunk)
-        logging.info(f"Artifact {local_filename} successfully downloaded")
+        logging.info("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
     def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
@@ -647,7 +647,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info(f"Artifact {artifact_current_path} successfully copied")
+        logging.info("Artifact %s successfully copied", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def move(
@@ -668,7 +668,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info(f"Artifact {artifact_current_path} successfully moved")
+        logging.info("Artifact %s successfully moved", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def delete(self, artifact_path: str) -> None:
@@ -678,4 +678,4 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         self._delete(f"{artifact_path}")
-        logging.info(f"Artifact {artifact_path} successfully deleted")
+        logging.info("Artifact %s successfully deleted", artifact_path)
