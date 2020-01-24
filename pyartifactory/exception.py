@@ -37,3 +37,7 @@ class RepositoryNotFoundException(ArtifactoryException):
 
 class PermissionNotFoundException(ArtifactoryException):
     """A permission object was not found."""
+
+
+class InvalidTokenDataException(ArtifactoryException):
+    pass

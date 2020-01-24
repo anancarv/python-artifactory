@@ -1,0 +1,85 @@
+name: Check code
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.6
+      uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+      with:
+        python-version: 3.6
+
+    - name: Install Poetry
+      uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+      with:
+        version: 1.0.2
+
+    - name: Cache Poetry virtualenv
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.virtualenvs # location of th cache files
+        # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
+    - name: Set Poetry config
+      run: |
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
+
+    - name: Install Dependencies
+      run: poetry install
+      if: steps.cache.outputs.cache-hit != 'true'
+
+    - name: Lint with pre-commit
+      run: |
+        poetry run pre-commit run --all-files
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+        with:
+          python-version: 3.6
+
+      - name: Install Poetry
+        uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+        with:
+          version: 1.0.2
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs # location of th cache files
+          # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Set Poetry config
+        run: |
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+
+      - name: Install Dependencies
+        run: poetry install
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Run pytest
+        run: |
+          # https://stackoverflow.com/a/16081218
+          EXIT_STATUS=0
+          poetry run pytest --cov=pyartifactory --cov-branch --cov-report=xml || EXIT_STATUS=$?
+          poetry run python-codacy-coverage -r coverage.xml || EXIT_STATUS=$?
+          exit $EXIT_STATUS
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
