@@ -10,6 +10,7 @@ from pyartifactory.objects import (
     ArtifactoryArtifact,
     ArtifactoryPermission,
     Artifactory,
+    AccessTokenModel,
 )
 
 __version__ = "1.1.0"

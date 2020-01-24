@@ -40,4 +40,4 @@ class PermissionNotFoundException(ArtifactoryException):
 
 
 class InvalidTokenDataException(ArtifactoryException):
-    pass
+    """The token contains invalid data."""

@@ -29,6 +29,8 @@ class PasswordModel(BaseModel):
 
 
 class AccessTokenModel(BaseModel):
+    """Model an access token."""
+
     access_token: str
     expires_in: Optional[int] = 3600
     scope: str

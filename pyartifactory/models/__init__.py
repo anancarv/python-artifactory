@@ -2,7 +2,7 @@
 Import all models here.
 """
 
-from .auth import AuthModel, ApiKeyModel, PasswordModel
+from .auth import AuthModel, ApiKeyModel, PasswordModel, AccessTokenModel
 from .group import Group, SimpleGroup
 from .user import NewUser, UserResponse, BaseUserModel, SimpleUser, User
 from .repository import (
