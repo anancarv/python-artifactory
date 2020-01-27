@@ -17,16 +17,6 @@ jobs:
       with:
         version: 1.0.2
 
-    - name: Cache Poetry virtualenv
-      uses: actions/cache@v1
-      id: cache
-      with:
-        path: ~/.virtualenvs # location of th cache files
-        # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-poetry-
-
     - name: Set Poetry config
       run: |
         poetry config virtualenvs.in-project false
@@ -54,16 +44,6 @@ jobs:
         uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
         with:
           version: 1.0.2
-
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.virtualenvs # location of th cache files
-          # creates a new cache when the packages in poetry.lock file change, or when the runner's operating system changes
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
 
       - name: Set Poetry config
         run: |
