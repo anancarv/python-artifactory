@@ -46,7 +46,9 @@ def test_aql_fail_baq_query():
 
     artifactory_aql = ArtifactoryAql(AuthModel(url=URL, auth=AUTH))
     aql_obj = Aql(
-        **{"include": ["artifact", "artifact.module", "artifact.module.build"]}
+        include=["artifact", "artifact.module", "artifact.module.build"],
+        sort={"$asc": ["remote_downloaded"]},
+        limit=100,
     )
 
     with pytest.raises(AqlException):

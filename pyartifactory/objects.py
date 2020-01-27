@@ -792,6 +792,6 @@ class ArtifactoryAql(ArtifactoryObject):
             return response.json()["results"]
         except requests.exceptions.HTTPError:
             raise AqlException(
-                "Bad Aql Query: please check your parameters. "
+                "Bad Aql Query: please check your parameters."
                 "Doc: https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language"
             )
