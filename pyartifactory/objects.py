@@ -61,6 +61,7 @@ class Artifactory:
         self.repositories = ArtifactoryRepository(self.artifactory)
         self.artifacts = ArtifactoryArtifact(self.artifactory)
         self.aql = ArtifactoryAql(self.artifactory)
+        self.permissions = ArtifactoryPermission(self.artifactory)
 
 
 class ArtifactoryObject:
