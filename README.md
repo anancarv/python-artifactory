@@ -115,6 +115,11 @@ Delete a user:
 art.users.delete("test_user")
 ```
 
+Unlock a user:
+```python
+art.users.unlock("test_user")
+```
+
 #### Group
 
 Get the list of groups:

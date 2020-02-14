@@ -165,3 +165,12 @@ def test_delete_user_success(mocker):
     artifactory_user.delete(NEW_USER.name)
 
     artifactory_user.get.assert_called_once_with(NEW_USER.name)
+
+
+@responses.activate
+def test_unlock_user_success(mocker):
+    responses.add(
+        responses.POST, f"{URL}/api/security/unlockUsers/{NEW_USER.name}", status=200
+    )
+    artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
+    artifactory_user.unlock(NEW_USER.name)
