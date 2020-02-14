@@ -196,6 +196,16 @@ class ArtifactoryUser(ArtifactoryObject):
         self._delete(f"api/{self._uri}/{name}")
         logging.debug(f"User {name} successfully deleted")
 
+    def unlock(self, name: str) -> None:
+        """
+        Unlock user
+        Even if the user doesn't exist, it succeed too
+        :param name: Name of the user to unlock
+        :return none
+        """
+        self._post(f"api/security/unlockUsers/{name}")
+        logging.debug(f"User {name} successfully unlocked")
+
 
 class ArtifactorySecurity(ArtifactoryObject):
     _uri = "security"
