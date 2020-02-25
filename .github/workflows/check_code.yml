@@ -26,6 +26,10 @@ jobs:
     - name: Install Dependencies
       run: poetry install
 
+    - name: Type checking with mypy
+      run: |
+        poetry run mypy pyartifactory
+
     - name: Lint with pre-commit
       run: |
         poetry run pre-commit run --all-files

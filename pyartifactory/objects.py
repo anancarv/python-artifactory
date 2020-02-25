@@ -114,7 +114,7 @@ class ArtifactoryObject:
         """
 
         http_method = getattr(self.session, method)
-        response = http_method(
+        response: Response = http_method(
             f"{self._artifactory.url}/{route}",
             auth=self._auth,
             **kwargs,
