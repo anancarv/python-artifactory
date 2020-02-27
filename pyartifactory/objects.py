@@ -211,7 +211,7 @@ class ArtifactoryUser(ArtifactoryObject):
         :return none
         """
         self._post(f"api/security/unlockUsers/{name}")
-        logging.debug(f"User {name} successfully unlocked")
+        logging.debug("User % successfully unlocked", name)
 
 
 class ArtifactorySecurity(ArtifactoryObject):
