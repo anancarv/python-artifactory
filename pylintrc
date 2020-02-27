@@ -1,0 +1,9 @@
+[MASTER]
+extension-pkg-whitelist=pydantic
+
+[MESSAGES CONTROL]
+disable=bad-continuation,
+        line-too-long,
+        too-few-public-methods,
+        import-error,
+        too-many-instance-attributes

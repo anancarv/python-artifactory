@@ -3,7 +3,7 @@ import responses
 
 from pyartifactory import ArtifactoryAql
 from pyartifactory.exception import AqlException
-from pyartifactory.models import AuthModel, Aql
+from pyartifactory.models import AuthModel, aql
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
@@ -33,7 +33,7 @@ def test_aql_success():
     )
 
     artifactory_aql = ArtifactoryAql(AuthModel(url=URL, auth=AUTH))
-    aql_obj = Aql(**{"find": {"repo": {"$eq": "libs-release-local"}}})
+    aql_obj = aql(**{"find": {"repo": {"$eq": "libs-release-local"}}})
     result = artifactory_aql.query(aql_obj)
     assert result == AQL_RESPONSE["results"]
 
@@ -45,7 +45,7 @@ def test_aql_fail_baq_query():
     )
 
     artifactory_aql = ArtifactoryAql(AuthModel(url=URL, auth=AUTH))
-    aql_obj = Aql(
+    aql_obj = aql(
         include=["artifact", "artifact.module", "artifact.module.build"],
         sort={"$asc": ["remote_downloaded"]},
         limit=100,

@@ -1,42 +1,47 @@
+"""
+Definition of all exceptions.
+"""
+
+
 class ArtifactoryException(Exception):
-    pass
+    """Generic artifactory exception."""
 
 
 class UserAlreadyExistsException(ArtifactoryException):
-    pass
+    """User already exists."""
 
 
 class GroupAlreadyExistsException(ArtifactoryException):
-    pass
+    """Group already exists."""
 
 
 class RepositoryAlreadyExistsException(ArtifactoryException):
-    pass
+    """Repository already exists."""
 
 
 class PermissionAlreadyExistsException(ArtifactoryException):
-    pass
+    """Permission already exists."""
 
 
 class UserNotFoundException(ArtifactoryException):
-    pass
+    """The user was not found."""
 
 
 class GroupNotFoundException(ArtifactoryException):
-    pass
+    """The group was not found."""
 
 
 class RepositoryNotFoundException(ArtifactoryException):
-    pass
+    """The repository was not found."""
 
 
 class PermissionNotFoundException(ArtifactoryException):
-    pass
+    """A permission object was not found."""
 
 
 class AqlException(ArtifactoryException):
-    pass
+    """Generic Aql contains invalid data."""
 
 
 class InvalidTokenDataException(ArtifactoryException):
-    pass
+    """The token contains invalid data."""

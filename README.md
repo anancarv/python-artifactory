@@ -116,6 +116,11 @@ Delete a user:
 art.users.delete("test_user")
 ```
 
+Unlock a user:
+```python
+art.users.unlock("test_user")
+```
+
 #### Group
 
 Get the list of groups:
@@ -303,12 +308,12 @@ art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 You can use [Artifactory Query Language](https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language) to uncover data related to the artifacts and builds stored within Artifactory
 ```python
 from pyartifactory import Artifactory
-from pyartifactory.models import Aql
+from pyartifactory.models import aql
 
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
 
 # Create an Aql object with your query parameters
-aql_obj = Aql(domain="items", find={"name" : {"$match":"*.jar"}}, sort={ "$asc" : ["repo","name"] }, limit= 100)
+aql_obj = aql(domain="items", find={"name" : {"$match":"*.jar"}}, sort={ "$asc" : ["repo","name"] }, limit= 100)
 
 # Query
 result = art.aql.query(aql_obj)
