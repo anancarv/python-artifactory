@@ -1,8 +1,13 @@
-from pydantic import BaseModel
+"""
+Definition of all group models.
+"""
 from typing import Optional
+from pydantic import BaseModel
 
 
 class Group(BaseModel):
+    """Models a group."""
+
     name: str
     description: Optional[str] = None
     autoJoin: bool = False
@@ -12,5 +17,7 @@ class Group(BaseModel):
 
 
 class SimpleGroup(BaseModel):
+    """Models a simple group."""
+
     name: str
     uri: str

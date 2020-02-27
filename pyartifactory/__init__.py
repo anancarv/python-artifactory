@@ -1,3 +1,7 @@
+"""
+Import all object definitions here.
+"""
+
 from pyartifactory.objects import (
     ArtifactoryUser,
     ArtifactoryGroup,
@@ -6,6 +10,7 @@ from pyartifactory.objects import (
     ArtifactoryArtifact,
     ArtifactoryPermission,
     Artifactory,
+    AccessTokenModel,
 )
 
 __version__ = "1.2.0"
