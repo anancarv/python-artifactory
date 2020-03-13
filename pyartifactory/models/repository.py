@@ -194,7 +194,7 @@ class VirtualRepository(BaseRepositoryModel):
     externalDependenciesRemoteRepo: Optional[str] = None
 
 
-class VirtualRepositoryResponse(LocalRepository):
+class VirtualRepositoryResponse(VirtualRepository):
     """Models a virtual repository response."""
 
     dockerApiVersion: str = "V2"
