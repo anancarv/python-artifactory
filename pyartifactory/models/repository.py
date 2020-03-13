@@ -182,6 +182,7 @@ class LocalRepositoryResponse(LocalRepository):
 class VirtualRepository(BaseRepositoryModel):
     """Models a virtual repository."""
 
+    rclass: RClassEnum = RClassEnum.virtual
     repositories: Optional[List[str]] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
@@ -194,7 +195,7 @@ class VirtualRepository(BaseRepositoryModel):
     externalDependenciesRemoteRepo: Optional[str] = None
 
 
-class VirtualRepositoryResponse(LocalRepository):
+class VirtualRepositoryResponse(VirtualRepository):
     """Models a virtual repository response."""
 
     dockerApiVersion: str = "V2"
@@ -218,6 +219,7 @@ class VirtualRepositoryResponse(LocalRepository):
 class RemoteRepository(BaseRepositoryModel):
     """Models a remote Repository."""
 
+    rclass: RClassEnum = RClassEnum.remote
     url: str
     username: Optional[str] = None
     password: Optional[SecretStr] = None
