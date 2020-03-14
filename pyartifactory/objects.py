@@ -3,12 +3,13 @@ Definition of all artifactory objects.
 """
 
 import logging
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict, Tuple, Union
 
 from pathlib import Path
 import requests
 from requests import Response
 from requests_toolbelt.multipart import encoder
+from pydantic import parse_obj_as
 
 from pyartifactory.exception import (
     UserNotFoundException,
@@ -45,6 +46,7 @@ from pyartifactory.models import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
 )
+from pyartifactory.models.repository import BaseRepositoryModel
 
 
 class Artifactory:
@@ -407,6 +409,86 @@ class ArtifactoryRepository(ArtifactoryObject):
 
     _uri = "repositories"
 
+    # Repositories operations
+    def get_repo(
+        self, repo_name: str
+    ) -> Union[
+        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
+    ]:
+        """
+        Finds repository in artifactory. Fill object if exist
+        :param repo_name: Name of the repository to retrieve
+        :return: LocalRepositoryResponse, VirtualRepositoryResponse or RemoteRepositoryResponse object
+        """
+        try:
+            response = self._get(f"api/{self._uri}/{repo_name}")
+            repo = parse_obj_as(BaseRepositoryModel, response.json())
+            found_repo: Union[
+                LocalRepositoryResponse,
+                VirtualRepositoryResponse,
+                RemoteRepositoryResponse,
+            ]
+            if repo.rclass == "local":
+                found_repo = self.get_local_repo(repo_name)
+            elif repo.rclass == "virtual":
+                found_repo = self.get_virtual_repo(repo_name)
+            else:
+                found_repo = self.get_remote_repo(repo_name)
+            return found_repo
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
+                logging.error("Repository %s does not exist", repo_name)
+                raise RepositoryNotFoundException(
+                    f" Repository {repo_name} does not exist"
+                )
+            raise ArtifactoryException from error
+
+    def create_repo(
+        self, repo: Union[LocalRepository, VirtualRepository, RemoteRepository]
+    ) -> Union[
+        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
+    ]:
+        """
+        Creates a local, virtual or remote repository
+        :param repo: Either a local, virtual or remote repository
+        :return: LocalRepositoryResponse, VirtualRepositoryResponse or RemoteRepositoryResponse object
+        """
+        created_repo: Union[
+            LocalRepositoryResponse,
+            VirtualRepositoryResponse,
+            RemoteRepositoryResponse,
+        ]
+        if isinstance(repo, LocalRepository):
+            created_repo = self.create_local_repo(repo)
+        elif isinstance(repo, VirtualRepository):
+            created_repo = self.create_virtual_repo(repo)
+        else:
+            created_repo = self.create_remote_repo(repo)
+        return created_repo
+
+    def update_repo(
+        self, repo: Union[LocalRepository, VirtualRepository, RemoteRepository]
+    ) -> Union[
+        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
+    ]:
+        """
+        Updates a local, virtual or remote repository
+        :param repo: Either a local, virtual or remote repository
+        :return: LocalRepositoryResponse, VirtualRepositoryResponse or RemoteRepositoryResponse object
+        """
+        updated_repo: Union[
+            LocalRepositoryResponse,
+            VirtualRepositoryResponse,
+            RemoteRepositoryResponse,
+        ]
+        if isinstance(repo, LocalRepository):
+            updated_repo = self.update_local_repo(repo)
+        elif isinstance(repo, VirtualRepository):
+            updated_repo = self.update_virtual_repo(repo)
+        else:
+            updated_repo = self.update_remote_repo(repo)
+        return updated_repo
+
     # Local repositories operations
     def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         """
@@ -437,7 +519,6 @@ class ArtifactoryRepository(ArtifactoryObject):
             return LocalRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -485,7 +566,6 @@ class ArtifactoryRepository(ArtifactoryObject):
             return VirtualRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
-                logging.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -531,13 +611,12 @@ class ArtifactoryRepository(ArtifactoryObject):
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
             return RemoteRepositoryResponse(**response.json())
-        except requests.exceptions.HTTPError as errror:
-            if errror.response.status_code == 404 or errror.response.status_code == 400:
-                logging.error("Repository %s does not exist", repo_name)
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
-            raise ArtifactoryException from errror
+            raise ArtifactoryException from error
 
     def update_remote_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
         """

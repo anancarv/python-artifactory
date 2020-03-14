@@ -184,26 +184,31 @@ Get the list of repositories:
 repositories = art.repositories.list()
 ```
 
-Get a single repository (Local, Virtual or Remote):
+Get a single repository
 ```python
-local_repo = art.repositories.get_local_repo("local_repo_name")
-virtual_repo = art.repositories.get_virtual_repo("virtual_repo_name")
-remote_repo = art.repositories.get_remote_repo("remote_repo_name")
+local_repo = art.repositories.get_repo("repo_name")
 ```
 
 Create/Update a repository:
 ```python
-from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
+from pyartifactory.models import LocalRepository
 
-# Create a repository
+# Create local repo
 local_repo = LocalRepository(key="test_local_repo")
-new_local_repo = art.repositories.create_local_repo(local_repo)
+new_local_repo = art.repositories.create_repo(local_repo)
+
+# Create virtual repo
+virtual_repo = VirtualRepository(key="test_virtual_repo")
+new_virtual_repo = art.repositories.create_repo(virtual_repo)
+
+# Create remote repo
+remote_repo = RemoteRepository(key="test_remote_repo")
+new_remote_repo = art.repositories.create_repo(remote_repo)
 
 # Update a repository
+local_repo = art.repositories.get_repo("test_local_repo")
 local_repo.description = "test_local_repo"
-updated_local_repo = art.repositories.update_local_repo(local_repo)
-
-# Same process for Virtual and Remote repositories
+updated_local_repo = art.repositories.update_repo(local_repo)
 ```
 
 Delete a repository:
