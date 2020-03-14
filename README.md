@@ -9,11 +9,11 @@
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications.
-It requires at least Python 3.6
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.6+ type hints.
 
 <!-- toc -->
 
+- [Requirements](#requirements)
 - [Install](#install)
 - [Usage](#usage)
   * [Authentication](#authentication)
@@ -35,6 +35,11 @@ It requires at least Python 3.6
   * [Contributing](#contributing)
 
 <!-- tocstop -->
+
+## Requirements
+
+* Python 3.6+
+
 
 ## Install
 
@@ -186,12 +191,13 @@ repositories = art.repositories.list()
 
 Get a single repository
 ```python
-local_repo = art.repositories.get_repo("repo_name")
+repo = art.repositories.get_repo("repo_name")
+# According to the repo type, you'll have either a local, virtual or remote repository returned
 ```
 
 Create/Update a repository:
 ```python
-from pyartifactory.models import LocalRepository
+from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
 
 # Create local repo
 local_repo = LocalRepository(key="test_local_repo")
