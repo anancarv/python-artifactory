@@ -216,9 +216,10 @@ def test_get_local_repository_success(mocker):
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_local_repo")
-    artifactory_repo.get_local_repo(LOCAL_REPOSITORY.key)
+    local_repo = artifactory_repo.get_local_repo(LOCAL_REPOSITORY.key)
 
     artifactory_repo.get_local_repo.assert_called_once()
+    assert local_repo == LOCAL_REPOSITORY_RESPONSE
 
 
 @responses.activate
@@ -232,9 +233,10 @@ def test_get_virtual_repository_success(mocker):
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_virtual_repo")
-    artifactory_repo.get_virtual_repo(VIRTUAL_REPOSITORY.key)
+    virtual_repo = artifactory_repo.get_virtual_repo(VIRTUAL_REPOSITORY.key)
 
     artifactory_repo.get_virtual_repo.assert_called_once()
+    assert virtual_repo == VIRTUAL_REPOSITORY_RESPONSE
 
 
 @responses.activate
@@ -248,9 +250,10 @@ def test_get_remote_repository_success(mocker):
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_remote_repo")
-    artifactory_repo.get_remote_repo(REMOTE_REPOSITORY.key)
+    remote_repo = artifactory_repo.get_remote_repo(REMOTE_REPOSITORY.key)
 
     artifactory_repo.get_remote_repo.assert_called_once()
+    assert remote_repo == REMOTE_REPOSITORY_RESPONSE
 
 
 @responses.activate
