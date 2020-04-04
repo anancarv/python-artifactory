@@ -166,6 +166,7 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{name}")
+            logging.debug("User %s found", name)
             return UserResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
@@ -364,6 +365,7 @@ class ArtifactoryGroup(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{name}")
+            logging.debug("Group %s found", name)
             return Group(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
@@ -515,6 +517,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
+            logging.debug("Repository %s found", repo_name)
             return LocalRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
@@ -562,6 +565,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
+            logging.debug("Repository %s found", repo_name)
             return VirtualRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
@@ -609,6 +613,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
+            logging.debug("Repository %s found", repo_name)
             return RemoteRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
@@ -680,6 +685,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{permission_name}")
+            logging.debug("Permission %s found", permission_name)
             return Permission(**response.json())
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
