@@ -1,7 +1,6 @@
 """
 Definition of all artifactory objects.
 """
-
 import logging
 from typing import List, Optional, Dict, Tuple, Union
 
@@ -286,7 +285,7 @@ class ArtifactorySecurity(ArtifactoryObject):
             f"api/{self._uri}/token/revoke", data=payload, raise_for_status=False
         )
         if response.ok:
-            logging.info("Token revoked successfully, or token did not exist")
+            logging.debug("Token revoked successfully, or token did not exist")
             return True
         logging.error("Token revocation unsuccessful, response was %s", response.text)
         return False
@@ -742,7 +741,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             )
             headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
             self._put(f"{artifact_path}", headers=headers, data=form)
-            logging.info("Artifact %s successfully deployed", local_filename)
+            logging.debug("Artifact %s successfully deployed", local_filename)
             return self.properties(artifact_path)
 
     def download(self, artifact_path: str, local_directory_path: str = None) -> str:
@@ -765,7 +764,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # filter out keep-alive new chunks
                         file.write(chunk)
-        logging.info("Artifact %s successfully downloaded", local_filename)
+        logging.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
     def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
@@ -775,7 +774,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         response = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
-        logging.info("Artifact Properties successfully retrieved")
+        logging.debug("Artifact Properties successfully retrieved")
         return ArtifactPropertiesResponse(**response.json())
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
@@ -785,7 +784,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         response = self._get(f"api/storage/{artifact_path}?stats")
-        logging.info("Artifact stats successfully retrieved")
+        logging.debug("Artifact stats successfully retrieved")
         return ArtifactStatsResponse(**response.json())
 
     def copy(
@@ -805,7 +804,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info("Artifact %s successfully copied", artifact_current_path)
+        logging.debug("Artifact %s successfully copied", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def move(
@@ -826,7 +825,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info("Artifact %s successfully moved", artifact_current_path)
+        logging.debug("Artifact %s successfully moved", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def delete(self, artifact_path: str) -> None:
@@ -836,4 +835,4 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         self._delete(f"{artifact_path}")
-        logging.info("Artifact %s successfully deleted", artifact_path)
+        logging.debug("Artifact %s successfully deleted", artifact_path)
