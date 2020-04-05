@@ -127,7 +127,7 @@ class BaseRepositoryModel(BaseModel):
     """Models a base repository."""
 
     key: str
-    rclass: RClassEnum = RClassEnum.local
+    rclass: RClassEnum
     packageType: PackageTypeEnum = PackageTypeEnum.generic
     description: Optional[str] = None
     notes: Optional[str] = None
@@ -139,6 +139,7 @@ class BaseRepositoryModel(BaseModel):
 class LocalRepository(BaseRepositoryModel):
     """Models a local repository."""
 
+    rclass: RClassEnum = RClassEnum.local
     checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
     handleReleases: bool = True
     handleSnapshots: bool = True
