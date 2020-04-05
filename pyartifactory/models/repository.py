@@ -1,8 +1,9 @@
 """
 Definition of all repository models.
 """
-from typing import Optional, List
 from enum import Enum
+from typing import Optional, List
+from typing_extensions import Literal
 
 from pydantic import BaseModel, SecretStr
 
@@ -139,7 +140,7 @@ class BaseRepositoryModel(BaseModel):
 class LocalRepository(BaseRepositoryModel):
     """Models a local repository."""
 
-    rclass: RClassEnum = RClassEnum.local
+    rclass: Literal[RClassEnum.local] = RClassEnum.local
     checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
     handleReleases: bool = True
     handleSnapshots: bool = True
@@ -183,7 +184,7 @@ class LocalRepositoryResponse(LocalRepository):
 class VirtualRepository(BaseRepositoryModel):
     """Models a virtual repository."""
 
-    rclass: RClassEnum = RClassEnum.virtual
+    rclass: Literal[RClassEnum.virtual] = RClassEnum.virtual
     repositories: Optional[List[str]] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
@@ -220,7 +221,7 @@ class VirtualRepositoryResponse(VirtualRepository):
 class RemoteRepository(BaseRepositoryModel):
     """Models a remote Repository."""
 
-    rclass: RClassEnum = RClassEnum.remote
+    rclass: Literal[RClassEnum.remote] = RClassEnum.remote
     url: str
     username: Optional[str] = None
     password: Optional[SecretStr] = None

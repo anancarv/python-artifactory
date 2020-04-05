@@ -32,33 +32,25 @@ UPDATED_LOCAL_REPOSITORY = LocalRepository(
 UPDATED_LOCAL_REPOSITORY_RESPONSE = LocalRepositoryResponse(
     key="test_local_repository", description="updated"
 )
-VIRTUAL_REPOSITORY = VirtualRepository(key="test_virtual_repository", rclass="virtual")
-VIRTUAL_REPOSITORY_RESPONSE = VirtualRepositoryResponse(
-    key="test_virtual_repository", rclass="virtual"
-)
+VIRTUAL_REPOSITORY = VirtualRepository(key="test_virtual_repository")
+VIRTUAL_REPOSITORY_RESPONSE = VirtualRepositoryResponse(key="test_virtual_repository")
 UPDATED_VIRTUAL_REPOSITORY = VirtualRepository(
-    key="test_virtual_repository", rclass="virtual", description="updated"
+    key="test_virtual_repository", description="updated"
 )
 UPDATED_VIRTUAL_REPOSITORY_RESPONSE = VirtualRepositoryResponse(
-    key="test_virtual_repository", rclass="virtual", description="updated"
+    key="test_virtual_repository", description="updated"
 )
 REMOTE_REPOSITORY = RemoteRepository(
-    key="test_remote_repository", url="http://test-url.com", rclass="remote"
+    key="test_remote_repository", url="http://test-url.com"
 )
 REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
-    key="test_remote_repository", url="http://test-url.com", rclass="remote"
+    key="test_remote_repository", url="http://test-url.com"
 )
 UPDATED_REMOTE_REPOSITORY = RemoteRepository(
-    key="test_remote_repository",
-    url="http://test-url.com",
-    rclass="remote",
-    description="updated",
+    key="test_remote_repository", url="http://test-url.com", description="updated",
 )
 UPDATED_REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
-    key="test_remote_repository",
-    url="http://test-url.com",
-    rclass="remote",
-    description="updated",
+    key="test_remote_repository", url="http://test-url.com", description="updated",
 )
 
 
@@ -76,7 +68,7 @@ def test_create_local_repository_using_create_repo_fail_if_user_already_exists(m
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_repo(LOCAL_REPOSITORY)
 
-        artifactory_repo.create_local_repo.assert_called_once_with(LOCAL_REPOSITORY)
+    artifactory_repo.create_local_repo.assert_called_once_with(LOCAL_REPOSITORY)
 
 
 @responses.activate
@@ -93,7 +85,7 @@ def test_create_local_repository_fail_if_user_already_exists(mocker):
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_local_repo(LOCAL_REPOSITORY)
 
-        artifactory_repo.get_local_repo.assert_called_once_with(LOCAL_REPOSITORY.key)
+    artifactory_repo.get_local_repo.assert_called_once_with(LOCAL_REPOSITORY.key)
 
 
 @responses.activate
@@ -103,7 +95,7 @@ def test_create_virtual_repository_using_create_repo_fail_if_user_already_exists
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.dict(),
+        json=VIRTUAL_REPOSITORY_RESPONSE.dict(),
         status=200,
     )
 
@@ -112,7 +104,7 @@ def test_create_virtual_repository_using_create_repo_fail_if_user_already_exists
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_repo(VIRTUAL_REPOSITORY)
 
-        artifactory_repo.create_local_repo.assert_called_once_with(VIRTUAL_REPOSITORY)
+    artifactory_repo.create_virtual_repo.assert_called_once_with(VIRTUAL_REPOSITORY)
 
 
 @responses.activate
@@ -129,9 +121,7 @@ def test_create_virtual_repository_fail_if_user_already_exists(mocker):
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_virtual_repo(VIRTUAL_REPOSITORY)
 
-        artifactory_repo.get_virtual_repo.assert_called_once_with(
-            VIRTUAL_REPOSITORY.key
-        )
+    artifactory_repo.get_virtual_repo.assert_called_once_with(VIRTUAL_REPOSITORY.key)
 
 
 @responses.activate
@@ -148,7 +138,7 @@ def test_create_remote_repository_using_create_repo_fail_if_user_already_exists(
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_repo(REMOTE_REPOSITORY)
 
-        artifactory_repo.create_local_repo.assert_called_once_with(REMOTE_REPOSITORY)
+    artifactory_repo.create_remote_repo.assert_called_once_with(REMOTE_REPOSITORY)
 
 
 @responses.activate
@@ -165,7 +155,7 @@ def test_create_remote_repository_fail_if_user_already_exists(mocker):
     with pytest.raises(RepositoryAlreadyExistsException):
         artifactory_repo.create_remote_repo(REMOTE_REPOSITORY)
 
-        artifactory_repo.get_remote_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
+    artifactory_repo.get_remote_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
 
 
 @responses.activate
@@ -403,7 +393,7 @@ def test_get_remote_repository_error_not_found():
 
 
 @responses.activate
-def test_get_local_repositoryusing_get_repo_success(mocker):
+def test_get_local_repository_using_get_repo_success(mocker):
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",

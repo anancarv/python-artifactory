@@ -8,4 +8,4 @@ disable=bad-continuation,
         import-error
 
 [BASIC]
-good-names=logger
+good-names=logger,i,j,k,ex,Run,_

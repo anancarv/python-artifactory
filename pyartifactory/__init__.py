@@ -1,5 +1,5 @@
 """
-Import all object definitions here and name the package logger.
+Import all object definitions here.
 """
 from pyartifactory.objects import (
     ArtifactoryUser,

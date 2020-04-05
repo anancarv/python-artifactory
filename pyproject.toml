@@ -16,6 +16,7 @@ email_validator = "^1.0"
 requests_toolbelt = "^0.9.1"
 pylint = "2.4.4"
 pydantic = "^1.4"
+typing_extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
