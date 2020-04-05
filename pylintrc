@@ -6,3 +6,6 @@ disable=bad-continuation,
         line-too-long,
         too-few-public-methods,
         import-error
+
+[BASIC]
+good-names=logger
