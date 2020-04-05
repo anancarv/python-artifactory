@@ -1,6 +1,7 @@
 """
 Definition of all artifactory objects.
 """
+import warnings
 import logging
 from typing import List, Optional, Dict, Tuple, Union
 
@@ -424,7 +425,11 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            repo = parse_obj_as(
+            repo: Union[
+                LocalRepositoryResponse,
+                VirtualRepositoryResponse,
+                RemoteRepositoryResponse,
+            ] = parse_obj_as(
                 Union[
                     LocalRepositoryResponse,
                     VirtualRepositoryResponse,
@@ -432,19 +437,7 @@ class ArtifactoryRepository(ArtifactoryObject):
                 ],
                 response.json(),
             )
-
-            found_repo: Union[
-                LocalRepositoryResponse,
-                VirtualRepositoryResponse,
-                RemoteRepositoryResponse,
-            ]
-            if repo.rclass == "local":
-                found_repo = self.get_local_repo(repo_name)
-            elif repo.rclass == "virtual":
-                found_repo = self.get_virtual_repo(repo_name)
-            else:
-                found_repo = self.get_remote_repo(repo_name)
-            return found_repo
+            return repo
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
                 logger.error("Repository %s does not exist", repo_name)
@@ -463,18 +456,17 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: Either a local, virtual or remote repository
         :return: LocalRepositoryResponse, VirtualRepositoryResponse or RemoteRepositoryResponse object
         """
-        created_repo: Union[
-            LocalRepositoryResponse,
-            VirtualRepositoryResponse,
-            RemoteRepositoryResponse,
-        ]
-        if isinstance(repo, LocalRepository):
-            created_repo = self.create_local_repo(repo)
-        elif isinstance(repo, VirtualRepository):
-            created_repo = self.create_virtual_repo(repo)
-        else:
-            created_repo = self.create_remote_repo(repo)
-        return created_repo
+        repo_name = repo.key
+        try:
+            self.get_repo(repo_name)
+            logger.error("Repository %s already exists", repo_name)
+            raise RepositoryAlreadyExistsException(
+                f"Repository {repo_name} already exists"
+            )
+        except RepositoryNotFoundException:
+            self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            logger.debug("Repository %s successfully created", repo_name)
+            return self.get_repo(repo_name)
 
     def update_repo(
         self, repo: Union[LocalRepository, VirtualRepository, RemoteRepository]
@@ -486,18 +478,11 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: Either a local, virtual or remote repository
         :return: LocalRepositoryResponse, VirtualRepositoryResponse or RemoteRepositoryResponse object
         """
-        updated_repo: Union[
-            LocalRepositoryResponse,
-            VirtualRepositoryResponse,
-            RemoteRepositoryResponse,
-        ]
-        if isinstance(repo, LocalRepository):
-            updated_repo = self.update_local_repo(repo)
-        elif isinstance(repo, VirtualRepository):
-            updated_repo = self.update_virtual_repo(repo)
-        else:
-            updated_repo = self.update_remote_repo(repo)
-        return updated_repo
+        repo_name = repo.key
+        self.get_repo(repo_name)
+        self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+        logger.debug("Repository %s successfully updated", repo_name)
+        return self.get_repo(repo_name)
 
     # Local repositories operations
     def create_local_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
@@ -506,6 +491,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: LocalRepository object
         :return: LocalRepositoryResponse object
         """
+        warnings.warn(
+            "`create_local_repo()` is deprecated, use `create_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         try:
             self.get_local_repo(repo_name)
@@ -524,6 +513,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo_name: Name of the repository to retrieve
         :return: LocalRepositoryResponse object
         """
+        warnings.warn(
+            "`get_local_repo()` is deprecated, use `get_repo` instead",
+            DeprecationWarning,
+        )
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
             logger.debug("Repository %s found", repo_name)
@@ -541,6 +534,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: LocalRepository object
         :return: LocalRepositoryResponse
         """
+        warnings.warn(
+            "`update_local_repo()` is deprecated, use `update_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         self.get_local_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
@@ -554,6 +551,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: VirtualRepository object
         :return: VirtualRepositoryResponse object
         """
+        warnings.warn(
+            "`create_virtual_repo()` is deprecated, use `create_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         try:
             self.get_virtual_repo(repo_name)
@@ -572,6 +573,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo_name: Name of the repository to retrieve
         :return: VirtualRepositoryResponse object
         """
+        warnings.warn(
+            "`get_virtual_repo()` is deprecated, use `get_repo` instead",
+            DeprecationWarning,
+        )
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
             logger.debug("Repository %s found", repo_name)
@@ -589,6 +594,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: VirtualRepository object
         :return: VirtualRepositoryResponse
         """
+        warnings.warn(
+            "`update_virtual_repo()` is deprecated, use `update_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         self.get_virtual_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
@@ -602,6 +611,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: RemoteRepository object
         :return: RemoteRepositoryResponse object
         """
+        warnings.warn(
+            "`create_remote_repo()` is deprecated, use `create_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         try:
             self.get_remote_repo(repo_name)
@@ -620,6 +633,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo_name: Name of the repository to retrieve
         :return: RemoteRepositoryResponse object
         """
+        warnings.warn(
+            "`get_remote_repo()` is deprecated, use `get_repo` instead",
+            DeprecationWarning,
+        )
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
             logger.debug("Repository %s found", repo_name)
@@ -637,6 +654,10 @@ class ArtifactoryRepository(ArtifactoryObject):
         :param repo: VirtualRepository object
         :return: VirtualRepositoryResponse
         """
+        warnings.warn(
+            "`update_remote_repo()` is deprecated, use `update_repo` instead",
+            DeprecationWarning,
+        )
         repo_name = repo.key
         self.get_remote_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
