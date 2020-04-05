@@ -439,9 +439,9 @@ class ArtifactoryRepository(ArtifactoryObject):
                 VirtualRepositoryResponse,
                 RemoteRepositoryResponse,
             ]
-            if type(repo).__name__ == "LocalRepository":
+            if repo.rclass == "local":
                 found_repo = self.get_local_repo(repo_name)
-            elif type(repo).__name__ == "VirtualRepository":
+            elif repo.rclass == "virtual":
                 found_repo = self.get_virtual_repo(repo_name)
             else:
                 found_repo = self.get_remote_repo(repo_name)
