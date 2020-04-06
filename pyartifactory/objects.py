@@ -457,7 +457,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_local_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.info("Repository %s successfully updated", repo_name)
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_local_repo(repo_name)
 
     # Virtual repositories operations
@@ -476,7 +476,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.info("Repository %s successfully created", repo_name)
+            logging.debug("Repository %s successfully created", repo_name)
             return self.get_virtual_repo(repo_name)
 
     def get_virtual_repo(self, repo_name: str) -> VirtualRepositoryResponse:
@@ -505,7 +505,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_virtual_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.info("Repository %s successfully updated", repo_name)
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_virtual_repo(repo_name)
 
     # Remote repositories operations
@@ -524,7 +524,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             )
         except RepositoryNotFoundException:
             self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
-            logging.info("Repository %s successfully created", repo_name)
+            logging.debug("Repository %s successfully created", repo_name)
             return self.get_remote_repo(repo_name)
 
     def get_remote_repo(self, repo_name: str) -> RemoteRepositoryResponse:
@@ -553,7 +553,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_remote_repo(repo_name)
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
-        logging.info("Repository %s successfully updated", repo_name)
+        logging.debug("Repository %s successfully updated", repo_name)
         return self.get_remote_repo(repo_name)
 
     def list(self) -> List[SimpleRepository]:
@@ -562,7 +562,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         :return: A list of repositories
         """
         response = self._get(f"api/{self._uri}")
-        logging.info("List all repositories successful")
+        logging.debug("List all repositories successful")
         return [SimpleRepository(**repository) for repository in response.json()]
 
     def delete(self, repo_name: str) -> None:
@@ -573,7 +573,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
 
         self._delete(f"api/{self._uri}/{repo_name}")
-        logging.info("Repository %s successfully deleted", repo_name)
+        logging.debug("Repository %s successfully deleted", repo_name)
 
 
 class ArtifactoryPermission(ArtifactoryObject):
@@ -590,13 +590,13 @@ class ArtifactoryPermission(ArtifactoryObject):
         permission_name = permission.name
         try:
             self.get(permission_name)
-            logging.info("Permission %s already exists", permission_name)
+            logging.debug("Permission %s already exists", permission_name)
             raise PermissionAlreadyExistsException(
                 f"Permission {permission_name} already exists"
             )
         except PermissionNotFoundException:
             self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-            logging.info("Permission %s successfully created", permission_name)
+            logging.debug("Permission %s successfully created", permission_name)
             return self.get(permission_name)
 
     def get(self, permission_name: str) -> Permission:
@@ -622,7 +622,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         :return: A list of permissions
         """
         response = self._get(f"api/{self._uri}")
-        logging.info("List all permissions successful")
+        logging.debug("List all permissions successful")
         return [SimplePermission(**permission) for permission in response.json()]
 
     def update(self, permission: Permission) -> Permission:
@@ -633,7 +633,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         permission_name = permission.name
         self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-        logging.info("Permission %s successfully updated", permission_name)
+        logging.debug("Permission %s successfully updated", permission_name)
         return self.get(permission_name)
 
     def delete(self, permission_name: str) -> None:
@@ -644,7 +644,7 @@ class ArtifactoryPermission(ArtifactoryObject):
         """
         self.get(permission_name)
         self._delete(f"api/{self._uri}/{permission_name}")
-        logging.info("Permission %s successfully deleted", permission_name)
+        logging.debug("Permission %s successfully deleted", permission_name)
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
@@ -668,7 +668,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             )
             headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
             self._put(f"{artifact_path}", headers=headers, data=form)
-            logging.info("Artifact %s successfully deployed", local_filename)
+            logging.debug("Artifact %s successfully deployed", local_filename)
             return self.properties(artifact_path)
 
     def download(self, artifact_path: str, local_directory_path: str = None) -> str:
@@ -691,7 +691,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # filter out keep-alive new chunks
                         file.write(chunk)
-        logging.info("Artifact %s successfully downloaded", local_filename)
+        logging.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
     def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
@@ -701,7 +701,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         response = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
-        logging.info("Artifact Properties successfully retrieved")
+        logging.debug("Artifact Properties successfully retrieved")
         return ArtifactPropertiesResponse(**response.json())
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
@@ -711,7 +711,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         response = self._get(f"api/storage/{artifact_path}?stats")
-        logging.info("Artifact stats successfully retrieved")
+        logging.debug("Artifact stats successfully retrieved")
         return ArtifactStatsResponse(**response.json())
 
     def copy(
@@ -731,7 +731,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info("Artifact %s successfully copied", artifact_current_path)
+        logging.debug("Artifact %s successfully copied", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def move(
@@ -752,7 +752,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             dry = 0
 
         self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
-        logging.info("Artifact %s successfully moved", artifact_current_path)
+        logging.debug("Artifact %s successfully moved", artifact_current_path)
         return self.properties(artifact_new_path)
 
     def delete(self, artifact_path: str) -> None:
@@ -762,7 +762,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.lstrip("/")
         self._delete(f"{artifact_path}")
-        logging.info("Artifact %s successfully deleted", artifact_path)
+        logging.debug("Artifact %s successfully deleted", artifact_path)
 
 
 def create_aql_query(aql_object: Aql) -> str:
@@ -813,6 +813,7 @@ class ArtifactoryAql(ArtifactoryObject):
             response_content: List[Dict[str, Union[str, List]]] = response.json()[
                 "results"
             ]
+            logging.debug("Successful query")
             return response_content
         except requests.exceptions.HTTPError:
             raise AqlException(
