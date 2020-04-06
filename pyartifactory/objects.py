@@ -37,6 +37,8 @@ from pyartifactory.models import (
     RemoteRepository,
     RemoteRepositoryResponse,
     SimpleRepository,
+    AnyRepository,
+    AnyRepositoryResponse,
     UserResponse,
     NewUser,
     SimpleUser,
@@ -48,9 +50,6 @@ from pyartifactory.models import (
 )
 
 logger = logging.getLogger("pyartifactory")
-AnyRepositoryResponse = Union[
-    LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
-]
 
 
 class Artifactory:
@@ -441,11 +440,7 @@ class ArtifactoryRepository(ArtifactoryObject):
                 )
             raise ArtifactoryException from error
 
-    def create_repo(
-        self, repo: AnyRepositoryResponse
-    ) -> Union[
-        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
-    ]:
+    def create_repo(self, repo: AnyRepository) -> AnyRepositoryResponse:
         """
         Creates a local, virtual or remote repository
         :param repo: Either a local, virtual or remote repository
@@ -463,11 +458,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             logger.debug("Repository %s successfully created", repo_name)
             return self.get_repo(repo_name)
 
-    def update_repo(
-        self, repo: AnyRepositoryResponse
-    ) -> Union[
-        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
-    ]:
+    def update_repo(self, repo: AnyRepository) -> AnyRepositoryResponse:
         """
         Updates a local, virtual or remote repository
         :param repo: Either a local, virtual or remote repository
