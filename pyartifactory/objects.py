@@ -48,6 +48,9 @@ from pyartifactory.models import (
 )
 
 logger = logging.getLogger("pyartifactory")
+AnyRepositoryResponse = Union[
+    LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
+]
 
 
 class Artifactory:
@@ -413,11 +416,7 @@ class ArtifactoryRepository(ArtifactoryObject):
     _uri = "repositories"
 
     # Repositories operations
-    def get_repo(
-        self, repo_name: str
-    ) -> Union[
-        LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
-    ]:
+    def get_repo(self, repo_name: str) -> AnyRepositoryResponse:
         """
         Finds repository in artifactory. Raises an exception if the repo doesn't exist.
         :param repo_name: Name of the repository to retrieve
@@ -425,11 +424,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            repo: Union[
-                LocalRepositoryResponse,
-                VirtualRepositoryResponse,
-                RemoteRepositoryResponse,
-            ] = parse_obj_as(
+            repo: AnyRepositoryResponse = parse_obj_as(
                 Union[
                     LocalRepositoryResponse,
                     VirtualRepositoryResponse,
@@ -447,7 +442,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             raise ArtifactoryException from error
 
     def create_repo(
-        self, repo: Union[LocalRepository, VirtualRepository, RemoteRepository]
+        self, repo: AnyRepositoryResponse
     ) -> Union[
         LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
     ]:
@@ -469,7 +464,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             return self.get_repo(repo_name)
 
     def update_repo(
-        self, repo: Union[LocalRepository, VirtualRepository, RemoteRepository]
+        self, repo: AnyRepositoryResponse
     ) -> Union[
         LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse
     ]:
