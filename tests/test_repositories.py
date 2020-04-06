@@ -183,7 +183,6 @@ def test_create_local_repository_using_create_repo_success(mocker):
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_repo")
     local_repo = artifactory_repo.create_repo(LOCAL_REPOSITORY)
-    artifactory_repo.get_repo.side_effect = RepositoryNotFoundException
 
     assert local_repo == LOCAL_REPOSITORY_RESPONSE
 
@@ -236,7 +235,6 @@ def test_create_virtual_repository_using_create_repo_success(mocker):
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_repo")
     virtual_repo = artifactory_repo.create_repo(VIRTUAL_REPOSITORY)
-    artifactory_repo.get_repo.side_effect = RepositoryNotFoundException
 
     assert virtual_repo == VIRTUAL_REPOSITORY_RESPONSE
 
@@ -289,7 +287,6 @@ def test_create_remote_repository_using_create_repo_success(mocker):
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_repo")
     remote_repo = artifactory_repo.create_repo(REMOTE_REPOSITORY)
-    artifactory_repo.get_repo.side_effect = RepositoryNotFoundException
 
     assert remote_repo == REMOTE_REPOSITORY_RESPONSE
 
