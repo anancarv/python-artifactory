@@ -9,12 +9,20 @@ repository = "https://github.com/anancarv/python-artifactory"
 documentation = "https://github.com/anancarv/python-artifactory"
 keywords = ["artifactory"]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "Operating System :: OS Independent",
+  "Intended Audience :: System Administrators",
+  "Typing :: Typed",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
   "Topic :: Software Development :: Libraries",
-  "Typing :: Typed"
+  "Topic :: System :: Filesystems",
+  "Operating System :: OS Independent"
 ]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
 [tool.poetry.dependencies]
 python = "^3.6"
