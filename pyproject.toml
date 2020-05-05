@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.0.2"
+version = "1.3.1"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>", "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>"]
 license = "MIT"
@@ -18,18 +18,22 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "^0.23.0"
 requests = "^2.21"
 email_validator = "^1.0"
+requests_toolbelt = "^0.9.1"
+pydantic = "^1.3"
+pylint = "2.4.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
-mypy = "^0.700.0"
-black = { version = "^19.3b0", allows-prereleases = true }
+mypy = "^0.740"
+black = { version = "^19.10b0", allow-prereleases = true }
 pre-commit = "^1.15"
 responses = "^0.10.6"
-pytest-mock = "^1.10"
-detect-secrets = "^0.12.4"
+pytest-mock = "^2.0.0"
+detect-secrets = "^0.13.0"
+pytest-cov = "^2.7"
+codacy-coverage = "^1.3"
 
 [build-system]
 requires = ["poetry>=0.12"]
