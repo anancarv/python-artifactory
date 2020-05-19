@@ -29,7 +29,6 @@ python = "^3.6"
 requests = "^2.21"
 email_validator = "^1.0"
 requests_toolbelt = "^0.9.1"
-pylint = "2.4.4"
 pydantic = "^1.4"
 typing_extensions = "^3.7.4"
 
@@ -43,6 +42,7 @@ pytest-mock = "^2.0.0"
 detect-secrets = "^0.13.0"
 pytest-cov = "^2.7"
 codacy-coverage = "^1.3"
+pylint = "^2.5.2"
 
 [build-system]
 requires = ["poetry>=0.12"]
