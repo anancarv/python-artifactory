@@ -22,6 +22,7 @@ from pyartifactory.exception import (
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
     InvalidTokenDataException,
+    PropertyNotFoundException,
 )
 
 from pyartifactory.models import (
@@ -789,15 +790,30 @@ class ArtifactoryArtifact(ArtifactoryObject):
         logger.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
-    def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
+    def properties(
+        self, artifact_path: str, properties: Optional[List[str]] = None
+    ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
+        :param properties: List of properties to retrieve
         :return: Artifact properties
         """
+        if properties is None:
+            properties = []
         artifact_path = artifact_path.lstrip("/")
-        response = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
-        logger.debug("Artifact Properties successfully retrieved")
-        return ArtifactPropertiesResponse(**response.json())
+        try:
+            response = self._get(
+                f"api/storage/{artifact_path}",
+                params={"properties": ",".join(properties)},
+            )
+            logger.debug("Artifact Properties successfully retrieved")
+            return ArtifactPropertiesResponse(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                raise PropertyNotFoundException(
+                    f"Properties {properties} were not found on artifact {artifact_path}"
+                )
+            raise ArtifactoryException from error
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
         """

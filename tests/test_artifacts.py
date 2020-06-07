@@ -1,6 +1,8 @@
+import pytest
 import responses
 
 from pyartifactory import ArtifactoryArtifact
+from pyartifactory.exception import PropertyNotFoundException
 from pyartifactory.models import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
@@ -13,14 +15,12 @@ ARTIFACT_PATH = "my-repository/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
-ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
-    repo="my-repository", path=ARTIFACT_SHORT_PATH, createdBy="myself", uri="my_uri"
+ARTIFACT_ONE_PROPERTY = ArtifactPropertiesResponse(
+    uri=f"{URL}/api/storage/{ARTIFACT_PATH}", properties={"prop1": ["value"]}
 )
-NEW_ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
-    repo="my-second-repository",
-    path=ARTIFACT_SHORT_PATH,
-    createdBy="myself",
-    uri="my_uri",
+ARTIFACT_MULTIPLE_PROPERTIES = ArtifactPropertiesResponse(
+    uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
+    properties={"prop1": ["value"], "prop2": ["another value", "with multiple parts"]},
 )
 
 ARTIFACT_STATS = ArtifactStatsResponse(
@@ -65,17 +65,75 @@ def test_download_artifact_success(tmp_path):
 
 
 @responses.activate
-def test_get_artifact_properties_success():
+def test_get_artifact_single_property_success():
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}?properties[=x[,y]]",
-        json=ARTIFACT_PROPERTIES.dict(),
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1",
+        json=ARTIFACT_ONE_PROPERTY.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1"])
+    assert artifact_properties.dict() == ARTIFACT_ONE_PROPERTY.dict()
+
+
+@responses.activate
+def test_get_artifact_multiple_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2"])
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_multiple_properties_with_non_existing_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2,non_existing_prop",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(
+        ARTIFACT_PATH, ["prop1", "prop2", "non_existing_prop"]
+    )
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_all_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_properties = artifactory.properties(ARTIFACT_PATH)
-    assert artifact_properties.dict() == ARTIFACT_PROPERTIES.dict()
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_property_not_found_error():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=a_property_not_found",
+        json={"errors": [{"status": 404, "message": "No properties could be found."}]},
+        status=404,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    with pytest.raises(PropertyNotFoundException):
+        artifactory.properties(ARTIFACT_PATH, properties=["a_property_not_found"])
 
 
 @responses.activate

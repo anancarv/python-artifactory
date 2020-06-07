@@ -4,7 +4,7 @@ Definition of all artifact models.
 
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel
 
 
@@ -30,6 +30,11 @@ class Child(BaseModel):
 
 
 class ArtifactPropertiesResponse(BaseModel):
+    uri: str
+    properties: Dict[str, List[str]]
+
+
+class ArtifactFileInfoResponse(BaseModel):
     """Models an artifact properties response."""
 
     repo: str

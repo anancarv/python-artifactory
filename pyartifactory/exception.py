@@ -39,5 +39,9 @@ class PermissionNotFoundException(ArtifactoryException):
     """A permission object was not found."""
 
 
+class PropertyNotFoundException(ArtifactoryException):
+    """All requested properties were not found"""
+
+
 class InvalidTokenDataException(ArtifactoryException):
     """The token contains invalid data."""
