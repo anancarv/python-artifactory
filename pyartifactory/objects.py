@@ -57,11 +57,7 @@ class Artifactory:
     """Models artifactory."""
 
     def __init__(
-        self,
-        url: str,
-        auth: Tuple[str, str] = None,
-        verify: bool = True,
-        cert: str = None,
+        self, url: str, auth: Tuple[str, str], verify: bool = True, cert: str = None,
     ):
         self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
         self.users = ArtifactoryUser(self.artifactory)

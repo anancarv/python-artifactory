@@ -30,12 +30,14 @@ class Child(BaseModel):
 
 
 class ArtifactPropertiesResponse(BaseModel):
+    """ Models an artifact properties response"""
+
     uri: str
     properties: Dict[str, List[str]]
 
 
 class ArtifactFileInfoResponse(BaseModel):
-    """Models an artifact properties response."""
+    """Models an artifact file info response."""
 
     repo: str
     path: str
