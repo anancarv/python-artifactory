@@ -23,6 +23,7 @@ from pyartifactory.exception import (
     PermissionNotFoundException,
     InvalidTokenDataException,
     PropertyNotFoundException,
+    ArtifactNotFoundException,
 )
 
 from pyartifactory.models import (
@@ -48,6 +49,11 @@ from pyartifactory.models import (
     SimplePermission,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
+    ArtifactInfoResponse,
+)
+from pyartifactory.models.artifact import (
+    ArtifactFileInfoResponse,
+    ArtifactFolderInfoResponse,
 )
 
 logger = logging.getLogger("pyartifactory")
@@ -741,6 +747,31 @@ class ArtifactoryPermission(ArtifactoryObject):
 
 class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
+
+    def info(self, artifact_path: str) -> ArtifactInfoResponse:
+        """
+        Retrieve information about a file or a folder
+
+        See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FolderInfo
+        and https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileInfo
+
+        :param artifact_path: Path to file or folder in Artifactory
+        """
+        artifact_path = artifact_path.lstrip("/")
+        try:
+            response = self._get(f"api/storage/{artifact_path}")
+            artifact_info: ArtifactInfoResponse = parse_obj_as(
+                Union[ArtifactFolderInfoResponse, ArtifactFileInfoResponse],
+                response.json(),
+            )
+            return artifact_info
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                logger.error("Artifact %s does not exist", artifact_path)
+                raise ArtifactNotFoundException(
+                    f"Artifact {artifact_path} does not exist"
+                )
+            raise ArtifactoryException from error
 
     def deploy(
         self, local_file_location: str, artifact_path: str

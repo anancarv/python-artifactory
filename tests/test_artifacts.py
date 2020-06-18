@@ -8,10 +8,15 @@ from pyartifactory.models import (
     ArtifactStatsResponse,
     AuthModel,
 )
+from pyartifactory.models.artifact import (
+    ArtifactFolderInfoResponse,
+    ArtifactFileInfoResponse,
+)
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-ARTIFACT_PATH = "my-repository/file.txt"
+ARTIFACT_FOLDER = "my_repository"
+ARTIFACT_PATH = f"{ARTIFACT_FOLDER}/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
@@ -22,6 +27,43 @@ ARTIFACT_MULTIPLE_PROPERTIES = ArtifactPropertiesResponse(
     uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
     properties={"prop1": ["value"], "prop2": ["another value", "with multiple parts"]},
 )
+FOLDER_INFO_RESPONSE = {
+    "uri": f"{URL}/api/storage/{ARTIFACT_FOLDER}",
+    "repo": ARTIFACT_FOLDER,
+    "path": "/",
+    "created": "2019-06-06T13:19:14.514Z",
+    "createdBy": "userY",
+    "lastModified": "2019-06-06T13:19:14.514Z",
+    "modifiedBy": "userX",
+    "lastUpdated": "2019-06-06T13:19:14.514Z",
+    "children": [
+        {"uri": "/child1", "folder": "true"},
+        {"uri": "/child2", "folder": "false"},
+    ],
+}
+FOLDER_INFO = ArtifactFolderInfoResponse(**FOLDER_INFO_RESPONSE)
+FILE_INFO_RESPONSE = {
+    "repo": ARTIFACT_FOLDER,
+    "path": ARTIFACT_PATH,
+    "created": "2019-06-06T13:19:14.514Z",
+    "createdBy": "userY",
+    "lastModified": "2019-06-06T13:19:14.514Z",
+    "modifiedBy": "userX",
+    "lastUpdated": "2019-06-06T13:19:14.514Z",
+    "downloadUri": f"{URL}/api/storage/{ARTIFACT_PATH}",
+    "mimeType": "application/json",
+    "size": "3454",
+    "checksums": {
+        "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
+        "md5": "4cf609e0fe1267df8815bc650f5851e9",
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
+    },
+    "originalChecksums": {
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"
+    },
+    "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
+}
+FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
 
 ARTIFACT_STATS = ArtifactStatsResponse(
     uri="my_uri",
@@ -30,6 +72,33 @@ ARTIFACT_STATS = ArtifactStatsResponse(
     remoteDownloadCount=0,
     remoteLastDownloaded=0,
 )
+
+
+@responses.activate
+def test_get_artifact_folder_info_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_FOLDER}",
+        status=200,
+        json=FOLDER_INFO_RESPONSE,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact = artifactory.info(ARTIFACT_FOLDER)
+    assert isinstance(artifact, ArtifactFolderInfoResponse)
+    assert artifact.dict() == FOLDER_INFO.dict()
+
+
+@responses.activate
+def test_get_artifact_file_info_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        status=200,
+        json=FILE_INFO_RESPONSE,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact = artifactory.info(ARTIFACT_PATH)
+    assert artifact.dict() == FILE_INFO.dict()
 
 
 @responses.activate

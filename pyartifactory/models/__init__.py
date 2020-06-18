@@ -1,7 +1,7 @@
 """
 Import all models here.
 """
-from typing import Union
+from typing import Union, Type
 
 from .auth import AuthModel, ApiKeyModel, PasswordModel, AccessTokenModel
 from .group import Group, SimpleGroup
@@ -16,7 +16,13 @@ from .repository import (
     SimpleRepository,
 )
 
-from .artifact import ArtifactPropertiesResponse, ArtifactStatsResponse
+from .artifact import (
+    ArtifactPropertiesResponse,
+    ArtifactStatsResponse,
+    ArtifactFileInfoResponse,
+    ArtifactFolderInfoResponse,
+    ArtifactInfoResponse,
+)
 from .permission import Permission, SimplePermission
 
 

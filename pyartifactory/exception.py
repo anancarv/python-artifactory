@@ -39,6 +39,10 @@ class PermissionNotFoundException(ArtifactoryException):
     """A permission object was not found."""
 
 
+class ArtifactNotFoundException(ArtifactoryException):
+    """An artifact was not found"""
+
+
 class PropertyNotFoundException(ArtifactoryException):
     """All requested properties were not found"""
 

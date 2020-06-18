@@ -25,6 +25,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Repository](#repository)
     + [Permission](#permission)
   * [Artifacts](#artifacts)
+    + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
@@ -261,6 +262,13 @@ art.permissions.delete("test_permission")
 ```
 
 ### Artifacts
+
+#### Get the information about a file or folder
+```python
+artifact_info = art.artifacts.info("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# file_info = art.artifacts.info("my-repository/my/artifact/directory/file.txt")
+# folder_info = art.artifacts.info("my-repository/my/artifact/directory")
+```
 
 #### Deploy an artifact
 ```python

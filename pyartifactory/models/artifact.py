@@ -4,7 +4,7 @@ Definition of all artifact models.
 
 
 from datetime import datetime
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 from pydantic import BaseModel
 
 
@@ -26,34 +26,44 @@ class Child(BaseModel):
     """Models a child folder."""
 
     uri: str
-    folder: str
+    folder: bool
 
 
 class ArtifactPropertiesResponse(BaseModel):
-    """ Models an artifact properties response"""
+    """ Models an artifact properties response."""
 
     uri: str
     properties: Dict[str, List[str]]
 
 
-class ArtifactFileInfoResponse(BaseModel):
-    """Models an artifact file info response."""
+class ArtifactInfoResponseBase(BaseModel):
+    """The base information available for both file and folder"""
 
     repo: str
     path: str
     created: Optional[datetime] = None
-    createdBy: str
+    createdBy: Optional[str] = None
     lastModified: Optional[datetime] = None
     modifiedBy: Optional[str] = None
     lastUpdated: Optional[datetime] = None
+    uri: str
+
+
+class ArtifactFolderInfoResponse(ArtifactInfoResponseBase):
+    """Models an artifact folder info response."""
+
+    children: List[Child]
+
+
+class ArtifactFileInfoResponse(ArtifactInfoResponseBase):
+    """Models an artifact file info response."""
+
     downloadUri: Optional[str] = None
     remoteUrl: Optional[str] = None
     mimeType: Optional[str] = None
-    size: Optional[str] = None
+    size: Optional[int] = None
     checksums: Optional[Checksums] = None
     originalChecksums: Optional[OriginalChecksums] = None
-    children: Optional[List[Child]] = None
-    uri: str
 
 
 class ArtifactStatsResponse(BaseModel):
@@ -65,3 +75,6 @@ class ArtifactStatsResponse(BaseModel):
     lastDownloadedBy: Optional[str]
     remoteDownloadCount: int
     remoteLastDownloaded: int
+
+
+ArtifactInfoResponse = Union[ArtifactFileInfoResponse, ArtifactFolderInfoResponse]
