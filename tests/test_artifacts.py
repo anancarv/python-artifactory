@@ -107,16 +107,16 @@ def test_deploy_artifact_success(mocker):
 
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}?properties[=x[,y]]",
-        json=ARTIFACT_PROPERTIES.dict(),
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory, "properties")
+    mocker.spy(artifactory, "info")
     artifact = artifactory.deploy(LOCAL_FILE_LOCATION, ARTIFACT_PATH)
 
-    artifactory.properties.assert_called_once_with(ARTIFACT_PATH)
-    assert artifact.dict() == ARTIFACT_PROPERTIES.dict()
+    artifactory.info.assert_called_once_with(ARTIFACT_PATH)
+    assert artifact.dict() == FILE_INFO.dict()
 
 
 @responses.activate
@@ -228,14 +228,14 @@ def test_copy_artifact_success():
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}",
         status=200,
-        json=NEW_ARTIFACT_PROPERTIES.dict(),
+        json=FILE_INFO_RESPONSE,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_copied = artifactory.copy(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_copied.dict() == NEW_ARTIFACT_PROPERTIES.dict()
+    assert artifact_copied.dict() == FILE_INFO.dict()
 
 
 @responses.activate
@@ -247,14 +247,14 @@ def test_move_artifact_success():
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}",
         status=200,
-        json=NEW_ARTIFACT_PROPERTIES.dict(),
+        json=FILE_INFO_RESPONSE,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_moved = artifactory.move(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_moved.dict() == NEW_ARTIFACT_PROPERTIES.dict()
+    assert artifact_moved.dict() == FILE_INFO.dict()
 
 
 @responses.activate

@@ -775,7 +775,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
     def deploy(
         self, local_file_location: str, artifact_path: str
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_path: Path to file in Artifactory
         :param local_file_location: Location of the file to deploy
@@ -792,7 +792,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
             self._put(f"{artifact_path}", headers=headers, data=form)
             logger.debug("Artifact %s successfully deployed", local_filename)
-            return self.properties(artifact_path)
+            return self.info(artifact_path)
 
     def download(self, artifact_path: str, local_directory_path: str = None) -> str:
         """
@@ -854,12 +854,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
     def copy(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: ArtifactPropertiesResponse: properties of the copied artifact
+        :return: ArtifactInfoResponse: info of the copied artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -870,16 +870,16 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
         logger.debug("Artifact %s successfully copied", artifact_current_path)
-        return self.properties(artifact_new_path)
+        return self.info(artifact_new_path)
 
     def move(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: ArtifactPropertiesResponse: properties of the moved artifact
+        :return: ArtifactInfoResponse: info of the moved artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -891,7 +891,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
         logger.debug("Artifact %s successfully moved", artifact_current_path)
-        return self.properties(artifact_new_path)
+        return self.info(artifact_new_path)
 
     def delete(self, artifact_path: str) -> None:
         """
