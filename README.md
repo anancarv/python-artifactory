@@ -286,16 +286,16 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 
 #### Retrieve artifact properties
 ```python
-artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")  # returns all properties
 # artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_properties.json)
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", ["prop1", "prop2"])  # returns specific properties
+artifact_properties.properties["prop1"]  # ["value1", "value1-bis"]
 ```
 
 #### Retrieve artifact stats
 ```python
 artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_stats.json)
 ```
 
 #### Copy artifact to a new location
