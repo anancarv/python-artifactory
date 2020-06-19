@@ -22,6 +22,8 @@ from pyartifactory.exception import (
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
     InvalidTokenDataException,
+    PropertyNotFoundException,
+    ArtifactNotFoundException,
 )
 
 from pyartifactory.models import (
@@ -47,6 +49,11 @@ from pyartifactory.models import (
     SimplePermission,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
+    ArtifactInfoResponse,
+)
+from pyartifactory.models.artifact import (
+    ArtifactFileInfoResponse,
+    ArtifactFolderInfoResponse,
 )
 
 logger = logging.getLogger("pyartifactory")
@@ -56,11 +63,7 @@ class Artifactory:
     """Models artifactory."""
 
     def __init__(
-        self,
-        url: str,
-        auth: Tuple[str, str] = None,
-        verify: bool = True,
-        cert: str = None,
+        self, url: str, auth: Tuple[str, str], verify: bool = True, cert: str = None,
     ):
         self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
         self.users = ArtifactoryUser(self.artifactory)
@@ -745,9 +748,34 @@ class ArtifactoryPermission(ArtifactoryObject):
 class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
 
+    def info(self, artifact_path: str) -> ArtifactInfoResponse:
+        """
+        Retrieve information about a file or a folder
+
+        See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FolderInfo
+        and https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileInfo
+
+        :param artifact_path: Path to file or folder in Artifactory
+        """
+        artifact_path = artifact_path.lstrip("/")
+        try:
+            response = self._get(f"api/storage/{artifact_path}")
+            artifact_info: ArtifactInfoResponse = parse_obj_as(
+                Union[ArtifactFolderInfoResponse, ArtifactFileInfoResponse],
+                response.json(),
+            )
+            return artifact_info
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                logger.error("Artifact %s does not exist", artifact_path)
+                raise ArtifactNotFoundException(
+                    f"Artifact {artifact_path} does not exist"
+                )
+            raise ArtifactoryException from error
+
     def deploy(
         self, local_file_location: str, artifact_path: str
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_path: Path to file in Artifactory
         :param local_file_location: Location of the file to deploy
@@ -764,7 +792,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
             self._put(f"{artifact_path}", headers=headers, data=form)
             logger.debug("Artifact %s successfully deployed", local_filename)
-            return self.properties(artifact_path)
+            return self.info(artifact_path)
 
     def download(self, artifact_path: str, local_directory_path: str = None) -> str:
         """
@@ -789,15 +817,30 @@ class ArtifactoryArtifact(ArtifactoryObject):
         logger.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
-    def properties(self, artifact_path: str) -> ArtifactPropertiesResponse:
+    def properties(
+        self, artifact_path: str, properties: Optional[List[str]] = None
+    ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
+        :param properties: List of properties to retrieve
         :return: Artifact properties
         """
+        if properties is None:
+            properties = []
         artifact_path = artifact_path.lstrip("/")
-        response = self._get(f"api/storage/{artifact_path}?properties[=x[,y]]")
-        logger.debug("Artifact Properties successfully retrieved")
-        return ArtifactPropertiesResponse(**response.json())
+        try:
+            response = self._get(
+                f"api/storage/{artifact_path}",
+                params={"properties": ",".join(properties)},
+            )
+            logger.debug("Artifact Properties successfully retrieved")
+            return ArtifactPropertiesResponse(**response.json())
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                raise PropertyNotFoundException(
+                    f"Properties {properties} were not found on artifact {artifact_path}"
+                )
+            raise ArtifactoryException from error
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
         """
@@ -811,12 +854,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
     def copy(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: ArtifactPropertiesResponse: properties of the copied artifact
+        :return: ArtifactInfoResponse: info of the copied artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -827,16 +870,16 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
         logger.debug("Artifact %s successfully copied", artifact_current_path)
-        return self.properties(artifact_new_path)
+        return self.info(artifact_new_path)
 
     def move(
         self, artifact_current_path: str, artifact_new_path: str, dryrun: bool = False
-    ) -> ArtifactPropertiesResponse:
+    ) -> ArtifactInfoResponse:
         """
         :param artifact_current_path: Current path to file
         :param artifact_new_path: New path to file
         :param dryrun: Dry run
-        :return: ArtifactPropertiesResponse: properties of the moved artifact
+        :return: ArtifactInfoResponse: info of the moved artifact
         """
         artifact_current_path = artifact_current_path.lstrip("/")
         artifact_new_path = artifact_new_path.lstrip("/")
@@ -848,7 +891,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
         logger.debug("Artifact %s successfully moved", artifact_current_path)
-        return self.properties(artifact_new_path)
+        return self.info(artifact_new_path)
 
     def delete(self, artifact_path: str) -> None:
         """

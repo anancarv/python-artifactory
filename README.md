@@ -25,6 +25,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Repository](#repository)
     + [Permission](#permission)
   * [Artifacts](#artifacts)
+    + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
@@ -262,6 +263,13 @@ art.permissions.delete("test_permission")
 
 ### Artifacts
 
+#### Get the information about a file or folder
+```python
+artifact_info = art.artifacts.info("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# file_info = art.artifacts.info("my-repository/my/artifact/directory/file.txt")
+# folder_info = art.artifacts.info("my-repository/my/artifact/directory")
+```
+
 #### Deploy an artifact
 ```python
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>")
@@ -278,16 +286,16 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 
 #### Retrieve artifact properties
 ```python
-artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")  # returns all properties
 # artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_properties.json)
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", ["prop1", "prop2"])  # returns specific properties
+artifact_properties.properties["prop1"]  # ["value1", "value1-bis"]
 ```
 
 #### Retrieve artifact stats
 ```python
 artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_stats.json)
 ```
 
 #### Copy artifact to a new location
