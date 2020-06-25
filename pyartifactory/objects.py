@@ -371,7 +371,9 @@ class ArtifactoryGroup(ArtifactoryObject):
         :return: Found artifactory group
         """
         try:
-            response = self._get(f"api/{self._uri}/{name}")
+            response = self._get(
+                f"api/{self._uri}/{name}", params={"includeUsers": True}
+            )
             logger.debug("Group %s found", name)
             return Group(**response.json())
         except requests.exceptions.HTTPError as error:
