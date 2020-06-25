@@ -130,12 +130,12 @@ art.users.unlock("test_user")
 
 Get the list of groups:
 ```python
-users = art.groups.list()
+groups = art.groups.list()
 ```
 
 Get a single group:
 ```python
-users = art.groups.get("group_name")
+group = art.groups.get("group_name")
 ```
 
 Create/Update a group:
@@ -146,7 +146,7 @@ from pyartifactory.models import Group
 group = Group(name="test_group", description="test_group")
 new_group = art.groups.create(group)
 
-# Update user
+# Update a Group
 group.description = "test_group_2"
 updated_group = art.groups.update(group)
 ```
