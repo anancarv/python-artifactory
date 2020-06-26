@@ -9,6 +9,7 @@ from pyartifactory.models import AuthModel, PasswordModel, Group
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 NEW_GROUP = Group(name="test_group", description="test_group")
+GROUP_WITH_USERS = Group(name="test_group", users=["user1", "user2"])
 PASSWORD = PasswordModel(password="test")
 
 
@@ -71,16 +72,16 @@ def test_get_group_error_not_found():
 def test_get_group_success(mocker):
     responses.add(
         responses.GET,
-        f"{URL}/api/security/groups/{NEW_GROUP.name}",
-        json=NEW_GROUP.dict(),
+        f"{URL}/api/security/groups/{NEW_GROUP.name}?includeUsers=True",
+        json=GROUP_WITH_USERS.dict(),
         status=200,
     )
 
     artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_group, "get")
-    artifactory_group.get(NEW_GROUP.name)
+    group = artifactory_group.get(NEW_GROUP.name)
 
-    artifactory_group.get.assert_called_with(NEW_GROUP.name)
+    assert group.dict() == GROUP_WITH_USERS.dict()
 
 
 @responses.activate
