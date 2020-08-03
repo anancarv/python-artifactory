@@ -16,7 +16,10 @@ class SimpleUser(BaseModel):
 
 
 class BaseUserModel(BaseModel):
-    """Models a base user."""
+    """
+    Models a base user.
+    https://www.jfrog.com/confluence/display/JFROG/Security+Configuration+JSON#SecurityConfigurationJSON-application/vnd.org.jfrog.artifactory.security.User+json
+    """
 
     name: str
     admin: Optional[bool] = False

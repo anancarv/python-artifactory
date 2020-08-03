@@ -198,7 +198,10 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         username = user.name
         self.get(username)
-        self._post(f"api/{self._uri}/{username}", json=user.dict())
+        self._post(
+            f"api/{self._uri}/{username}",
+            json=user.dict(exclude={"lastLoggedIn", "realm"}),
+        )
         logger.debug("User %s successfully updated", username)
         return self.get(username)
 
