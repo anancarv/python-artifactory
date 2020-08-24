@@ -8,7 +8,6 @@ from typing import List, Optional, Dict, Tuple, Union
 from pathlib import Path
 import requests
 from requests import Response
-from requests_toolbelt.multipart import encoder
 from pydantic import parse_obj_as
 
 from pyartifactory.exception import (
@@ -788,14 +787,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
         with open(local_file_location, "rb") as file:
-            form = encoder.MultipartEncoder(
-                {
-                    "documents": (local_filename, file, "application/octet-stream"),
-                    "composite": "NONE",
-                }
-            )
-            headers = {"Prefer": "respond-async", "Content-Type": form.content_type}
-            self._put(f"{artifact_path}", headers=headers, data=form)
+            self._put(f"{artifact_path}", data=file)
             logger.debug("Artifact %s successfully deployed", local_filename)
             return self.info(artifact_path)
 
