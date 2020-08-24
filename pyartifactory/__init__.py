@@ -12,4 +12,4 @@ from pyartifactory.objects import (
     AccessTokenModel,
 )
 
-__version__ = "1.7.1"
+__version__ = "1.7.2"
