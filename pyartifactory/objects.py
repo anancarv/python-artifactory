@@ -35,6 +35,7 @@ from pyartifactory.models import (
     LocalRepositoryResponse,
     VirtualRepositoryResponse,
     RemoteRepositoryResponse,
+    SimpleRepository,
     AnyRepository,
     AnyRepositoryResponse,
     UserResponse,
@@ -482,6 +483,25 @@ class ArtifactoryRepository(ArtifactoryObject):
         self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
         logger.debug("Repository %s successfully updated", repo_name)
         return self.get_repo(repo_name)
+
+    def list(self) -> List[SimpleRepository]:
+        """
+        Lists all the repositories
+        :return: A list of repositories
+        """
+        response = self._get(f"api/{self._uri}")
+        logger.debug("List all repositories successful")
+        return [SimpleRepository(**repository) for repository in response.json()]
+
+    def delete(self, repo_name: str) -> None:
+        """
+        Removes a local repository
+        :param repo_name: Name of the repository to delete
+        :return: None
+        """
+
+        self._delete(f"api/{self._uri}/{repo_name}")
+        logger.debug("Repository %s successfully deleted", repo_name)
 
 
 class ArtifactoryPermission(ArtifactoryObject):
