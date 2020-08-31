@@ -24,7 +24,7 @@ classifiers = [
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
-[tool.pylint.'MASTER']
+[tool.pylint.master]
 extension-pkg-whitelist = """
 pydantic
 """
@@ -34,7 +34,7 @@ disable = """
 bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes
 """
 
-[tool.pylint.'BASIC']
+[tool.pylint.basic]
 good-names = """
 logger,i,j,k,ex,Run,_
 """
