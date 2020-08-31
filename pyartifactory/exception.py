@@ -43,5 +43,13 @@ class AqlException(ArtifactoryException):
     """Generic Aql contains invalid data."""
 
 
+class ArtifactNotFoundException(ArtifactoryException):
+    """An artifact was not found"""
+
+
+class PropertyNotFoundException(ArtifactoryException):
+    """All requested properties were not found"""
+
+
 class InvalidTokenDataException(ArtifactoryException):
     """The token contains invalid data."""

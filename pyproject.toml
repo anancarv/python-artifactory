@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.2.0"
+version = "1.7.2"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>", "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>"]
 license = "MIT"
@@ -8,14 +8,28 @@ readme = "README.md"
 repository = "https://github.com/anancarv/python-artifactory"
 documentation = "https://github.com/anancarv/python-artifactory"
 keywords = ["artifactory"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Typing :: Typed",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: System :: Filesystems",
+  "Operating System :: OS Independent"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
 [tool.poetry.dependencies]
 python = "^3.6"
 requests = "^2.21"
 email_validator = "^1.0"
-requests_toolbelt = "^0.9.1"
-pylint = "2.4.4"
 pydantic = "^1.4"
+typing_extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
@@ -27,6 +41,7 @@ pytest-mock = "^2.0.0"
 detect-secrets = "^0.13.0"
 pytest-cov = "^2.7"
 codacy-coverage = "^1.3"
+pylint = "^2.5.2"
 
 [build-system]
 requires = ["poetry>=0.12"]

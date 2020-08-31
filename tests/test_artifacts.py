@@ -1,27 +1,69 @@
+import pytest
 import responses
 
 from pyartifactory import ArtifactoryArtifact
+from pyartifactory.exception import PropertyNotFoundException
 from pyartifactory.models import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
     AuthModel,
 )
+from pyartifactory.models.artifact import (
+    ArtifactFolderInfoResponse,
+    ArtifactFileInfoResponse,
+)
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-ARTIFACT_PATH = "my-repository/file.txt"
+ARTIFACT_FOLDER = "my_repository"
+ARTIFACT_PATH = f"{ARTIFACT_FOLDER}/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
-ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
-    repo="my-repository", path=ARTIFACT_SHORT_PATH, createdBy="myself", uri="my_uri"
+ARTIFACT_ONE_PROPERTY = ArtifactPropertiesResponse(
+    uri=f"{URL}/api/storage/{ARTIFACT_PATH}", properties={"prop1": ["value"]}
 )
-NEW_ARTIFACT_PROPERTIES = ArtifactPropertiesResponse(
-    repo="my-second-repository",
-    path=ARTIFACT_SHORT_PATH,
-    createdBy="myself",
-    uri="my_uri",
+ARTIFACT_MULTIPLE_PROPERTIES = ArtifactPropertiesResponse(
+    uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
+    properties={"prop1": ["value"], "prop2": ["another value", "with multiple parts"]},
 )
+FOLDER_INFO_RESPONSE = {
+    "uri": f"{URL}/api/storage/{ARTIFACT_FOLDER}",
+    "repo": ARTIFACT_FOLDER,
+    "path": "/",
+    "created": "2019-06-06T13:19:14.514Z",
+    "createdBy": "userY",
+    "lastModified": "2019-06-06T13:19:14.514Z",
+    "modifiedBy": "userX",
+    "lastUpdated": "2019-06-06T13:19:14.514Z",
+    "children": [
+        {"uri": "/child1", "folder": "true"},
+        {"uri": "/child2", "folder": "false"},
+    ],
+}
+FOLDER_INFO = ArtifactFolderInfoResponse(**FOLDER_INFO_RESPONSE)
+FILE_INFO_RESPONSE = {
+    "repo": ARTIFACT_FOLDER,
+    "path": ARTIFACT_PATH,
+    "created": "2019-06-06T13:19:14.514Z",
+    "createdBy": "userY",
+    "lastModified": "2019-06-06T13:19:14.514Z",
+    "modifiedBy": "userX",
+    "lastUpdated": "2019-06-06T13:19:14.514Z",
+    "downloadUri": f"{URL}/api/storage/{ARTIFACT_PATH}",
+    "mimeType": "application/json",
+    "size": "3454",
+    "checksums": {
+        "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
+        "md5": "4cf609e0fe1267df8815bc650f5851e9",
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
+    },
+    "originalChecksums": {
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"
+    },
+    "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
+}
+FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
 
 ARTIFACT_STATS = ArtifactStatsResponse(
     uri="my_uri",
@@ -33,21 +75,48 @@ ARTIFACT_STATS = ArtifactStatsResponse(
 
 
 @responses.activate
+def test_get_artifact_folder_info_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_FOLDER}",
+        status=200,
+        json=FOLDER_INFO_RESPONSE,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact = artifactory.info(ARTIFACT_FOLDER)
+    assert isinstance(artifact, ArtifactFolderInfoResponse)
+    assert artifact.dict() == FOLDER_INFO.dict()
+
+
+@responses.activate
+def test_get_artifact_file_info_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        status=200,
+        json=FILE_INFO_RESPONSE,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact = artifactory.info(ARTIFACT_PATH)
+    assert artifact.dict() == FILE_INFO.dict()
+
+
+@responses.activate
 def test_deploy_artifact_success(mocker):
     responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=200)
 
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}?properties[=x[,y]]",
-        json=ARTIFACT_PROPERTIES.dict(),
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory, "properties")
+    mocker.spy(artifactory, "info")
     artifact = artifactory.deploy(LOCAL_FILE_LOCATION, ARTIFACT_PATH)
 
-    artifactory.properties.assert_called_once_with(ARTIFACT_PATH)
-    assert artifact.dict() == ARTIFACT_PROPERTIES.dict()
+    artifactory.info.assert_called_once_with(ARTIFACT_PATH)
+    assert artifact.dict() == FILE_INFO.dict()
 
 
 @responses.activate
@@ -65,17 +134,75 @@ def test_download_artifact_success(tmp_path):
 
 
 @responses.activate
-def test_get_artifact_properties_success():
+def test_get_artifact_single_property_success():
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}?properties[=x[,y]]",
-        json=ARTIFACT_PROPERTIES.dict(),
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1",
+        json=ARTIFACT_ONE_PROPERTY.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1"])
+    assert artifact_properties.dict() == ARTIFACT_ONE_PROPERTY.dict()
+
+
+@responses.activate
+def test_get_artifact_multiple_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2"])
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_multiple_properties_with_non_existing_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2,non_existing_prop",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_properties = artifactory.properties(
+        ARTIFACT_PATH, ["prop1", "prop2", "non_existing_prop"]
+    )
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_all_properties_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_properties = artifactory.properties(ARTIFACT_PATH)
-    assert artifact_properties.dict() == ARTIFACT_PROPERTIES.dict()
+    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+
+
+@responses.activate
+def test_get_artifact_property_not_found_error():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=a_property_not_found",
+        json={"errors": [{"status": 404, "message": "No properties could be found."}]},
+        status=404,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    with pytest.raises(PropertyNotFoundException):
+        artifactory.properties(ARTIFACT_PATH, properties=["a_property_not_found"])
 
 
 @responses.activate
@@ -101,14 +228,14 @@ def test_copy_artifact_success():
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}",
         status=200,
-        json=NEW_ARTIFACT_PROPERTIES.dict(),
+        json=FILE_INFO_RESPONSE,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_copied = artifactory.copy(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_copied.dict() == NEW_ARTIFACT_PROPERTIES.dict()
+    assert artifact_copied.dict() == FILE_INFO.dict()
 
 
 @responses.activate
@@ -120,14 +247,14 @@ def test_move_artifact_success():
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}?properties[=x[,y]]",
+        f"{URL}/api/storage/{ARTIFACT_NEW_PATH}",
         status=200,
-        json=NEW_ARTIFACT_PROPERTIES.dict(),
+        json=FILE_INFO_RESPONSE,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_moved = artifactory.move(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_moved.dict() == NEW_ARTIFACT_PROPERTIES.dict()
+    assert artifact_moved.dict() == FILE_INFO.dict()
 
 
 @responses.activate

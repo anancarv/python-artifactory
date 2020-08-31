@@ -9,11 +9,11 @@
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications.
-It requires at least Python 3.6
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.6+ type hints.
 
 <!-- toc -->
 
+- [Requirements](#requirements)
 - [Install](#install)
 - [Usage](#usage)
   * [Authentication](#authentication)
@@ -25,6 +25,7 @@ It requires at least Python 3.6
     + [Repository](#repository)
     + [Permission](#permission)
   * [Artifacts](#artifacts)
+    + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
@@ -36,6 +37,11 @@ It requires at least Python 3.6
   * [Contributing](#contributing)
 
 <!-- tocstop -->
+
+## Requirements
+
+* Python 3.6+
+
 
 ## Install
 
@@ -125,12 +131,12 @@ art.users.unlock("test_user")
 
 Get the list of groups:
 ```python
-users = art.groups.list()
+groups = art.groups.list()
 ```
 
 Get a single group:
 ```python
-users = art.groups.get("group_name")
+group = art.groups.get("group_name")
 ```
 
 Create/Update a group:
@@ -141,7 +147,7 @@ from pyartifactory.models import Group
 group = Group(name="test_group", description="test_group")
 new_group = art.groups.create(group)
 
-# Update user
+# Update a Group
 group.description = "test_group_2"
 updated_group = art.groups.update(group)
 ```
@@ -185,26 +191,32 @@ Get the list of repositories:
 repositories = art.repositories.list()
 ```
 
-Get a single repository (Local, Virtual or Remote):
+Get a single repository
 ```python
-local_repo = art.repositories.get_local_repo("local_repo_name")
-virtual_repo = art.repositories.get_virtual_repo("virtual_repo_name")
-remote_repo = art.repositories.get_remote_repo("remote_repo_name")
+repo = art.repositories.get_repo("repo_name")
+# According to the repo type, you'll have either a local, virtual or remote repository returned
 ```
 
 Create/Update a repository:
 ```python
 from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
 
-# Create a repository
+# Create local repo
 local_repo = LocalRepository(key="test_local_repo")
-new_local_repo = art.repositories.create_local_repo(local_repo)
+new_local_repo = art.repositories.create_repo(local_repo)
+
+# Create virtual repo
+virtual_repo = VirtualRepository(key="test_virtual_repo")
+new_virtual_repo = art.repositories.create_repo(virtual_repo)
+
+# Create remote repo
+remote_repo = RemoteRepository(key="test_remote_repo")
+new_remote_repo = art.repositories.create_repo(remote_repo)
 
 # Update a repository
+local_repo = art.repositories.get_repo("test_local_repo")
 local_repo.description = "test_local_repo"
-updated_local_repo = art.repositories.update_local_repo(local_repo)
-
-# Same process for Virtual and Remote repositories
+updated_local_repo = art.repositories.update_repo(local_repo)
 ```
 
 Delete a repository:
@@ -252,6 +264,13 @@ art.permissions.delete("test_permission")
 
 ### Artifacts
 
+#### Get the information about a file or folder
+```python
+artifact_info = art.artifacts.info("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# file_info = art.artifacts.info("my-repository/my/artifact/directory/file.txt")
+# folder_info = art.artifacts.info("my-repository/my/artifact/directory")
+```
+
 #### Deploy an artifact
 ```python
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>")
@@ -268,16 +287,16 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 
 #### Retrieve artifact properties
 ```python
-artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")  # returns all properties
 # artifact_properties = art.artifacts.properties("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_properties.json)
+artifact_properties = art.artifacts.properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", ["prop1", "prop2"])  # returns specific properties
+artifact_properties.properties["prop1"]  # ["value1", "value1-bis"]
 ```
 
 #### Retrieve artifact stats
 ```python
 artifact_stats = art.artifacts.stats("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact_stats = art.artifacts.stats("my-repository/my/new/artifact/directory/file.txt")
->>> print(artifact_stats.json)
 ```
 
 #### Copy artifact to a new location

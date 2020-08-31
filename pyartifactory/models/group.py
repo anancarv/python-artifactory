@@ -1,7 +1,7 @@
 """
 Definition of all group models.
 """
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -14,6 +14,9 @@ class Group(BaseModel):
     adminPrivileges: bool = False
     realm: Optional[str] = None
     realmAttributes: Optional[str] = None
+    watchManager: bool = False
+    policyManager: bool = False
+    userNames: Optional[List[str]] = None
 
 
 class SimpleGroup(BaseModel):

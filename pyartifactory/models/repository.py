@@ -1,8 +1,9 @@
 """
 Definition of all repository models.
 """
-from typing import Optional, List
 from enum import Enum
+from typing import Optional, List
+from typing_extensions import Literal
 
 from pydantic import BaseModel, SecretStr
 
@@ -127,7 +128,7 @@ class BaseRepositoryModel(BaseModel):
     """Models a base repository."""
 
     key: str
-    rclass: RClassEnum = RClassEnum.local
+    rclass: RClassEnum
     packageType: PackageTypeEnum = PackageTypeEnum.generic
     description: Optional[str] = None
     notes: Optional[str] = None
@@ -139,6 +140,7 @@ class BaseRepositoryModel(BaseModel):
 class LocalRepository(BaseRepositoryModel):
     """Models a local repository."""
 
+    rclass: Literal[RClassEnum.local] = RClassEnum.local
     checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
     handleReleases: bool = True
     handleSnapshots: bool = True
@@ -182,6 +184,7 @@ class LocalRepositoryResponse(LocalRepository):
 class VirtualRepository(BaseRepositoryModel):
     """Models a virtual repository."""
 
+    rclass: Literal[RClassEnum.virtual] = RClassEnum.virtual
     repositories: Optional[List[str]] = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
@@ -194,7 +197,7 @@ class VirtualRepository(BaseRepositoryModel):
     externalDependenciesRemoteRepo: Optional[str] = None
 
 
-class VirtualRepositoryResponse(LocalRepository):
+class VirtualRepositoryResponse(VirtualRepository):
     """Models a virtual repository response."""
 
     dockerApiVersion: str = "V2"
@@ -218,6 +221,7 @@ class VirtualRepositoryResponse(LocalRepository):
 class RemoteRepository(BaseRepositoryModel):
     """Models a remote Repository."""
 
+    rclass: Literal[RClassEnum.remote] = RClassEnum.remote
     url: str
     username: Optional[str] = None
     password: Optional[SecretStr] = None
