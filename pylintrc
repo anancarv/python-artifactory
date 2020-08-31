@@ -6,7 +6,6 @@ disable=bad-continuation,
         line-too-long,
         too-few-public-methods,
         import-error,
-        raise-missing-from,
         too-many-instance-attributes
 
 [BASIC]

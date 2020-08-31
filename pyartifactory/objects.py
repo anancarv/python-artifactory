@@ -182,7 +182,7 @@ class ArtifactoryUser(ArtifactoryObject):
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
                 logger.error("User %s does not exist", name)
-                raise UserNotFoundException(f"{name} does not exist")
+                raise UserNotFoundException(f"{name} does not exist") from error
             raise ArtifactoryException from error
 
     def list(self) -> List[SimpleUser]:
@@ -388,7 +388,7 @@ class ArtifactoryGroup(ArtifactoryObject):
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404 or error.response.status_code == 400:
                 logger.error("Group %s does not exist", name)
-                raise GroupNotFoundException(f"Group {name} does not exist")
+                raise GroupNotFoundException(f"Group {name} does not exist") from error
             raise ArtifactoryException from error
 
     def list(self) -> List[Group]:
@@ -451,7 +451,7 @@ class ArtifactoryRepository(ArtifactoryObject):
                 logger.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
-                )
+                ) from error
             raise ArtifactoryException from error
 
     def create_repo(self, repo: AnyRepository) -> AnyRepositoryResponse:
@@ -542,7 +542,7 @@ class ArtifactoryPermission(ArtifactoryObject):
                 logger.error("Permission %s does not exist", permission_name)
                 raise PermissionNotFoundException(
                     f"Permission {permission_name} does not exist"
-                )
+                ) from error
             raise ArtifactoryException from error
 
     def list(self) -> List[SimplePermission]:
@@ -601,7 +601,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 logger.error("Artifact %s does not exist", artifact_path)
                 raise ArtifactNotFoundException(
                     f"Artifact {artifact_path} does not exist"
-                )
+                ) from error
             raise ArtifactoryException from error
 
     def deploy(
@@ -663,7 +663,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if error.response.status_code == 404:
                 raise PropertyNotFoundException(
                     f"Properties {properties} were not found on artifact {artifact_path}"
-                )
+                ) from error
             raise ArtifactoryException from error
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
@@ -777,8 +777,8 @@ class ArtifactoryAql(ArtifactoryObject):
             ]
             logging.debug("Successful query")
             return response_content
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.HTTPError as error:
             raise AqlException(
                 "Bad Aql Query: please check your parameters."
                 "Doc: https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language"
-            )
+            ) from error
