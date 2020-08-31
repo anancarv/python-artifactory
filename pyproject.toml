@@ -24,6 +24,21 @@ classifiers = [
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
+[tool.pylint.'MASTER']
+extension-pkg-whitelist = """
+pydantic
+"""
+
+[tool.pylint.messages_control]
+disable = """
+bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes
+"""
+
+[tool.pylint.'BASIC']
+good-names = """
+logger,i,j,k,ex,Run,_
+"""
+
 [tool.poetry.dependencies]
 python = "^3.6"
 requests = "^2.21"
