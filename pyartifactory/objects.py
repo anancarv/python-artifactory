@@ -3,7 +3,9 @@ Definition of all artifactory objects.
 """
 import warnings
 import logging
-from typing import List, Optional, Dict, Tuple, Union
+import os
+from os.path import isdir, join
+from typing import List, Optional, Dict, Tuple, Union, Iterator
 
 from pathlib import Path
 import requests
@@ -752,6 +754,32 @@ class ArtifactoryPermission(ArtifactoryObject):
 class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
 
+    def _walk(
+        self, artifact_path: str, topdown: bool = True, onerror=None
+    ) -> Iterator[ArtifactInfoResponse]:
+        """Iterate over artifact (file or directory) recursively.
+
+        :param artifact_path: Path to file or folder in Artifactory
+        :param topdown: True for a top-down (directory first) traversal
+        :param onerror: Error callback function
+        """
+        info = self.info(artifact_path)
+        if not isinstance(info, ArtifactFolderInfoResponse):
+            yield info
+        else:
+            if topdown:
+                yield info
+            for subdir in [child for child in info.children if child.folder is True]:
+                yield from self._walk(
+                    artifact_path + subdir.uri, topdown=topdown, onerror=onerror
+                )
+            for file in [child for child in info.children if child.folder is not True]:
+                yield from self._walk(
+                    artifact_path + file.uri, topdown=topdown, onerror=onerror
+                )
+            if not topdown:
+                yield info
+
     def info(self, artifact_path: str) -> ArtifactInfoResponse:
         """
         Retrieve information about a file or a folder
@@ -784,17 +812,24 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :param artifact_path: Path to file in Artifactory
         :param local_file_location: Location of the file to deploy
         """
-        artifact_path = artifact_path.lstrip("/")
-        local_filename = artifact_path.split("/")[-1]
-        with open(local_file_location, "rb") as file:
-            self._put(f"{artifact_path}", data=file)
-            logger.debug("Artifact %s successfully deployed", local_filename)
-            return self.info(artifact_path)
+        if isdir(local_file_location):
+            for root, _, files in os.walk(local_file_location):
+                new_root = f"{artifact_path}/{root[len(local_file_location):]}"
+                for file in files:
+                    self.deploy(join(root, file), f"{new_root}/{file}")
+        else:
+            artifact_path = artifact_path.lstrip("/")
+            local_filename = artifact_path.split("/")[-1]
+            with open(local_file_location, "rb") as file:  # type: ignore[assignment]
+                self._put(f"{artifact_path}", data=file)
+                logger.debug("Artifact %s successfully deployed", local_filename)
+        return self.info(artifact_path)
 
-    def download(self, artifact_path: str, local_directory_path: str = None) -> str:
+    def _download(self, artifact_path: str, local_directory_path: str = None) -> str:
         """
+        Download artifact (file) into local directory.
         :param artifact_path: Path to file in Artifactory
-        :param local_directory_path: Local path to where the artifact will be imported
+        :param local_directory_path: Local path to where the artifact will be downloaded
         :return: File name
         """
         artifact_path = artifact_path.lstrip("/")
@@ -812,6 +847,30 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     if chunk:  # filter out keep-alive new chunks
                         file.write(chunk)
         logger.debug("Artifact %s successfully downloaded", local_filename)
+        return local_file_full_path
+
+    def download(self, artifact_path: str, local_directory_path: str = None) -> str:
+        """
+        Download artifact (file or directory) into local directory.
+        :param artifact_path: Path to file or directory in Artifactory
+        :param local_directory_path: Local path to where the artifact will be downloaded
+        :return: File name
+        """
+        artifact_path = artifact_path.rstrip("/")
+        basename = artifact_path.split("/")[-1]
+        if local_directory_path:
+            local_file_full_path = f"{local_directory_path}/{basename}"
+        else:
+            local_file_full_path = basename
+        prefix = artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+        for art in self._walk(artifact_path):
+            full_path = art.repo + art.path
+            # assert full_path.startswith(prefix)
+            local_path = join(local_directory_path, full_path[len(prefix) :])  # type: ignore[arg-type]
+            if isinstance(art, ArtifactFolderInfoResponse):
+                os.mkdir(local_path)
+            else:
+                self._download(art.repo + art.path, local_path.rsplit("/", 1)[0])
         return local_file_full_path
 
     def properties(

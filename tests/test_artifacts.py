@@ -42,6 +42,16 @@ FOLDER_INFO_RESPONSE = {
     ],
 }
 FOLDER_INFO = ArtifactFolderInfoResponse(**FOLDER_INFO_RESPONSE)
+
+CHILD1_FOLDER_INFO_RESPONSE = FOLDER_INFO_RESPONSE.copy()
+CHILD1_FOLDER_INFO_RESPONSE["uri"] = f"{URL}/api/storage/{ARTIFACT_REPO}/child1"
+CHILD1_FOLDER_INFO_RESPONSE["path"] = "/child1"
+CHILD1_FOLDER_INFO_RESPONSE["children"] = [
+    {"uri": "/grandchild", "folder": "false"},
+]
+CHILD1_FOLDER_INFO = ArtifactFolderInfoResponse(**CHILD1_FOLDER_INFO_RESPONSE)
+
+
 FILE_INFO_RESPONSE = {
     "repo": ARTIFACT_REPO,
     "path": ARTIFACT_SHORT_PATH,
@@ -64,6 +74,17 @@ FILE_INFO_RESPONSE = {
     "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
 }
 FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
+
+CHILD2_INFO_RESPONSE = FILE_INFO_RESPONSE.copy()
+CHILD2_INFO_RESPONSE["uri"] = f"{URL}/api/storage/{ARTIFACT_REPO}/child2"
+CHILD2_INFO_RESPONSE["path"] = "/child2"
+CHILD2_FILE_INFO = ArtifactFileInfoResponse(**CHILD2_INFO_RESPONSE)
+
+GRANDCHILD_INFO_RESPONSE = FILE_INFO_RESPONSE.copy()
+GRANDCHILD_INFO_RESPONSE["uri"] = f"{URL}/api/storage/{ARTIFACT_REPO}/child1/grandchild"
+GRANDCHILD_INFO_RESPONSE["path"] = "/child1/grandchild"
+GRANDCHILD_FILE_INFO = ArtifactFileInfoResponse(**GRANDCHILD_INFO_RESPONSE)
+
 
 ARTIFACT_STATS = ArtifactStatsResponse(
     uri="my_uri",
@@ -123,6 +144,12 @@ def test_deploy_artifact_success(mocker):
 def test_download_artifact_success(tmp_path):
     artifact_name = ARTIFACT_PATH.split("/")[1]
     responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        status=200,
+        json=FILE_INFO_RESPONSE,
+    )
+    responses.add(
         responses.GET, f"{URL}/{ARTIFACT_PATH}", json=artifact_name, status=200
     )
 
@@ -131,6 +158,52 @@ def test_download_artifact_success(tmp_path):
 
     assert artifact == f"{tmp_path.resolve()}/{artifact_name}"
     assert (tmp_path / artifact_name).is_file()
+
+
+@responses.activate
+def test_download_folder_success(tmp_path):
+    # artifact_name = ARTIFACT_PATH.split("/")[1]
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}",
+        status=200,
+        json=FOLDER_INFO_RESPONSE,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}/child1",
+        status=200,
+        json=CHILD1_FOLDER_INFO_RESPONSE,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}/child2",
+        status=200,
+        json=CHILD2_INFO_RESPONSE,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}/child1/grandchild",
+        status=200,
+        json=GRANDCHILD_INFO_RESPONSE,
+    )
+    responses.add(responses.GET, f"{URL}/{ARTIFACT_REPO}", json="/", status=200)
+    responses.add(
+        responses.GET,
+        f"{URL}/{ARTIFACT_REPO}/child1/grandchild",
+        json="/child1/grandchild",
+        status=200,
+    )
+    responses.add(
+        responses.GET, f"{URL}/{ARTIFACT_REPO}/child2", json="/child2", status=200
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact = artifactory.download(f"{ARTIFACT_REPO}/", str(tmp_path.resolve()))
+
+    assert artifact == f"{tmp_path.resolve()}/{ARTIFACT_REPO}"
+    assert (tmp_path / f"{ARTIFACT_REPO}" / "child1" / "grandchild").is_file()
+    assert (tmp_path / f"{ARTIFACT_REPO}" / "child2").is_file()
 
 
 @responses.activate
