@@ -15,8 +15,8 @@ from pyartifactory.models.artifact import (
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-ARTIFACT_FOLDER = "my_repository"
-ARTIFACT_PATH = f"{ARTIFACT_FOLDER}/file.txt"
+ARTIFACT_REPO = "my_repository"
+ARTIFACT_PATH = f"{ARTIFACT_REPO}/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
@@ -28,8 +28,8 @@ ARTIFACT_MULTIPLE_PROPERTIES = ArtifactPropertiesResponse(
     properties={"prop1": ["value"], "prop2": ["another value", "with multiple parts"]},
 )
 FOLDER_INFO_RESPONSE = {
-    "uri": f"{URL}/api/storage/{ARTIFACT_FOLDER}",
-    "repo": ARTIFACT_FOLDER,
+    "uri": f"{URL}/api/storage/{ARTIFACT_REPO}",
+    "repo": ARTIFACT_REPO,
     "path": "/",
     "created": "2019-06-06T13:19:14.514Z",
     "createdBy": "userY",
@@ -43,8 +43,8 @@ FOLDER_INFO_RESPONSE = {
 }
 FOLDER_INFO = ArtifactFolderInfoResponse(**FOLDER_INFO_RESPONSE)
 FILE_INFO_RESPONSE = {
-    "repo": ARTIFACT_FOLDER,
-    "path": ARTIFACT_PATH,
+    "repo": ARTIFACT_REPO,
+    "path": ARTIFACT_SHORT_PATH,
     "created": "2019-06-06T13:19:14.514Z",
     "createdBy": "userY",
     "lastModified": "2019-06-06T13:19:14.514Z",
@@ -78,12 +78,12 @@ ARTIFACT_STATS = ArtifactStatsResponse(
 def test_get_artifact_folder_info_success():
     responses.add(
         responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_FOLDER}",
+        f"{URL}/api/storage/{ARTIFACT_REPO}",
         status=200,
         json=FOLDER_INFO_RESPONSE,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact = artifactory.info(ARTIFACT_FOLDER)
+    artifact = artifactory.info(ARTIFACT_REPO)
     assert isinstance(artifact, ArtifactFolderInfoResponse)
     assert artifact.dict() == FOLDER_INFO.dict()
 
