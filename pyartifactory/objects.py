@@ -755,13 +755,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
     """Models an artifactory artifact."""
 
     def _walk(
-        self, artifact_path: str, topdown: bool = True, onerror=None
+        self, artifact_path: str, topdown: bool = True
     ) -> Iterator[ArtifactInfoResponse]:
         """Iterate over artifact (file or directory) recursively.
 
         :param artifact_path: Path to file or folder in Artifactory
         :param topdown: True for a top-down (directory first) traversal
-        :param onerror: Error callback function
         """
         info = self.info(artifact_path)
         if not isinstance(info, ArtifactFolderInfoResponse):
@@ -769,14 +768,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             if topdown:
                 yield info
-            for subdir in [child for child in info.children if child.folder is True]:
-                yield from self._walk(
-                    artifact_path + subdir.uri, topdown=topdown, onerror=onerror
-                )
-            for file in [child for child in info.children if child.folder is not True]:
-                yield from self._walk(
-                    artifact_path + file.uri, topdown=topdown, onerror=onerror
-                )
+            for subdir in (child for child in info.children if child.folder is True):
+                yield from self._walk(artifact_path + subdir.uri, topdown=topdown)
+            for file in (child for child in info.children if child.folder is not True):
+                yield from self._walk(artifact_path + file.uri, topdown=topdown)
             if not topdown:
                 yield info
 
@@ -809,8 +804,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self, local_file_location: str, artifact_path: str
     ) -> ArtifactInfoResponse:
         """
-        :param artifact_path: Path to file in Artifactory
-        :param local_file_location: Location of the file to deploy
+        Deploy a file or directory.
+        :param artifact_path: Path to artifactory in Artifactory
+        :param local_file_location: Location of the file or folder to deploy
         """
         if isdir(local_file_location):
             for root, _, files in os.walk(local_file_location):
@@ -820,6 +816,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             artifact_path = artifact_path.lstrip("/")
             local_filename = artifact_path.split("/")[-1]
+            # we need to silence a bogus mypy error as `file` is already used above
+            # with a different type. See https://github.com/python/mypy/issues/6232
             with open(local_file_location, "rb") as file:  # type: ignore[assignment]
                 self._put(f"{artifact_path}", data=file)
                 logger.debug("Artifact %s successfully deployed", local_filename)
@@ -863,7 +861,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             full_path = art.repo + art.path
             local_path = join(local_directory_path, full_path[len(prefix) :])
             if isinstance(art, ArtifactFolderInfoResponse):
-                os.mkdir(local_path)
+                os.makedirs(local_path, exist_ok=True)
             else:
                 self._download(art.repo + art.path, local_path.rsplit("/", 1)[0])
         return f"{local_directory_path}/{basename}"
