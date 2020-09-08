@@ -1,5 +1,6 @@
 [MASTER]
 extension-pkg-whitelist=pydantic
+ignore=tests
 
 [MESSAGES CONTROL]
 disable=bad-continuation,
