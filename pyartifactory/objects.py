@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Tuple, Union, Iterator
 from pathlib import Path
 import requests
 from requests import Response
-from pydantic import parse_obj_as, SecretStr
+from pydantic import parse_obj_as
 
 from pyartifactory.exception import (
     UserNotFoundException,
@@ -64,11 +64,7 @@ class Artifactory:
     """Models artifactory."""
 
     def __init__(
-        self,
-        url: str,
-        auth: Tuple[str, SecretStr],
-        verify: bool = True,
-        cert: str = None,
+        self, url: str, auth: Tuple[str, str], verify: bool = True, cert: str = None,
     ):
         self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
         self.users = ArtifactoryUser(self.artifactory)
