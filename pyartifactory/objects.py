@@ -823,7 +823,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 logger.debug("Artifact %s successfully deployed", local_filename)
         return self.info(artifact_path)
 
-    def _download(self, artifact_path: str, local_directory_path: str = None) -> str:
+    def _download(self, artifact_path: str, local_directory_path: Path = None) -> Path:
         """
         Download artifact (file) into local directory.
         :param artifact_path: Path to file in Artifactory
@@ -834,10 +834,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
         local_filename = artifact_path.split("/")[-1]
 
         if local_directory_path:
-            Path(local_directory_path).mkdir(parents=True, exist_ok=True)
-            local_file_full_path = f"{local_directory_path}/{local_filename}"
+            local_directory_path.mkdir(parents=True, exist_ok=True)
+            local_file_full_path = local_directory_path / local_filename
         else:
-            local_file_full_path = local_filename
+            local_file_full_path = Path(local_filename)
 
         with self._get(f"{artifact_path}", stream=True) as response:
             with open(local_file_full_path, "wb") as file:
@@ -859,11 +859,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
         prefix = artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
         for art in self._walk(artifact_path):
             full_path = art.repo + art.path
-            local_path = join(local_directory_path, full_path[len(prefix) :])
+            local_artifact_path = full_path[len(prefix) :]
+            local_path = Path(local_directory_path) / local_artifact_path
             if isinstance(art, ArtifactFolderInfoResponse):
                 os.makedirs(local_path, exist_ok=True)
             else:
-                self._download(art.repo + art.path, local_path.rsplit("/", 1)[0])
+                self._download(full_path, local_path.parent)
         return f"{local_directory_path}/{basename}"
 
     def properties(
