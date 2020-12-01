@@ -847,6 +847,18 @@ class ArtifactoryArtifact(ArtifactoryObject):
         logger.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
 
+    @staticmethod
+    def _get_path_prefix(artifact_path: str):
+        if artifact_path.startswith("/"):
+            artifact_path = artifact_path[1:]
+        return artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+
+    @staticmethod
+    def _remove_prefix(_str: str, prefix: str) -> str:
+        if _str.startswith(prefix):
+            return _str[len(prefix) :]
+        raise ValueError(f"Input string, '{_str}', doesn't have the prefix: '{prefix}'")
+
     def download(self, artifact_path: str, local_directory_path: str = ".") -> str:
         """
         Download artifact (file or directory) into local directory.
@@ -856,10 +868,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.rstrip("/")
         basename = artifact_path.split("/")[-1]
-        prefix = artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+        prefix = self._get_path_prefix(artifact_path)
         for art in self._walk(artifact_path):
             full_path = art.repo + art.path
-            local_artifact_path = full_path[len(prefix) :]
+            local_artifact_path = self._remove_prefix(full_path, prefix)
             local_path = Path(local_directory_path) / local_artifact_path
             if isinstance(art, ArtifactFolderInfoResponse):
                 os.makedirs(local_path, exist_ok=True)
