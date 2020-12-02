@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Optional, List
 from typing_extensions import Literal
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 
 
 class PackageTypeEnum(str, Enum):
@@ -224,7 +224,7 @@ class RemoteRepository(BaseRepositoryModel):
     rclass: Literal[RClassEnum.remote] = RClassEnum.remote
     url: str
     username: Optional[str] = None
-    password: Optional[SecretStr] = None
+    password: Optional[str] = None
     proxy: Optional[str] = None
     remoteRepoChecksumPolicyType: str = "generate-if-absent"
     handleReleases: bool = True
