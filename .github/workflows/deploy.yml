@@ -23,6 +23,7 @@ jobs:
           virtualenvs-path: ~/.virtualenvs
 
       - name: Set Poetry config
+        run: |
           poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
 
       - name: Build
