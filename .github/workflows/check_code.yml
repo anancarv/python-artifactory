@@ -9,19 +9,16 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.7
-      uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+      uses: actions/setup-python@v2
       with:
         python-version: 3.7
 
     - name: Install Poetry
-      uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+      uses: snok/install-poetry@v1.1.1
       with:
-        version: 1.0.2
-
-    - name: Set Poetry config
-      run: |
-        poetry config virtualenvs.in-project false
-        poetry config virtualenvs.path ~/.virtualenvs
+        version: 1.1.4
+        virtualenvs-in-project: false
+        virtualenvs-path: ~/.virtualenvs
 
     - name: Install Dependencies
       run: poetry install
@@ -34,25 +31,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@350318022136c903b1dcf90854e65700f78938e1
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Poetry
-        uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+        uses: snok/install-poetry@v1.1.1
         with:
-          version: 1.0.2
-
-      - name: Set Poetry config
-        run: |
-          poetry config virtualenvs.in-project false
-          poetry config virtualenvs.path ~/.virtualenvs
+          version: 1.1.4
+          virtualenvs-in-project: false
+          virtualenvs-path: ~/.virtualenvs
 
       - name: Install Dependencies
         run: poetry install
