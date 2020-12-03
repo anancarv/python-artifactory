@@ -14,14 +14,11 @@ jobs:
         python-version: 3.7
 
     - name: Install Poetry
-      uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+      uses: snok/install-poetry@v1.1.1
       with:
-        version: 1.0.2
-
-    - name: Set Poetry config
-      run: |
-        poetry config virtualenvs.in-project false
-        poetry config virtualenvs.path ~/.virtualenvs
+        version: 1.1.4
+        virtualenvs-in-project: false
+        virtualenvs-path: ~/.virtualenvs
 
     - name: Install Dependencies
       run: poetry install
@@ -45,14 +42,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Poetry
-        uses: dschep/install-poetry-action@db2e37f48d1b1cd1491c4590338ebc7699adb425
+        uses: snok/install-poetry@v1.1.1
         with:
-          version: 1.0.2
-
-      - name: Set Poetry config
-        run: |
-          poetry config virtualenvs.in-project false
-          poetry config virtualenvs.path ~/.virtualenvs
+          version: 1.1.4
+          virtualenvs-in-project: false
+          virtualenvs-path: ~/.virtualenvs
 
       - name: Install Dependencies
         run: poetry install
