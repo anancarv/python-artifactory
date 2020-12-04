@@ -2,6 +2,7 @@
 Definition of all artifactory objects.
 """
 import warnings
+import json
 import logging
 import os
 from os.path import isdir, join
@@ -56,6 +57,9 @@ from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
 )
+
+from pyartifactory.utils import custom_encoder
+
 
 logger = logging.getLogger("pyartifactory")
 
@@ -250,7 +254,6 @@ class ArtifactorySecurity(ArtifactoryObject):
     ) -> AccessTokenModel:
         """
         Creates an access token.
-
         :param user_name: Name of the user to whom an access key should be granted. transient token
                           is created if user doesn't exist in artifactory.
         :param expires_in: Expiry time for the token in seconds. For eternal tokens specify 0.
@@ -282,7 +285,6 @@ class ArtifactorySecurity(ArtifactoryObject):
     def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
         """
         Revokes an access token.
-
         :param token: The token to revoke
         :param token_id: The id of a token to revoke
         :return: bool True or False indicating success or failure of token revocation attempt.
@@ -463,7 +465,12 @@ class ArtifactoryRepository(ArtifactoryObject):
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
-            self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            data = json.dumps(repo, default=custom_encoder)
+            self._put(
+                f"api/{self._uri}/{repo_name}",
+                headers={"Content-Type": "application/json"},
+                data=data,
+            )
             logger.debug("Repository %s successfully created", repo_name)
             return self.get_repo(repo_name)
 
@@ -758,7 +765,6 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self, artifact_path: str, topdown: bool = True
     ) -> Iterator[ArtifactInfoResponse]:
         """Iterate over artifact (file or directory) recursively.
-
         :param artifact_path: Path to file or folder in Artifactory
         :param topdown: True for a top-down (directory first) traversal
         """
@@ -778,10 +784,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def info(self, artifact_path: str) -> ArtifactInfoResponse:
         """
         Retrieve information about a file or a folder
-
         See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FolderInfo
         and https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileInfo
-
         :param artifact_path: Path to file or folder in Artifactory
         """
         artifact_path = artifact_path.lstrip("/")
