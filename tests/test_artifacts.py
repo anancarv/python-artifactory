@@ -160,8 +160,12 @@ def test_download_artifact_success(tmp_path):
     assert (tmp_path / artifact_name).is_file()
 
 
+@pytest.mark.parametrize(
+    "requested_path",
+    [ARTIFACT_REPO, f"{ARTIFACT_REPO}/", f"/{ARTIFACT_REPO}", f"/{ARTIFACT_REPO}/"],
+)
 @responses.activate
-def test_download_folder_success(tmp_path):
+def test_download_folder_success(tmp_path, requested_path):
     # artifact_name = ARTIFACT_PATH.split("/")[1]
     responses.add(
         responses.GET,
@@ -199,7 +203,7 @@ def test_download_folder_success(tmp_path):
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact = artifactory.download(f"{ARTIFACT_REPO}/", str(tmp_path.resolve()))
+    artifact = artifactory.download(requested_path, str(tmp_path.resolve()))
 
     assert artifact == f"{tmp_path.resolve()}/{ARTIFACT_REPO}"
     assert (tmp_path / f"{ARTIFACT_REPO}" / "child1" / "grandchild").is_file()

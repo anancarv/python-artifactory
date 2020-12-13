@@ -254,6 +254,7 @@ class ArtifactorySecurity(ArtifactoryObject):
     ) -> AccessTokenModel:
         """
         Creates an access token.
+
         :param user_name: Name of the user to whom an access key should be granted. transient token
                           is created if user doesn't exist in artifactory.
         :param expires_in: Expiry time for the token in seconds. For eternal tokens specify 0.
@@ -285,6 +286,7 @@ class ArtifactorySecurity(ArtifactoryObject):
     def revoke_access_token(self, token: str = None, token_id: str = None) -> bool:
         """
         Revokes an access token.
+
         :param token: The token to revoke
         :param token_id: The id of a token to revoke
         :return: bool True or False indicating success or failure of token revocation attempt.
@@ -765,6 +767,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self, artifact_path: str, topdown: bool = True
     ) -> Iterator[ArtifactInfoResponse]:
         """Iterate over artifact (file or directory) recursively.
+
         :param artifact_path: Path to file or folder in Artifactory
         :param topdown: True for a top-down (directory first) traversal
         """
@@ -784,8 +787,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def info(self, artifact_path: str) -> ArtifactInfoResponse:
         """
         Retrieve information about a file or a folder
+
         See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FolderInfo
         and https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileInfo
+
         :param artifact_path: Path to file or folder in Artifactory
         """
         artifact_path = artifact_path.lstrip("/")
@@ -827,7 +832,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 logger.debug("Artifact %s successfully deployed", local_filename)
         return self.info(artifact_path)
 
-    def _download(self, artifact_path: str, local_directory_path: str = None) -> str:
+    def _download(self, artifact_path: str, local_directory_path: Path = None) -> Path:
         """
         Download artifact (file) into local directory.
         :param artifact_path: Path to file in Artifactory
@@ -838,10 +843,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
         local_filename = artifact_path.split("/")[-1]
 
         if local_directory_path:
-            Path(local_directory_path).mkdir(parents=True, exist_ok=True)
-            local_file_full_path = f"{local_directory_path}/{local_filename}"
+            local_directory_path.mkdir(parents=True, exist_ok=True)
+            local_file_full_path = local_directory_path / local_filename
         else:
-            local_file_full_path = local_filename
+            local_file_full_path = Path(local_filename)
 
         with self._get(f"{artifact_path}", stream=True) as response:
             with open(local_file_full_path, "wb") as file:
@@ -850,6 +855,18 @@ class ArtifactoryArtifact(ArtifactoryObject):
                         file.write(chunk)
         logger.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
+
+    @staticmethod
+    def _get_path_prefix(artifact_path: str):
+        if artifact_path.startswith("/"):
+            artifact_path = artifact_path[1:]
+        return artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+
+    @staticmethod
+    def _remove_prefix(_str: str, prefix: str) -> str:
+        if _str.startswith(prefix):
+            return _str[len(prefix) :]
+        raise ValueError(f"Input string, '{_str}', doesn't have the prefix: '{prefix}'")
 
     def download(self, artifact_path: str, local_directory_path: str = ".") -> str:
         """
@@ -860,14 +877,15 @@ class ArtifactoryArtifact(ArtifactoryObject):
         """
         artifact_path = artifact_path.rstrip("/")
         basename = artifact_path.split("/")[-1]
-        prefix = artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+        prefix = self._get_path_prefix(artifact_path)
         for art in self._walk(artifact_path):
             full_path = art.repo + art.path
-            local_path = join(local_directory_path, full_path[len(prefix) :])
+            local_artifact_path = self._remove_prefix(full_path, prefix)
+            local_path = Path(local_directory_path) / local_artifact_path
             if isinstance(art, ArtifactFolderInfoResponse):
                 os.makedirs(local_path, exist_ok=True)
             else:
-                self._download(art.repo + art.path, local_path.rsplit("/", 1)[0])
+                self._download(full_path, local_path.parent)
         return f"{local_directory_path}/{basename}"
 
     def properties(
