@@ -2,6 +2,7 @@
 Definition of all artifactory objects.
 """
 import warnings
+import json
 import logging
 import os
 from os.path import isdir, join
@@ -56,6 +57,9 @@ from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
 )
+
+from pyartifactory.utils import custom_encoder
+
 
 logger = logging.getLogger("pyartifactory")
 
@@ -463,7 +467,12 @@ class ArtifactoryRepository(ArtifactoryObject):
                 f"Repository {repo_name} already exists"
             )
         except RepositoryNotFoundException:
-            self._put(f"api/{self._uri}/{repo_name}", json=repo.dict())
+            data = json.dumps(repo, default=custom_encoder)
+            self._put(
+                f"api/{self._uri}/{repo_name}",
+                headers={"Content-Type": "application/json"},
+                data=data,
+            )
             logger.debug("Repository %s successfully created", repo_name)
             return self.get_repo(repo_name)
 
