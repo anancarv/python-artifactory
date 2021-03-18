@@ -6,7 +6,7 @@ import json
 import logging
 import os
 from os.path import isdir, join
-from typing import List, Optional, Dict, Tuple, Union, Iterator
+from typing import List, Optional, Dict, Tuple, Union, Iterator, overload
 
 from pathlib import Path
 import requests
@@ -453,6 +453,18 @@ class ArtifactoryRepository(ArtifactoryObject):
                 )
             raise ArtifactoryException from error
 
+    @overload
+    def create_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
+        ...
+
+    @overload
+    def create_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
+        ...
+
+    @overload
+    def create_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        ...
+
     def create_repo(self, repo: AnyRepository) -> AnyRepositoryResponse:
         """
         Creates a local, virtual or remote repository
@@ -475,6 +487,18 @@ class ArtifactoryRepository(ArtifactoryObject):
             )
             logger.debug("Repository %s successfully created", repo_name)
             return self.get_repo(repo_name)
+
+    @overload
+    def update_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
+        ...
+
+    @overload
+    def update_repo(self, repo: VirtualRepository) -> VirtualRepositoryResponse:
+        ...
+
+    @overload
+    def update_repo(self, repo: RemoteRepository) -> RemoteRepositoryResponse:
+        ...
 
     def update_repo(self, repo: AnyRepository) -> AnyRepositoryResponse:
         """
