@@ -184,6 +184,7 @@ def test_create_local_repository_using_create_repo_success(mocker):
     mocker.spy(artifactory_repo, "get_repo")
     local_repo = artifactory_repo.create_repo(LOCAL_REPOSITORY)
 
+    assert type(local_repo) == LocalRepositoryResponse
     assert local_repo == LOCAL_REPOSITORY_RESPONSE
 
 
@@ -582,6 +583,7 @@ def test_update_local_repository_using_update_repo_success(mocker):
     mocker.spy(artifactory_repo, "get_repo")
     updated_repo = artifactory_repo.update_repo(UPDATED_LOCAL_REPOSITORY)
 
+    assert type(updated_repo) == LocalRepositoryResponse
     assert updated_repo == UPDATED_LOCAL_REPOSITORY_RESPONSE
 
 
