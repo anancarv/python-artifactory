@@ -272,7 +272,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         if groups:
             if not isinstance(groups, list):
                 raise ValueError(groups)
-            scope = f'member-of-groups:"{", ".join(groups)}"'
+            scope = f'member-of-groups:"{",".join(groups)}"'
             payload.update({"scope": scope})
         response = self._post(
             f"api/{self._uri}/token", data=payload, raise_for_status=False
