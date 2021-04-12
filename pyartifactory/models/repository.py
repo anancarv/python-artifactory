@@ -35,6 +35,11 @@ class PackageTypeEnum(str, Enum):
     chef = "chef"
     puppet = "puppet"
     generic = "generic"
+    conan = "conan"
+    alpine = "alpine"
+    gitlfs = "gitlfs"
+    vagrant = "vagrant"
+    conda = "conda"
 
 
 class RClassEnum(str, Enum):
