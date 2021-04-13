@@ -16,6 +16,7 @@ from .repository import (
     SimpleRepository,
 )
 
+from .aql import Aql
 from .artifact import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,

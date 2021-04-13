@@ -34,7 +34,7 @@ tests
 
 [tool.pylint.messages_control]
 disable = """
-bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes
+bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes,too-many-lines
 """
 
 [tool.pylint.basic]
