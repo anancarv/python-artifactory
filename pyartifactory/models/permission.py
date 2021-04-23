@@ -40,3 +40,36 @@ class Permission(BaseModel):
     excludesPattern: str = ""
     repositories: List[str]
     principals: PrincipalsPermission
+
+
+class PermissionEnumV2(str, Enum):
+    """Enumerates a permission."""
+
+    manage = "manage"
+    delete = "delete"
+    write = "write"
+    annotate = "annotate"
+    read = "read"
+
+
+class PrincipalsPermissionV2(BaseModel):
+    """Models a principals permission API vV2."""
+
+    users: Optional[Dict[str, List[PermissionEnumV2]]] = None
+    groups: Optional[Dict[str, List[PermissionEnumV2]]] = None
+
+
+class RepoV2(BaseModel):
+    """Models a repo v2 API."""
+
+    repositories: List[str]
+    actions: PrincipalsPermissionV2
+    includesPattern: str = "**"
+    excludesPattern: str = ""
+
+
+class PermissionV2(BaseModel):
+    """Models a permission v2 API."""
+
+    name: str
+    repo: RepoV2

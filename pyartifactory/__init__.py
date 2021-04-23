@@ -7,9 +7,10 @@ from pyartifactory.objects import (
     ArtifactorySecurity,
     ArtifactoryRepository,
     ArtifactoryArtifact,
-    ArtifactoryPermission,
     Artifactory,
     AccessTokenModel,
+    ArtifactoryPermission,
 )
+
 
 __version__ = "1.8.3"

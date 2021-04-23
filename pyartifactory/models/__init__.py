@@ -23,7 +23,7 @@ from .artifact import (
     ArtifactFolderInfoResponse,
     ArtifactInfoResponse,
 )
-from .permission import Permission, SimplePermission
+from .permission import Permission, PermissionV2, SimplePermission
 
 
 AnyRepositoryResponse = Union[
