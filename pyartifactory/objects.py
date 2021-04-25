@@ -172,12 +172,12 @@ class ArtifactoryUser(ArtifactoryObject):
 class ArtifactoryPermission(ArtifactoryObject):
     """Models an artifactory permission."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        if self._artifactory.api_version == 1:
+    def __init__(self, artifactory: AuthModel) -> None:
+        super().__init__(artifactory)
+        if self._api_version == 2:
+            self._uri = "v2/security/permissions"
+        if self._api_version == 1:
             self._uri = "security/permissions"
-        if self._artifactory.api_version == 2:
-            self.uri = "v2/security/permissions"
 
     def create(
         self, permission: Union[Permission, PermissionV2]

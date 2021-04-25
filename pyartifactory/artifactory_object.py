@@ -16,6 +16,7 @@ class ArtifactoryObject:
             self._artifactory.auth[0],
             self._artifactory.auth[1].get_secret_value(),
         )
+        self._api_version = self._artifactory.api_version
         self._verify = self._artifactory.verify
         self._cert = self._artifactory.cert
         self.session = requests.Session()
