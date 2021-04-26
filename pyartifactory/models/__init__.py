@@ -31,3 +31,4 @@ AnyRepositoryResponse = Union[
 ]
 
 AnyRepository = Union[LocalRepository, VirtualRepository, RemoteRepository]
+AnyPermission = Union[Permission, PermissionV2]

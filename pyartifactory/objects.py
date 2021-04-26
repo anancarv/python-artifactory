@@ -52,6 +52,7 @@ from pyartifactory.models import (
     Permission,
     PermissionV2,
     SimplePermission,
+    AnyPermission,
 )
 from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
@@ -73,7 +74,7 @@ class Artifactory:
         verify: bool = True,
         cert: str = None,
         api_version: int = 1,
-    ):  # pylint: disable=too-many-arguments
+    ):
         self.artifactory = AuthModel(
             url=url, auth=auth, verify=verify, cert=cert, api_version=api_version
         )
@@ -179,9 +180,15 @@ class ArtifactoryPermission(ArtifactoryObject):
         if self._api_version == 1:
             self._uri = "security/permissions"
 
-    def create(
-        self, permission: Union[Permission, PermissionV2]
-    ) -> Union[Permission, PermissionV2]:
+    @overload
+    def create(self, permission: Permission,) -> Permission:
+        ...
+
+    @overload
+    def create(self, permission: PermissionV2,) -> PermissionV2:
+        ...
+
+    def create(self, permission: AnyPermission) -> AnyPermission:
         """
         Creates a permission
         :param permission: Permission v2 or v1 object
@@ -230,9 +237,15 @@ class ArtifactoryPermission(ArtifactoryObject):
         logger.debug("List all permissions successful")
         return [SimplePermission(**permission) for permission in response.json()]
 
-    def update(
-        self, permission: Union[Permission, PermissionV2]
-    ) -> Union[Permission, PermissionV2]:
+    @overload
+    def update(self, permission: Permission) -> Permission:
+        ...
+
+    @overload
+    def update(self, permission: PermissionV2) -> PermissionV2:
+        ...
+
+    def update(self, permission: AnyPermission) -> AnyPermission:
         """
         Updates an artifactory permission
         :param permission: Permission v2 or v1 object

@@ -101,7 +101,7 @@ def test_create_permission_success(mocker, api_version, permission, api_uri):
     [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
 )
 @responses.activate
-def test_get_permission_error_not_found(mocker, api_version, permission, api_uri):
+def test_get_permission_error_not_found(api_version, permission, api_uri):
     responses.add(responses.GET, f"{URL}/{api_uri}/{permission.name}", status=404)
 
     artifactory_permission = ArtifactoryPermission(

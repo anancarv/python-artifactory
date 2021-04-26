@@ -54,7 +54,7 @@ pip install pyartifactory
 
 ### Authentication
 
-Since Artifatctory 6.6.0 there is version 2 of the REST API for permission managmant, in case you have that version or higher, you need to pass api_version=2 to the constructor when you instantiate the calss.
+Since Artifactory 6.6.0 there is version 2 of the REST API for permission management, in case you have that version or higher, you need to pass api_version=2 to the constructor when you instantiate the class.
 
 ```python
 from pyartifactory import Artifactory
@@ -270,7 +270,7 @@ permission = PermissionV2(
         ),
         includePatterns=["**"],
         excludePatterns=[],
-    ),
+    )
 perm = art.permissions.create(permission)
 
 # Update permission
