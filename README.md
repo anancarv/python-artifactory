@@ -240,10 +240,11 @@ users = art.permissions.get("test_permission")
 
 Create/Update a permission:
 
-##### Artifatctory 6.6.0 or higher
+##### Artifactory 6.6.0 or higher
 ```python
 
-from pyartifactory.models import Permisson_v2
+from pyartifactory.models import PermissionV2
+from pyartifactory.models.permission import PermissionEnumV2, PrincipalsPermissionV2, RepoV2
 
 # Create a permission
 permission = PermissionV2(
@@ -252,7 +253,7 @@ permission = PermissionV2(
         repositories=["test_repository"],
         actions=PrincipalsPermissionV2(
             users={
-                ""test_user"": [
+                "test_user": [
                     PermissionEnumV2.read,
                     PermissionEnumV2.annotate,
                     PermissionEnumV2.write,
@@ -271,18 +272,19 @@ permission = PermissionV2(
         includePatterns=["**"],
         excludePatterns=[],
     )
+)
 perm = art.permissions.create(permission)
 
 # Update permission
-permission.repositories = ["test_repository_2"]
+permission.repo.repositories = ["test_repository_2"]
 updated_permission = art.permissions.update(permission)
 ```
 
-##### Artifatctory lower than 6.6.0
+##### Artifactory lower than 6.6.0
 
 ```python
 
-from pyartifactory.models import Permission, Permisson_v2
+from pyartifactory.models import Permission
 
 # Create a permission
 permission = Permission(

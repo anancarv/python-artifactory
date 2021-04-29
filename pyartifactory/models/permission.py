@@ -53,7 +53,7 @@ class PermissionEnumV2(str, Enum):
 
 
 class PrincipalsPermissionV2(BaseModel):
-    """Models a principals permission API vV2."""
+    """Models a principals permission API v2."""
 
     users: Optional[Dict[str, List[PermissionEnumV2]]] = None
     groups: Optional[Dict[str, List[PermissionEnumV2]]] = None
@@ -64,8 +64,19 @@ class RepoV2(BaseModel):
 
     repositories: List[str]
     actions: PrincipalsPermissionV2
-    includesPattern: str = "**"
-    excludesPattern: str = ""
+    # Note: the Jfrog API changed these parameters names in v2,
+    # from 'includesPattern' to 'include-patterns'. Because they are not
+    # valid Python identifiers we chose a camelCase name for the variable,
+    # and specify the alias Pydantic should look for when deserializing.
+    # Note that when serializing this model Pydantic will by default use the
+    # identifier name, *not* the alias, so you need to pass the parameter
+    # by_alias=True when exporting (like permission.json(by_alias=True))
+    includePatterns: List[str] = Field(["**"], alias="include-patterns")
+    excludePatterns: List[str] = Field([""], alias="exclude-patterns")
+
+    class Config:
+        # We need this to be able to use 'includePatterns' in the constructor
+        allow_population_by_field_name = True
 
 
 class PermissionV2(BaseModel):

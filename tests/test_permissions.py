@@ -35,8 +35,8 @@ PERMISSIONV2 = PermissionV2(
                 "groups": {"developers": ["read", "annotate", "write", "delete",],},
             },
         },
-        "includePatterns": ["**"],
-        "excludePatterns": [],
+        "include-patterns": ["**"],
+        "exclude-patterns": [],
     }
 )
 
