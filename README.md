@@ -7,7 +7,7 @@
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 
-`pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API). 
+`pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API).
 
 This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.6+ type hints.
 
@@ -24,6 +24,8 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Security](#security)
     + [Repository](#repository)
     + [Permission](#permission)
+      - [Artifatctory 6.6.0 or higher](#artifatctory-660-or-higher)
+      - [Artifatctory lower than 6.6.0](#artifatctory-lower-than-660)
   * [Artifacts](#artifacts)
     + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
@@ -45,16 +47,18 @@ This library enables you to manage Artifactory resources such as users, groups, 
 ## Install
 
 ```python
-pip install pyartifactory 
+pip install pyartifactory
 ```
 
 ## Usage
 
 ### Authentication
 
+Since Artifactory 6.6.0 there is version 2 of the REST API for permission management, in case you have that version or higher, you need to pass api_version=2 to the constructor when you instantiate the class.
+
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), api_version=1)
 ```
 
 ### SSL Cert Verification Options
@@ -62,14 +66,14 @@ Specify a local cert to use as client side certificate
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), cert="/path_to_file/server.pem")
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), cert="/path_to_file/server.pem",api_version=1)
 ```
 
 Disable host cert verification
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False)
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False, api_version=1)
 ```
 
 ### Admin objects
@@ -167,14 +171,14 @@ art.security.get_api_key(             art.security.regenerate_api_key(      art.
 
 Create an access token (for a transient user):
 ```python
-token = art.security.create_access_token(user_name='transient_artifactory_user', 
+token = art.security.create_access_token(user_name='transient_artifactory_user',
                                          groups=['g1', 'g2'],
                                          refreshable=True)
 ```
 
 Create an access token for an existing user (groups are implied from the existing user):
 ```python
-token = art.security.create_access_token(user_name='existing_artifactory_user', 
+token = art.security.create_access_token(user_name='existing_artifactory_user',
                                          refreshable=True)
 ```
 
@@ -235,7 +239,51 @@ users = art.permissions.get("test_permission")
 ```
 
 Create/Update a permission:
+
+##### Artifactory 6.6.0 or higher
 ```python
+
+from pyartifactory.models import PermissionV2
+from pyartifactory.models.permission import PermissionEnumV2, PrincipalsPermissionV2, RepoV2
+
+# Create a permission
+permission = PermissionV2(
+    name="test_permission",
+    repo=RepoV2(
+        repositories=["test_repository"],
+        actions=PrincipalsPermissionV2(
+            users={
+                "test_user": [
+                    PermissionEnumV2.read,
+                    PermissionEnumV2.annotate,
+                    PermissionEnumV2.write,
+                    PermissionEnumV2.delete,
+                ]
+            },
+            groups={
+                "developers": [
+                    PermissionEnumV2.read,
+                    PermissionEnumV2.annotate,
+                    PermissionEnumV2.write,
+                    PermissionEnumV2.delete,
+                ],
+            },
+        ),
+        includePatterns=["**"],
+        excludePatterns=[],
+    )
+)
+perm = art.permissions.create(permission)
+
+# Update permission
+permission.repo.repositories = ["test_repository_2"]
+updated_permission = art.permissions.update(permission)
+```
+
+##### Artifactory lower than 6.6.0
+
+```python
+
 from pyartifactory.models import Permission
 
 # Create a permission

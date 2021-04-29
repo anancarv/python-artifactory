@@ -7,11 +7,13 @@ from pyartifactory.exception import (
     PermissionAlreadyExistsException,
 )
 from pyartifactory.models.auth import AuthModel
-from pyartifactory.models.permission import Permission, SimplePermission
+from pyartifactory.models.permission import Permission, SimplePermission, PermissionV2
+
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-
+API_URI = "api/security/permissions"
+API_URI_V2 = "api/v2/security/permissions"
 SIMPLE_PERMISSION = SimplePermission(name="test_permission", uri="someuri")
 PERMISSION = Permission(
     **{
@@ -23,127 +25,172 @@ PERMISSION = Permission(
         },
     }
 )
+PERMISSIONV2 = PermissionV2(
+    **{
+        "name": "test_permission",
+        "repo": {
+            "repositories": ["test_repository"],
+            "actions": {
+                "users": {"test_user": ["read", "annotate", "write", "delete",]},
+                "groups": {"developers": ["read", "annotate", "write", "delete",],},
+            },
+        },
+        "include-patterns": ["**"],
+        "exclude-patterns": [],
+    }
+)
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_create_permission_fail_if_group_already_exists(mocker):
+def test_create_permission_fail_if_group_already_exists(
+    mocker, api_version, permission, api_uri
+):
     responses.add(
         responses.GET,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        json=PERMISSION.dict(),
+        f"{URL}/{api_uri}/{permission.name}",
+        json=permission.dict(),
         status=200,
     )
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "get")
     with pytest.raises(PermissionAlreadyExistsException):
-        artifactory_permission.create(PERMISSION)
-    artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+        artifactory_permission.create(permission)
+    artifactory_permission.get.assert_called_once_with(permission.name)
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_create_permission_success(mocker):
-    responses.add(
-        responses.GET, f"{URL}/api/security/permissions/{PERMISSION.name}", status=404
-    )
+def test_create_permission_success(mocker, api_version, permission, api_uri):
+    responses.add(responses.GET, f"{URL}/{api_uri}/{permission.name}", status=404)
     responses.add(
         responses.PUT,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        json=PERMISSION.dict(),
+        f"{URL}/{api_uri}/{permission.name}",
+        json=permission.dict(),
         status=201,
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        json=PERMISSION.dict(),
+        f"{URL}/{api_uri}/{permission.name}",
+        json=permission.dict(),
         status=200,
     )
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "get")
-    permission = artifactory_permission.create(PERMISSION)
-    artifactory_permission.get.assert_called_with(PERMISSION.name)
-    assert permission == PERMISSION.dict()
+    mocked_permission = artifactory_permission.create(permission)
+    artifactory_permission.get.assert_called_with(permission.name)
+    assert mocked_permission == permission.dict()
 
     assert artifactory_permission.get.call_count == 2
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_get_permission_error_not_found():
-    responses.add(
-        responses.GET, f"{URL}/api/security/permissions/{PERMISSION.name}", status=404
-    )
+def test_get_permission_error_not_found(api_version, permission, api_uri):
+    responses.add(responses.GET, f"{URL}/{api_uri}/{permission.name}", status=404)
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     with pytest.raises(PermissionNotFoundException):
-        artifactory_permission.get(PERMISSION.name)
+        artifactory_permission.get(permission.name)
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_get_permission_success(mocker):
+def test_get_permission_success(mocker, api_version, permission, api_uri):
     responses.add(
         responses.GET,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        json=PERMISSION.dict(),
+        f"{URL}/{api_uri}/{permission.name}",
+        json=permission.dict(),
         status=200,
     )
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "get")
-    permission = artifactory_permission.get(PERMISSION.name)
-    artifactory_permission.get.assert_called_with(PERMISSION.name)
+    mocked_permission = artifactory_permission.get(permission.name)
+    artifactory_permission.get.assert_called_with(permission.name)
 
-    assert permission == PERMISSION.dict()
+    assert mocked_permission == permission.dict()
 
 
+@pytest.mark.parametrize("api_version,api_uri", [(1, API_URI), (2, API_URI_V2)])
 @responses.activate
-def test_list_group_success(mocker):
+def test_list_group_success(mocker, api_version, api_uri):
     responses.add(
-        responses.GET,
-        f"{URL}/api/security/permissions",
-        json=[SIMPLE_PERMISSION.dict()],
-        status=200,
+        responses.GET, f"{URL}/{api_uri}", json=[SIMPLE_PERMISSION.dict()], status=200,
     )
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "list")
     permission_list = artifactory_permission.list()
     artifactory_permission.list.assert_called_once()
-
     assert permission_list == [SIMPLE_PERMISSION.dict()]
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_delete_permission_fail_if_group_not_found(mocker):
-    responses.add(
-        responses.GET, f"{URL}/api/security/permissions/{PERMISSION.name}", status=404
-    )
+def test_delete_permission_fail_if_group_not_found(
+    mocker, api_version, permission, api_uri
+):
+    responses.add(responses.GET, f"{URL}/{api_uri}/{permission.name}", status=404)
 
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "get")
 
     with pytest.raises(PermissionNotFoundException):
-        artifactory_permission.delete(PERMISSION.name)
+        artifactory_permission.delete(permission.name)
 
-    artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+    artifactory_permission.get.assert_called_once_with(permission.name)
 
 
+@pytest.mark.parametrize(
+    "api_version,permission,api_uri",
+    [(1, PERMISSION, API_URI), (2, PERMISSIONV2, API_URI_V2)],
+)
 @responses.activate
-def test_delete_group_success(mocker):
+def test_delete_group_success(mocker, api_version, permission, api_uri):
     responses.add(
         responses.GET,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        json=PERMISSION.dict(),
+        f"{URL}/{api_uri}/{permission.name}",
+        json=permission.dict(),
         status=200,
     )
 
     responses.add(
-        responses.DELETE,
-        f"{URL}/api/security/permissions/{PERMISSION.name}",
-        status=204,
+        responses.DELETE, f"{URL}/{api_uri}/{permission.name}", status=204,
     )
-    artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH))
+    artifactory_permission = ArtifactoryPermission(
+        AuthModel(url=URL, auth=AUTH, api_version=api_version)
+    )
     mocker.spy(artifactory_permission, "get")
-    artifactory_permission.delete(PERMISSION.name)
+    artifactory_permission.delete(permission.name)
 
-    artifactory_permission.get.assert_called_once_with(PERMISSION.name)
+    artifactory_permission.get.assert_called_once_with(permission.name)

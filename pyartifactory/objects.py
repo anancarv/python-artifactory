@@ -1,18 +1,18 @@
 """
 Definition of all artifactory objects.
 """
-import warnings
 import json
 import logging
 import os
+import warnings
 from os.path import isdir, join
+from pathlib import Path
 from typing import List, Optional, Dict, Tuple, Union, Iterator, overload
 
-from pathlib import Path
 import requests
-from requests import Response
 from pydantic import parse_obj_as
 
+from pyartifactory.artifactory_object import ArtifactoryObject
 from pyartifactory.exception import (
     UserNotFoundException,
     UserAlreadyExistsException,
@@ -21,13 +21,12 @@ from pyartifactory.exception import (
     GroupAlreadyExistsException,
     RepositoryNotFoundException,
     ArtifactoryException,
-    PermissionAlreadyExistsException,
-    PermissionNotFoundException,
     InvalidTokenDataException,
     PropertyNotFoundException,
     ArtifactNotFoundException,
+    PermissionAlreadyExistsException,
+    PermissionNotFoundException,
 )
-
 from pyartifactory.models import (
     AuthModel,
     ApiKeyModel,
@@ -47,17 +46,18 @@ from pyartifactory.models import (
     NewUser,
     SimpleUser,
     User,
-    Permission,
-    SimplePermission,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
     ArtifactInfoResponse,
+    Permission,
+    PermissionV2,
+    SimplePermission,
+    AnyPermission,
 )
 from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
 )
-
 from pyartifactory.utils import custom_encoder
 
 
@@ -68,83 +68,22 @@ class Artifactory:
     """Models artifactory."""
 
     def __init__(
-        self, url: str, auth: Tuple[str, str], verify: bool = True, cert: str = None,
+        self,
+        url: str,
+        auth: Tuple[str, str],
+        verify: bool = True,
+        cert: str = None,
+        api_version: int = 1,
     ):
-        self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert)
+        self.artifactory = AuthModel(
+            url=url, auth=auth, verify=verify, cert=cert, api_version=api_version
+        )
         self.users = ArtifactoryUser(self.artifactory)
         self.groups = ArtifactoryGroup(self.artifactory)
         self.security = ArtifactorySecurity(self.artifactory)
         self.repositories = ArtifactoryRepository(self.artifactory)
         self.artifacts = ArtifactoryArtifact(self.artifactory)
         self.permissions = ArtifactoryPermission(self.artifactory)
-
-
-class ArtifactoryObject:
-    """Models the artifactory object."""
-
-    def __init__(self, artifactory: AuthModel) -> None:
-        self._artifactory = artifactory
-        self._auth = (
-            self._artifactory.auth[0],
-            self._artifactory.auth[1].get_secret_value(),
-        )
-        self._verify = self._artifactory.verify
-        self._cert = self._artifactory.cert
-        self.session = requests.Session()
-
-    def _get(self, route: str, **kwargs) -> Response:
-        """
-        :param route: API Route
-        :param kwargs: Additional parameters to add the request
-        :returns  An HTTP response
-        """
-        return self._generic_http_method_request("get", route, **kwargs)
-
-    def _post(self, route: str, **kwargs) -> Response:
-        """
-        :param route: API Route
-        :param kwargs: Additional parameters to add the request
-        :returns  An HTTP response
-        """
-        return self._generic_http_method_request("post", route, **kwargs)
-
-    def _put(self, route: str, **kwargs) -> Response:
-        """
-        :param route: API Route
-        :param kwargs: Additional parameters to add the request
-        :returns  An HTTP response
-        """
-        return self._generic_http_method_request("put", route, **kwargs)
-
-    def _delete(self, route: str, **kwargs) -> Response:
-        """
-        :param route: API Route
-        :param kwargs: Additional parameters to add the request
-        :returns  An HTTP response
-        """
-        return self._generic_http_method_request("delete", route, **kwargs)
-
-    def _generic_http_method_request(
-        self, method: str, route: str, raise_for_status: bool = True, **kwargs
-    ) -> Response:
-        """
-        :param method: HTTP method to use
-        :param route: API Route
-        :param kwargs: Additional parameters to add the request
-        :return: An HTTP response
-        """
-
-        http_method = getattr(self.session, method)
-        response: Response = http_method(
-            f"{self._artifactory.url}/{route}",
-            auth=self._auth,
-            **kwargs,
-            verify=self._verify,
-            cert=self._cert,
-        )
-        if raise_for_status:
-            response.raise_for_status()
-        return response
 
 
 class ArtifactoryUser(ArtifactoryObject):
@@ -231,6 +170,108 @@ class ArtifactoryUser(ArtifactoryObject):
         logger.debug("User % successfully unlocked", name)
 
 
+class ArtifactoryPermission(ArtifactoryObject):
+    """Models an artifactory permission."""
+
+    def __init__(self, artifactory: AuthModel) -> None:
+        super().__init__(artifactory)
+        if self._api_version == 2:
+            self._uri = "v2/security/permissions"
+        if self._api_version == 1:
+            self._uri = "security/permissions"
+
+    @overload
+    def create(self, permission: Permission,) -> Permission:
+        ...
+
+    @overload
+    def create(self, permission: PermissionV2,) -> PermissionV2:
+        ...
+
+    def create(self, permission: AnyPermission) -> AnyPermission:
+        """
+        Creates a permission
+        :param permission: Permission v2 or v1 object
+        :return: Permission v2 or v1
+        """
+        permission_name = permission.name
+        try:
+            self.get(permission_name)
+            logger.debug("Permission %s already exists", permission_name)
+            raise PermissionAlreadyExistsException(
+                f"Permission {permission_name} already exists"
+            )
+        except PermissionNotFoundException:
+            self._put(
+                f"api/{self._uri}/{permission_name}",
+                json=permission.dict(by_alias=True),
+            )
+            logger.debug("Permission %s successfully created", permission_name)
+            return self.get(permission_name)
+
+    def get(self, permission_name: str) -> AnyPermission:
+        """
+        Read permission from artifactory. Fill object if exist
+        :param permission_name: Name of the permission to retrieve
+        :return: Permission
+        """
+        try:
+            response = self._get(f"api/{self._uri}/{permission_name}")
+            logger.debug("Permission %s found", permission_name)
+            return (
+                Permission(**response.json())
+                if self._artifactory.api_version == 1
+                else PermissionV2(**response.json())
+            )
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404 or error.response.status_code == 400:
+                logger.error("Permission %s does not exist", permission_name)
+                raise PermissionNotFoundException(
+                    f"Permission {permission_name} does not exist"
+                )
+            raise ArtifactoryException from error
+
+    def list(self) -> List[SimplePermission]:
+        """
+        Lists all the permissions
+        :return: A list of permissions
+        """
+        response = self._get(f"api/{self._uri}")
+        logger.debug("List all permissions successful")
+        return [SimplePermission(**permission) for permission in response.json()]
+
+    @overload
+    def update(self, permission: Permission) -> Permission:
+        ...
+
+    @overload
+    def update(self, permission: PermissionV2) -> PermissionV2:
+        ...
+
+    def update(self, permission: AnyPermission) -> AnyPermission:
+        """
+        Updates an artifactory permission
+        :param permission: Permission v2 or v1 object
+        :return: Permission v2 or v1
+        """
+        permission_name = permission.name
+        self._put(
+            f"api/{self._uri}/{permission_name}", json=permission.dict(by_alias=True)
+        )
+        logger.debug("Permission %s successfully updated", permission_name)
+        return self.get(permission_name)
+
+    def delete(self, permission_name: str) -> None:
+        """
+        Removes an artifactory permission
+        :param permission_name: Name of the permission to delete
+        :return: None
+        """
+        self.get(permission_name)
+        self._delete(f"api/{self._uri}/{permission_name}")
+        logger.debug("Permission %s successfully deleted", permission_name)
+
+
 class ArtifactorySecurity(ArtifactoryObject):
     """Models artifactory security."""
 
@@ -294,9 +335,9 @@ class ArtifactorySecurity(ArtifactoryObject):
         if not any([token, token_id]):
             logger.error("Neither a token or a token id was specified")
             raise InvalidTokenDataException
-        payload: Dict[str, Optional[str]] = {"token": token} if token else {
-            "token_id": token_id
-        }
+        payload: Dict[str, Optional[str]] = (
+            {"token": token} if token else {"token_id": token_id}
+        )
         response = self._post(
             f"api/{self._uri}/token/revoke", data=payload, raise_for_status=False
         )
@@ -710,78 +751,6 @@ class ArtifactoryRepository(ArtifactoryObject):
 
         self._delete(f"api/{self._uri}/{repo_name}")
         logger.debug("Repository %s successfully deleted", repo_name)
-
-
-class ArtifactoryPermission(ArtifactoryObject):
-    """Models an artifactory permission."""
-
-    _uri = "security/permissions"
-
-    def create(self, permission: Permission) -> Permission:
-        """
-        Creates a permission
-        :param permission: Permission object
-        :return: Permission
-        """
-        permission_name = permission.name
-        try:
-            self.get(permission_name)
-            logger.debug("Permission %s already exists", permission_name)
-            raise PermissionAlreadyExistsException(
-                f"Permission {permission_name} already exists"
-            )
-        except PermissionNotFoundException:
-            self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-            logger.debug("Permission %s successfully created", permission_name)
-            return self.get(permission_name)
-
-    def get(self, permission_name: str) -> Permission:
-        """
-        Read permission from artifactory. Fill object if exist
-        :param permission_name: Name of the permission to retrieve
-        :return: Permission
-        """
-        try:
-            response = self._get(f"api/{self._uri}/{permission_name}")
-            logger.debug("Permission %s found", permission_name)
-            return Permission(**response.json())
-        except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
-                logger.error("Permission %s does not exist", permission_name)
-                raise PermissionNotFoundException(
-                    f"Permission {permission_name} does not exist"
-                )
-            raise ArtifactoryException from error
-
-    def list(self) -> List[SimplePermission]:
-        """
-        Lists all the permissions
-        :return: A list of permissions
-        """
-        response = self._get(f"api/{self._uri}")
-        logger.debug("List all permissions successful")
-        return [SimplePermission(**permission) for permission in response.json()]
-
-    def update(self, permission: Permission) -> Permission:
-        """
-        Updates an artifactory permission
-        :param permission: Permission object
-        :return: Permission
-        """
-        permission_name = permission.name
-        self._put(f"api/{self._uri}/{permission_name}", json=permission.dict())
-        logger.debug("Permission %s successfully updated", permission_name)
-        return self.get(permission_name)
-
-    def delete(self, permission_name: str) -> None:
-        """
-        Removes an artifactory permission
-        :param permission_name: Name of the permission to delete
-        :return: None
-        """
-        self.get(permission_name)
-        self._delete(f"api/{self._uri}/{permission_name}")
-        logger.debug("Permission %s successfully deleted", permission_name)
 
 
 class ArtifactoryArtifact(ArtifactoryObject):

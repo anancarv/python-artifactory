@@ -14,6 +14,7 @@ class AuthModel(BaseModel):
     auth: Tuple[str, SecretStr]
     verify: bool = True
     cert: Optional[str] = None
+    api_version: int = 1
 
 
 class ApiKeyModel(BaseModel):

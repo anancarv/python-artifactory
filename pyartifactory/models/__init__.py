@@ -23,7 +23,7 @@ from .artifact import (
     ArtifactFolderInfoResponse,
     ArtifactInfoResponse,
 )
-from .permission import Permission, SimplePermission
+from .permission import Permission, PermissionV2, SimplePermission
 
 
 AnyRepositoryResponse = Union[
@@ -31,3 +31,4 @@ AnyRepositoryResponse = Union[
 ]
 
 AnyRepository = Union[LocalRepository, VirtualRepository, RemoteRepository]
+AnyPermission = Union[Permission, PermissionV2]
