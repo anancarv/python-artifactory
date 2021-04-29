@@ -5,7 +5,7 @@ Definition of all permission models.
 from enum import Enum
 from typing import List, Dict, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SimplePermission(BaseModel):
@@ -75,7 +75,8 @@ class RepoV2(BaseModel):
     excludePatterns: List[str] = Field([""], alias="exclude-patterns")
 
     class Config:
-        # We need this to be able to use 'includePatterns' in the constructor
+        """ We need this to be able to use 'includePatterns' in the constructor """
+
         allow_population_by_field_name = True
 
 

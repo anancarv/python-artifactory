@@ -7,9 +7,9 @@ from pyartifactory.objects import (
     ArtifactorySecurity,
     ArtifactoryRepository,
     ArtifactoryArtifact,
+    ArtifactoryPermission,
     Artifactory,
     AccessTokenModel,
-    ArtifactoryPermission,
 )
 
 

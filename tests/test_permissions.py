@@ -89,9 +89,9 @@ def test_create_permission_success(mocker, api_version, permission, api_uri):
         AuthModel(url=URL, auth=AUTH, api_version=api_version)
     )
     mocker.spy(artifactory_permission, "get")
-    permission = artifactory_permission.create(permission)
+    mocked_permission = artifactory_permission.create(permission)
     artifactory_permission.get.assert_called_with(permission.name)
-    assert permission == permission.dict()
+    assert mocked_permission == permission.dict()
 
     assert artifactory_permission.get.call_count == 2
 
@@ -128,10 +128,10 @@ def test_get_permission_success(mocker, api_version, permission, api_uri):
         AuthModel(url=URL, auth=AUTH, api_version=api_version)
     )
     mocker.spy(artifactory_permission, "get")
-    permission = artifactory_permission.get(permission.name)
+    mocked_permission = artifactory_permission.get(permission.name)
     artifactory_permission.get.assert_called_with(permission.name)
 
-    assert permission == permission.dict()
+    assert mocked_permission == permission.dict()
 
 
 @pytest.mark.parametrize("api_version,api_uri", [(1, API_URI), (2, API_URI_V2)])

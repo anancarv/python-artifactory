@@ -202,7 +202,10 @@ class ArtifactoryPermission(ArtifactoryObject):
                 f"Permission {permission_name} already exists"
             )
         except PermissionNotFoundException:
-            self._put(f"api/{self._uri}/{permission_name}", json=permission.dict(by_alias=True))
+            self._put(
+                f"api/{self._uri}/{permission_name}",
+                json=permission.dict(by_alias=True),
+            )
             logger.debug("Permission %s successfully created", permission_name)
             return self.get(permission_name)
 
@@ -252,7 +255,9 @@ class ArtifactoryPermission(ArtifactoryObject):
         :return: Permission v2 or v1
         """
         permission_name = permission.name
-        self._put(f"api/{self._uri}/{permission_name}", json=permission.dict(by_alias=True))
+        self._put(
+            f"api/{self._uri}/{permission_name}", json=permission.dict(by_alias=True)
+        )
         logger.debug("Permission %s successfully updated", permission_name)
         return self.get(permission_name)
 
