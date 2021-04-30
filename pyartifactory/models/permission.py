@@ -50,6 +50,8 @@ class PermissionEnumV2(str, Enum):
     write = "write"
     annotate = "annotate"
     read = "read"
+    distribute = "distribute"
+    managedXrayMeta = "managedXrayMeta"
 
 
 class PrincipalsPermissionV2(BaseModel):
@@ -59,8 +61,8 @@ class PrincipalsPermissionV2(BaseModel):
     groups: Optional[Dict[str, List[PermissionEnumV2]]] = None
 
 
-class RepoV2(BaseModel):
-    """Models a repo v2 API."""
+class BasePermissionV2(BaseModel):
+    """Models the base of a permission v2 API."""
 
     repositories: List[str]
     actions: PrincipalsPermissionV2
@@ -80,8 +82,27 @@ class RepoV2(BaseModel):
         allow_population_by_field_name = True
 
 
+class RepoV2(BasePermissionV2):
+    """Models a repo v2 API."""
+
+
+class BuildV2(BasePermissionV2):
+    """Models a build v2 API."""
+
+    includePatterns: List[str] = Field([""], alias="include-patterns")
+    repositories: List[str] = ["artifactory-build-info"]
+
+
+class ReleaseBundleV2(BasePermissionV2):
+    """Models a releaseBundle v2 API."""
+
+    excludePatterns: List[str] = Field([], alias="exclude-patterns")
+
+
 class PermissionV2(BaseModel):
     """Models a permission v2 API."""
 
     name: str
-    repo: RepoV2
+    repo: Optional[RepoV2] = None
+    build: Optional[BuildV2] = None
+    releaseBundle: Optional[ReleaseBundleV2] = None

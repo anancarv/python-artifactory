@@ -244,7 +244,7 @@ Create/Update a permission:
 ```python
 
 from pyartifactory.models import PermissionV2
-from pyartifactory.models.permission import PermissionEnumV2, PrincipalsPermissionV2, RepoV2
+from pyartifactory.models.permission import PermissionEnumV2, PrincipalsPermissionV2, RepoV2, BuildV2, ReleaseBundleV2
 
 # Create a permission
 permission = PermissionV2(
@@ -271,7 +271,44 @@ permission = PermissionV2(
         ),
         includePatterns=["**"],
         excludePatterns=[],
-    )
+    ),
+    build=BuildV2(
+          actions=PrincipalsPermissionV2(
+              users={
+                  "test_user": [
+                      PermissionEnumV2.read,
+                      PermissionEnumV2.write,
+                  ]
+              },
+              groups={
+                  "developers": [
+                      PermissionEnumV2.read,
+                      PermissionEnumV2.write,
+                  ],
+              },
+          ),
+          includePatterns=[""],
+          excludePatterns=[""],
+      ),
+    releaseBundle=ReleaseBundleV2(
+          repositories=["release-bundles"],
+          actions=PrincipalsPermissionV2(
+              users={
+                  "test_user": [
+                      PermissionEnumV2.read,
+                  ]
+              },
+              groups={
+                  "developers": [
+                      PermissionEnumV2.read,
+                  ],
+              },
+          ),
+          includePatterns=[""],
+          excludePatterns=[""],
+      )
+  # You don't have to set all the objects repo, build and releaseBundle
+  # If you only need repo for example, you can set only the repo object
 )
 perm = art.permissions.create(permission)
 
