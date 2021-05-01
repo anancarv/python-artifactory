@@ -24,8 +24,8 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Security](#security)
     + [Repository](#repository)
     + [Permission](#permission)
-      - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
       - [Artifactory lower than 6.6.0](#artifactory-lower-than-660)
+      - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
   * [Artifacts](#artifacts)
     + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
@@ -240,11 +240,38 @@ users = art.permissions.get("test_permission")
 
 Create/Update a permission:
 
-##### Artifactory 6.6.0 or higher
+##### Artifactory lower than 6.6.0
+
 ```python
 
+from pyartifactory.models import Permission
+
+# Create a permission
+permission = Permission(
+    **{
+        "name": "test_permission",
+        "repositories": ["test_repository"],
+        "principals": {
+            "users": {"test_user": ["r", "w", "n", "d"]},
+            "groups": {"developers": ["r"]},
+        },
+    }
+)
+perm = art.permissions.create(permission)
+
+# Update permission
+permission.repositories = ["test_repository_2"]
+updated_permission = art.permissions.update(permission)
+```
+
+##### Artifactory 6.6.0 or higher
+```python
+from pyartifactory import Artifactory
 from pyartifactory.models import PermissionV2
 from pyartifactory.models.permission import PermissionEnumV2, PrincipalsPermissionV2, RepoV2, BuildV2, ReleaseBundleV2
+
+# To use PermissionV2, make sure to set api_version=2
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), api_version=2)
 
 # Create a permission
 permission = PermissionV2(
@@ -314,30 +341,6 @@ perm = art.permissions.create(permission)
 
 # Update permission
 permission.repo.repositories = ["test_repository_2"]
-updated_permission = art.permissions.update(permission)
-```
-
-##### Artifactory lower than 6.6.0
-
-```python
-
-from pyartifactory.models import Permission
-
-# Create a permission
-permission = Permission(
-    **{
-        "name": "test_permission",
-        "repositories": ["test_repository"],
-        "principals": {
-            "users": {"test_user": ["r", "w", "n", "d"]},
-            "groups": {"developers": ["r"]},
-        },
-    }
-)
-perm = art.permissions.create(permission)
-
-# Update permission
-permission.repositories = ["test_repository_2"]
 updated_permission = art.permissions.update(permission)
 ```
 
