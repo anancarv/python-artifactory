@@ -29,14 +29,35 @@ PERMISSIONV2 = PermissionV2(
     **{
         "name": "test_permission",
         "repo": {
+            "include-patterns": ["**"],
+            "exclude-patterns": [],
             "repositories": ["test_repository"],
             "actions": {
-                "users": {"test_user": ["read", "annotate", "write", "delete",]},
-                "groups": {"developers": ["read", "annotate", "write", "delete",],},
+                "users": {"test_user": ["read", "annotate", "write", "delete"]},
+                "groups": {"developers": ["read", "annotate", "write", "delete"]},
             },
         },
-        "include-patterns": ["**"],
-        "exclude-patterns": [],
+        "build": {
+            "include-patterns": [""],
+            "exclude-patterns": [""],
+            "repositories": ["artifactory-build-info"],
+            "actions": {
+                "users": {"bob": ["read", "manage"], "alice": ["write"]},
+                "groups": {
+                    "dev-leads": ["manage", "read", "write", "annotate", "delete"],
+                    "readers": ["read"],
+                },
+            },
+        },
+        "releaseBundle": {
+            "include-patterns": ["**"],
+            "exclude-patterns": [],
+            "repositories": ["release-bundles"],
+            "actions": {
+                "users": {"user_name": ["read", "write"]},
+                "groups": {"group_name": ["read", "write"]},
+            },
+        },
     }
 )
 
