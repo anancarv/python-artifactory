@@ -913,6 +913,35 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 )
             raise ArtifactoryException from error
 
+    def update_properties(
+        self, artifact_path: str, properties: Dict[str, str], recursive: bool = True
+    ) -> None:
+        """
+        :param artifact_path: Path to file or folder in Artifactory
+        :param properties: List of properties to update
+        :param recursive: If set to true, properties will be applied recursively to subfolders and files
+        :return: None
+        """
+        if properties is None:
+            properties = {}
+        artifact_path = artifact_path.lstrip("/")
+        payload = json.dumps({"props": properties})
+        try:
+            self._patch(
+                f"api/metadata/{artifact_path}",
+                params={"recursive": int(recursive)},
+                headers={"Content-Type": "application/json"},
+                data=payload,
+            )
+            logger.debug("Artifact Properties successfully updated")
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 400:
+                logger.error("Artifact %s does not exist", artifact_path)
+                raise ArtifactNotFoundException(
+                    f"Artifact {artifact_path} does not exist"
+                )
+            raise ArtifactoryException from error
+
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
         """
         :param artifact_path: Path to file in Artifactory
