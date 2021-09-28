@@ -269,6 +269,7 @@ class RemoteRepository(BaseRepositoryModel):
     downloadRedirect: bool = False
     contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
     nuget: Nuget = Nuget()
+    xrayIndex: bool = False
 
 
 class RemoteRepositoryResponse(RemoteRepository):
