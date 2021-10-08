@@ -549,7 +549,14 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         repo_name = repo.key
         self.get_repo(repo_name)
-        self._post(f"api/{self._uri}/{repo_name}", json=repo.dict())
+
+        repo_dict = repo.dict()
+        if isinstance(repo, RemoteRepository):
+            repo_dict["password"] = (
+                repo.password.get_secret_value() if repo.password else None
+            )
+
+        self._post(f"api/{self._uri}/{repo_name}", json=repo_dict)
         logger.debug("Repository %s successfully updated", repo_name)
         return self.get_repo(repo_name)
 
