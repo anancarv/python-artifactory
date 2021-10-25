@@ -550,9 +550,13 @@ class ArtifactoryRepository(ArtifactoryObject):
         repo_name = repo.key
         self.get_repo(repo_name)
 
-        repo_dict = json.dumps(repo, default=custom_encoder)
+        repo_dict = json.dumps(repo.dict(exclude_unset=True), default=custom_encoder)
 
-        self._post(f"api/{self._uri}/{repo_name}", json=repo_dict)
+        self._post(
+            f"api/{self._uri}/{repo_name}",
+            headers={"Content-Type": "application/json"},
+            data=repo_dict,
+        )
         logger.debug("Repository %s successfully updated", repo_name)
         return self.get_repo(repo_name)
 
