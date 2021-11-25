@@ -45,7 +45,8 @@ class User(BaseUserModel):
 class UserResponse(BaseUserModel):
     """Models a user response."""
 
-    email: EmailStr
+    # Email should be optional as admin may have none
+    email: Optional[EmailStr] = None
     lastLoggedIn: Optional[datetime] = None
     realm: Optional[str] = None
     offlineMode: bool = False
