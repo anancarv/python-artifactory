@@ -43,6 +43,10 @@ class ArtifactNotFoundException(ArtifactoryException):
     """An artifact was not found"""
 
 
+class BadPropertiesException(ArtifactoryException):
+    """Property value includes invalid characters"""
+
+
 class PropertyNotFoundException(ArtifactoryException):
     """All requested properties were not found"""
 
