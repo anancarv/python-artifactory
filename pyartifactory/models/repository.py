@@ -40,6 +40,7 @@ class PackageTypeEnum(str, Enum):
     gitlfs = "gitlfs"
     vagrant = "vagrant"
     conda = "conda"
+    cargo = "cargo"
 
 
 class RClassEnum(str, Enum):
