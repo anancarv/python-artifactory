@@ -13,4 +13,4 @@ from pyartifactory.objects import (
 )
 
 
-__version__ = "1.9.3"
+__version__ = "1.9.4"
