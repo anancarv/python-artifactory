@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.9.3"
+version = "1.9.4"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>", "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>"]
 license = "MIT"
@@ -34,7 +34,7 @@ tests
 
 [tool.pylint.messages_control]
 disable = """
-bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes, too-many-arguments, raise-missing-from
+bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes, too-many-arguments, raise-missing-from, invalid-name
 """
 
 [tool.pylint.basic]

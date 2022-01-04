@@ -120,7 +120,7 @@ class ArtifactoryUser(ArtifactoryObject):
             logger.debug("User %s found", name)
             return UserResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 logger.error("User %s does not exist", name)
                 raise UserNotFoundException(f"{name} does not exist")
             raise ArtifactoryException from error
@@ -224,7 +224,7 @@ class ArtifactoryPermission(ArtifactoryObject):
                 else PermissionV2(**response.json())
             )
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 logger.error("Permission %s does not exist", permission_name)
                 raise PermissionNotFoundException(
                     f"Permission {permission_name} does not exist"
@@ -426,7 +426,7 @@ class ArtifactoryGroup(ArtifactoryObject):
             logger.debug("Group %s found", name)
             return Group(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 logger.error("Group %s does not exist", name)
                 raise GroupNotFoundException(f"Group {name} does not exist")
             raise ArtifactoryException from error
@@ -487,7 +487,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             )
             return repo
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 logger.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
@@ -598,7 +598,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             logger.debug("Repository %s found", repo_name)
             return LocalRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -658,7 +658,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             logger.debug("Repository %s found", repo_name)
             return VirtualRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
@@ -718,7 +718,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             logger.debug("Repository %s found", repo_name)
             return RemoteRepositoryResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404 or error.response.status_code == 400:
+            if error.response.status_code in (404, 400):
                 raise RepositoryNotFoundException(
                     f" Repository {repo_name} does not exist"
                 )
