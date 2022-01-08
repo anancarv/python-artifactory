@@ -3,8 +3,12 @@ import responses
 import urllib.parse
 
 from pyartifactory import ArtifactoryArtifact
-from pyartifactory.exception import PropertyNotFoundException, ArtifactNotFoundException, BadPropertiesException,\
-    ArtifactoryException
+from pyartifactory.exception import (
+    PropertyNotFoundException,
+    ArtifactNotFoundException,
+    BadPropertiesException,
+    ArtifactoryException,
+)
 from pyartifactory.models import (
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
@@ -362,10 +366,12 @@ def test_set_property_success():
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=",
         json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
-        status=200
+        status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    set_properties_response = artifactory.set_properties(ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties)
+    set_properties_response = artifactory.set_properties(
+        ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties
+    )
     assert set_properties_response == ARTIFACT_MULTIPLE_PROPERTIES
 
 
@@ -382,12 +388,17 @@ def test_set_property_fail_artifact_not_found():
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(ArtifactNotFoundException):
-        artifactory.set_properties(NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties)
+        set_property_response = artifactory.set_properties(
+            NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties
+        )
+        assert set_property_response is None
 
 
 @responses.activate
 def test_set_property_fail_bad_value():
-    properties_param_str = urllib.parse.quote_plus(f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE};")
+    properties_param_str = urllib.parse.quote_plus(
+        f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE};"
+    )
     responses.add(
         responses.PUT,
         f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
@@ -395,7 +406,10 @@ def test_set_property_fail_bad_value():
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(BadPropertiesException):
-        artifactory.set_properties(ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]})
+        set_property_response = artifactory.set_properties(
+            ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}
+        )
+        assert set_property_response is None
 
 
 @responses.activate
@@ -404,18 +418,22 @@ def test_update_property_success():
         responses.PATCH,
         f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
         match=[
-            responses.matchers.json_params_matcher({"props": ARTIFACT_MULTIPLE_PROPERTIES.properties})
+            responses.matchers.json_params_matcher(
+                {"props": ARTIFACT_MULTIPLE_PROPERTIES.properties}
+            )
         ],
-        status=200
+        status=200,
     )
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=",
         json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
-        status=200
+        status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    update_properties_response = artifactory.update_properties(ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties)
+    update_properties_response = artifactory.update_properties(
+        ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties
+    )
     assert update_properties_response == ARTIFACT_MULTIPLE_PROPERTIES
 
 
@@ -425,13 +443,18 @@ def test_update_property_fail_artifact_not_found():
         responses.PATCH,
         f"{URL}/api/metadata/{NX_ARTIFACT_PATH}?recursive=1",
         match=[
-            responses.matchers.json_params_matcher({"props": ARTIFACT_ONE_PROPERTY.properties})
+            responses.matchers.json_params_matcher(
+                {"props": ARTIFACT_ONE_PROPERTY.properties}
+            )
         ],
         status=400,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(ArtifactoryException):
-        artifactory.update_properties(NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties)
+        update_properties_response = artifactory.update_properties(
+            NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties
+        )
+        assert update_properties_response is None
 
 
 @responses.activate
@@ -440,10 +463,15 @@ def test_update_property_fail_bad_value():
         responses.PATCH,
         f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
         match=[
-            responses.matchers.json_params_matcher({"props": {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}})
+            responses.matchers.json_params_matcher(
+                {"props": {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}}
+            )
         ],
         status=400,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(ArtifactoryException):
-        artifactory.update_properties(ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]})
+        update_properties_response = artifactory.update_properties(
+            ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}
+        )
+        assert update_properties_response is None
