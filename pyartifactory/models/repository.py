@@ -112,14 +112,6 @@ class ContentSynchronisation(BaseModel):
     source: Source = Source()
 
 
-class Nuget(BaseModel):
-    """Models a nuget feed."""
-
-    feedContextPath: str = "api/v2"
-    downloadContextPath: str = "api/v2/package"
-    v3FeedUrl: str = "https://api.nuget.org/v3/index.json"
-
-
 class SimpleRepository(BaseModel):
     """Models a simple repository."""
 
@@ -269,7 +261,9 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
     contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
-    nuget: Nuget = Nuget()
+    feedContextPath: str = "api/v2"
+    downloadContextPath: str = "api/v2/package"
+    v3FeedUrl: str = "https://api.nuget.org/v3/index.json"
     xrayIndex: bool = False
 
 
