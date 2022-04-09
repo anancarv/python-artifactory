@@ -161,7 +161,7 @@ class LocalRepository(BaseRepositoryModel):
     blockPushingSchema1: str = "false"
     primaryKeyPairRef: Optional[str] = None
     secondaryKeyPairRef: Optional[str] = None
-    priorityResolutio: str = "false"
+    priorityResolution: str = "false"
 
 
 class LocalRepositoryResponse(LocalRepository):
