@@ -157,6 +157,11 @@ class LocalRepository(BaseRepositoryModel):
     enableFileListsIndexing: str = "false"
     optionalIndexCompressionFormats: Optional[List[str]] = None
     downloadRedirect: str = "false"
+    cdnRedirect: str = "false"
+    blockPushingSchema1: str = "false"
+    primaryKeyPairRef: Optional[str] = None
+    secondaryKeyPairRef: Optional[str] = None
+    priorityResolutio: str = "false"
 
 
 class LocalRepositoryResponse(LocalRepository):
@@ -193,6 +198,8 @@ class VirtualRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: Optional[List[str]] = None
     externalDependenciesRemoteRepo: Optional[str] = None
+    primaryKeyPairRef: Optional[str] = None
+    secondaryKeyPairRef: Optional[str] = None
 
 
 class VirtualRepositoryResponse(VirtualRepository):
@@ -249,21 +256,27 @@ class RemoteRepository(BaseRepositoryModel):
     propertySets: Optional[List[str]] = None
     allowAnyHostAuth: bool = False
     enableCookieManagement: bool = False
+    enableTokenAuthentication: bool = False
     bowerRegistryUrl: str = "https://registry.bower.io"
+    gitRegistryUrl: str = "https://github.com/rust-lang/crates.io-index"
     composerRegistryUrl: str = "https://packagist.org"
     pyPIRegistryUrl: str = "https://pypi.org"
     vcsType: str = "GIT"
     vcsGitProvider: VcsGitProviderEnum = VcsGitProviderEnum.github
     vcsGitDownloadUrl: str = ""
-    bypassHeadRequest: bool = False
+    bypassHeadRequests: bool = False
     clientTlsCertificate: str = ""
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
+    cdnRedirect: str = "false"
     contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
     feedContextPath: str = "api/v2"
     downloadContextPath: str = "api/v2/package"
     v3FeedUrl: str = "https://api.nuget.org/v3/index.json"
+    blockPushingSchema1: bool = False
+    priorityResolution: bool = False
+    disableUrlNormalization: bool = False
     xrayIndex: bool = False
 
 
