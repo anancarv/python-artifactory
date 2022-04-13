@@ -77,7 +77,7 @@ class BasePermissionV2(BaseModel):
     excludePatterns: List[str] = Field([""], alias="exclude-patterns")
 
     class Config:
-        """ We need this to be able to use 'includePatterns' in the constructor """
+        """We need this to be able to use 'includePatterns' in the constructor"""
 
         allow_population_by_field_name = True
 

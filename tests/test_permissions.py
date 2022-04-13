@@ -159,7 +159,10 @@ def test_get_permission_success(mocker, api_version, permission, api_uri):
 @responses.activate
 def test_list_group_success(mocker, api_version, api_uri):
     responses.add(
-        responses.GET, f"{URL}/{api_uri}", json=[SIMPLE_PERMISSION.dict()], status=200,
+        responses.GET,
+        f"{URL}/{api_uri}",
+        json=[SIMPLE_PERMISSION.dict()],
+        status=200,
     )
 
     artifactory_permission = ArtifactoryPermission(
@@ -206,7 +209,9 @@ def test_delete_group_success(mocker, api_version, permission, api_uri):
     )
 
     responses.add(
-        responses.DELETE, f"{URL}/{api_uri}/{permission.name}", status=204,
+        responses.DELETE,
+        f"{URL}/{api_uri}/{permission.name}",
+        status=204,
     )
     artifactory_permission = ArtifactoryPermission(
         AuthModel(url=URL, auth=AUTH, api_version=api_version)

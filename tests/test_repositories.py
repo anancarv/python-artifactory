@@ -47,10 +47,14 @@ REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
     key="test_remote_repository", url="http://test-url.com"
 )
 UPDATED_REMOTE_REPOSITORY = RemoteRepository(
-    key="test_remote_repository", url="http://test-url.com", description="updated",
+    key="test_remote_repository",
+    url="http://test-url.com",
+    description="updated",
 )
 UPDATED_REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
-    key="test_remote_repository", url="http://test-url.com", description="updated",
+    key="test_remote_repository",
+    url="http://test-url.com",
+    description="updated",
 )
 
 
@@ -645,7 +649,9 @@ def test_update_virtual_repository_success(mocker):
     )
 
     responses.add(
-        responses.POST, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=200,
+        responses.POST,
+        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
+        status=200,
     )
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_repo, "get_virtual_repo")
