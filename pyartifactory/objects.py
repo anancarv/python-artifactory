@@ -181,11 +181,17 @@ class ArtifactoryPermission(ArtifactoryObject):
             self._uri = "security/permissions"
 
     @overload
-    def create(self, permission: Permission,) -> Permission:
+    def create(
+        self,
+        permission: Permission,
+    ) -> Permission:
         ...
 
     @overload
-    def create(self, permission: PermissionV2,) -> PermissionV2:
+    def create(
+        self,
+        permission: PermissionV2,
+    ) -> PermissionV2:
         ...
 
     def create(self, permission: AnyPermission) -> AnyPermission:

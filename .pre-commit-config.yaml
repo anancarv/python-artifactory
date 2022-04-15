@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: '19.10b0'
+    rev: '22.3.0'
     hooks:
     - id: black
 -   repo: local
@@ -12,12 +12,12 @@ repos:
           types: [python]
           files: pyartifactory/
 -   repo: https://github.com/Yelp/detect-secrets
-    rev: 'v0.13.0'
+    rev: 'v1.2.0'
     hooks:
     -   id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
 -   repo: https://github.com/PyCQA/bandit
-    rev: '1.6.2'
+    rev: '1.7.4'
     hooks:
     - id: bandit
       args: ['--exclude', 'tests/*,venv,.venv']

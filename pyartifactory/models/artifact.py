@@ -30,7 +30,7 @@ class Child(BaseModel):
 
 
 class ArtifactPropertiesResponse(BaseModel):
-    """ Models an artifact properties response."""
+    """Models an artifact properties response."""
 
     uri: str
     properties: Dict[str, List[str]]

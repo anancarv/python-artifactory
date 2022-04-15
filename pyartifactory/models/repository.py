@@ -145,7 +145,9 @@ class LocalRepository(BaseRepositoryModel):
     maxUniqueSnapshots: int = 0
     maxUniqueTags: int = 0
     debianTrivialLayout: bool = False
-    snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
+    snapshotVersionBehavior: SnapshotVersionBehavior = (
+        SnapshotVersionBehavior.non_unique
+    )
     suppressPomConsistencyChecks: bool = False
     blackedOut: bool = False
     xrayIndex: bool = False
@@ -192,7 +194,9 @@ class VirtualRepository(BaseRepositoryModel):
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
     keyPair: Optional[str] = None
-    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
+    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = (
+        PomRepoRefCleanupPolicy.discard_active_reference
+    )
     defaultDeploymentRepo: Optional[str] = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False
