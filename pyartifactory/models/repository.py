@@ -249,6 +249,7 @@ class RemoteRepository(BaseRepositoryModel):
     retrievalCachePeriodSecs: int = 43200
     failedRetrievalCachePeriodSecs: int = 30
     missedRetrievalCachePeriodSecs: int = 7200
+    metadataRetrievalTimeoutSecs: int = 60
     unusedArtifactsCleanupEnabled: bool = False
     unusedArtifactsCleanupPeriodHours: int = 0
     assumedOfflinePeriodSecs: int = 300
