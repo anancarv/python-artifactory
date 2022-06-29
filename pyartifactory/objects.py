@@ -24,6 +24,7 @@ from pyartifactory.exception import (
     InvalidTokenDataException,
     PropertyNotFoundException,
     ArtifactNotFoundException,
+    BadPropertiesException,
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
 )
@@ -916,6 +917,74 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if error.response.status_code == 404:
                 raise PropertyNotFoundException(
                     f"Properties {properties} were not found on artifact {artifact_path}"
+                )
+            raise ArtifactoryException from error
+
+    def set_properties(
+        self, artifact_path: str, properties: Dict[str, List[str]], recursive: bool = True
+    ) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_path: Path to file or folder in Artifactory
+        :param properties: List of properties to update
+        :param recursive: If set to true, properties will be applied recursively to subfolders and files
+        :return: None
+        """
+        if properties is None:
+            properties = {}
+        artifact_path = artifact_path.lstrip("/")
+        properties_param_str = ""
+        for k, v in properties.items():
+            values_str = ",".join(v)
+            properties_param_str += f"{k}={values_str};"
+        try:
+            self._put(
+                f"api/storage/{artifact_path}",
+                params={
+                    "recursive": int(recursive),
+                    "properties": properties_param_str,
+                },
+            )
+            logger.debug("Artifact Properties successfully set")
+            return self.properties(artifact_path)
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                logger.error("Artifact %s does not exist", artifact_path)
+                raise ArtifactNotFoundException(
+                    f"Artifact {artifact_path} does not exist"
+                )
+            if error.response.status_code == 400:
+                logger.error("A property value includes forbidden special characters")
+                raise BadPropertiesException(
+                    "A property value includes forbidden special characters"
+                )
+            raise ArtifactoryException from error
+
+    def update_properties(
+        self, artifact_path: str, properties: Dict[str, List[str]], recursive: bool = True
+    ) -> ArtifactPropertiesResponse:
+        """
+        :param artifact_path: Path to file or folder in Artifactory
+        :param properties: List of properties to update
+        :param recursive: If set to true, properties will be applied recursively to subfolders and files
+        :return: None
+        """
+        if properties is None:
+            properties = {}
+        artifact_path = artifact_path.lstrip("/")
+        try:
+            self._patch(
+                f"api/metadata/{artifact_path}",
+                params={"recursive": int(recursive)},
+                headers={"Content-Type": "application/json"},
+                json={"props": properties},
+            )
+            logger.debug("Artifact Properties successfully updated")
+            return self.properties(artifact_path)
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 400:
+                logger.error("Error updating artifact properties")
+                raise ArtifactoryException(
+                    "Error updating artifact properties"
                 )
             raise ArtifactoryException from error
 
