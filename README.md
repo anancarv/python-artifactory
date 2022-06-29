@@ -31,6 +31,8 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
+    + [Set artifact properties](#set-artifact-properties)
+    + [Update artifact properties](#update-artifact-properties)
     + [Retrieve artifact stats](#retrieve-artifact-stats)
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)

@@ -34,7 +34,8 @@ tests
 
 [tool.pylint.messages_control]
 disable = """
-bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes, too-many-arguments, raise-missing-from, invalid-name
+bad-continuation,line-too-long,too-few-public-methods,import-error,too-many-instance-attributes, too-many-arguments,
+raise-missing-from, invalid-name, too-many-lines
 """
 
 [tool.pylint.basic]
@@ -54,7 +55,7 @@ pytest = "^3.0"
 mypy = "^0.740"
 black = { version = "^22.3.0", allow-prereleases = true }
 pre-commit = "^2.9.2"
-responses = "^0.10.6"
+responses = "^0.17.0"
 pytest-mock = "^2.0.0"
 detect-secrets = "^1.2.0"
 pytest-cov = "^2.7"
