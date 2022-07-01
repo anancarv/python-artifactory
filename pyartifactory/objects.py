@@ -921,7 +921,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryException from error
 
     def set_properties(
-        self, artifact_path: str, properties: Dict[str, List[str]], recursive: bool = True
+        self,
+        artifact_path: str,
+        properties: Dict[str, List[str]],
+        recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
@@ -960,7 +963,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryException from error
 
     def update_properties(
-        self, artifact_path: str, properties: Dict[str, List[str]], recursive: bool = True
+        self,
+        artifact_path: str,
+        properties: Dict[str, List[str]],
+        recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
@@ -983,9 +989,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 400:
                 logger.error("Error updating artifact properties")
-                raise ArtifactoryException(
-                    "Error updating artifact properties"
-                )
+                raise ArtifactoryException("Error updating artifact properties")
             raise ArtifactoryException from error
 
     def stats(self, artifact_path: str) -> ArtifactStatsResponse:
