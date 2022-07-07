@@ -28,7 +28,7 @@ classifiers = [
 extension-pkg-whitelist = """
 pydantic
 """
-ignore="""
+ignore = """
 tests
 """
 
@@ -48,7 +48,10 @@ python = "^3.6.2"
 requests = "^2.21"
 email_validator = "^1.0"
 pydantic = "^1.4"
-typing_extensions = "^3.7.4"
+typing_extensions = [
+    { version = "^3.7.4", python = "^3.6" },
+    { version = "^4", python = "^3.7" },
+]
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
