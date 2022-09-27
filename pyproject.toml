@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.10.1"
+version = "1.10.2"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = ["Ananias CARVALHO <carvalhoananias@hotmail.com>", "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>"]
 license = "MIT"
@@ -49,7 +49,7 @@ requests = "^2.21"
 email_validator = "^1.0"
 pydantic = "^1.4"
 typing_extensions = [
-    { version = "^3.7.4", python = "^3.6" },
+    { version = "^3.7.4", python = "~3.6" },
     { version = "^4", python = "^3.7" },
 ]
 
