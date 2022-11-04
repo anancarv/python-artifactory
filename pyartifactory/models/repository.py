@@ -126,6 +126,7 @@ class BaseRepositoryModel(BaseModel):
     """Models a base repository."""
 
     key: str
+    projectKey: Optional[str] = None
     rclass: RClassEnum
     packageType: PackageTypeEnum = PackageTypeEnum.generic
     description: Optional[str] = None
