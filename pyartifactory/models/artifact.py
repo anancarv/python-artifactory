@@ -80,7 +80,7 @@ class ArtifactFileListResponse(BaseModel):
 
     sha1: Optional[str] = None
     sha2: Optional[str] = None
-    
+
 
 class ArtifactListResponse(BaseModel):
     """Models an artifact list response."""

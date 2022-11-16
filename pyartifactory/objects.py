@@ -895,12 +895,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
             else:
                 self._download(full_path, local_path.parent)
         return f"{local_directory_path}/{basename}"
-    
+
     def list(
-        self, 
-        artifact_path: str, 
-        recursive: bool = True, 
-        depth: int = 1, 
+        self,
+        artifact_path: str,
+        recursive: bool = True,
+        depth: int = 1,
         list_folders: bool = True
     ) -> ArtifactListResponse:
         """
