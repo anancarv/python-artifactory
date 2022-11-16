@@ -935,7 +935,6 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     f"Artifact {artifact_path} does not exist"
                 )
             raise ArtifactoryException from error
-        
 
     def properties(
         self, artifact_path: str, properties: Optional[List[str]] = None
