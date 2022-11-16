@@ -66,6 +66,30 @@ class ArtifactFileInfoResponse(ArtifactInfoResponseBase):
     originalChecksums: Optional[OriginalChecksums] = None
 
 
+class ArtifactFolderListResponse(BaseModel):
+    """Models an artifact folder list response."""
+
+    uri: str
+    size: float
+    lastModified: datetime
+    folder: bool
+
+
+class ArtifactFileListResponse(BaseModel):
+    """Models an artifact file list response."""
+
+    sha1: Optional[str] = None
+    sha2: Optional[str] = None
+    
+
+class ArtifactListResponse(BaseModel):
+    """Models an artifact list response."""
+
+    uri: str
+    created: datetime
+    files: List[Union[ArtifactFileListResponse, ArtifactFolderListResponse]]
+
+
 class ArtifactStatsResponse(BaseModel):
     """Models an artifact statistics response."""
 
