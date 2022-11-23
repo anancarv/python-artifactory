@@ -900,7 +900,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self,
         artifact_path: str,
         recursive: bool = True,
-        depth: int = 1,
+        depth: Optional[int] = None,
         list_folders: bool = True
     ) -> ArtifactListResponse:
         """
@@ -909,19 +909,21 @@ class ArtifactoryArtifact(ArtifactoryObject):
         See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileList
 
         :param artifact_path: Path to folder in Artifactory
-        :param recursive: Recursively retreive files and folders
-        :param depth: The depth to recursively retreive
+        :param recursive: Recursively retrieve files and folders
+        :param depth: The depth to recursively retrieve
         :param list_folders: Whether or not to include folders in the response
         :return: A list of artifacts in Artifactory
         """
         try:
+            params = {
+                "deep": int(recursive),
+                "listFolders": int(list_folders),
+            }
+            if depth is not None:
+                params.update(depth=depth)
             response = self._get(
                 f"api/storage/{artifact_path}?list",
-                params={
-                    "depth": depth,
-                    "deep": int(recursive),
-                    "listFolders": int(list_folders)
-                }
+                params=params
             )
             artifact_list: ArtifactListResponse = parse_obj_as(
                 ArtifactListResponse,
