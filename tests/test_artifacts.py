@@ -103,20 +103,20 @@ LIST_ARTIFACTS_RESPONSE = {
     "files": [
       {
           "uri": "/archived",
-          "size": "-1",
+          "size": -1,
           "lastModified": "2019-06-06T13:19:14.514Z",
           "folder": True
       },
       {
           "uri": "/doc.txt",
-          "size": "253207",
+          "size": 253207,
           "lastModified": "2019-06-06T13:19:14.514Z",
           "folder": False,
           "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
       },
       {
           "uri": "/archived/doc1.txt",
-          "size": "253100",
+          "size": 253100,
           "lastModified": "2019-06-06T13:19:14.514Z",
           "folder": False,
           "sha1": "542c287c760e03b03c17eb920f5358d05f44dd3b",
