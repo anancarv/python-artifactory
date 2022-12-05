@@ -58,7 +58,7 @@ from pyartifactory.models import (
 from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
-    ArtifactListResponse
+    ArtifactListResponse,
 )
 from pyartifactory.utils import custom_encoder
 
@@ -901,7 +901,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_path: str,
         recursive: bool = True,
         depth: Optional[int] = None,
-        list_folders: bool = True
+        list_folders: bool = True,
     ) -> ArtifactListResponse:
         """
         Retrieve a list of files or a folders
@@ -921,13 +921,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
             }
             if depth is not None:
                 params.update(depth=depth)
-            response = self._get(
-                f"api/storage/{artifact_path}?list",
-                params=params
-            )
+            response = self._get(f"api/storage/{artifact_path}?list", params=params)
             artifact_list: ArtifactListResponse = parse_obj_as(
-                ArtifactListResponse,
-                response.json()
+                ArtifactListResponse, response.json()
             )
             return artifact_list
         except requests.exceptions.HTTPError as error:
