@@ -17,6 +17,9 @@ from pyartifactory.models import (
 from pyartifactory.models.artifact import (
     ArtifactFolderInfoResponse,
     ArtifactFileInfoResponse,
+    ArtifactListResponse,
+    ArtifactListFolderResponse,
+    ArtifactListFileResponse
 )
 
 URL = "http://localhost:8080/artifactory"
@@ -94,6 +97,33 @@ GRANDCHILD_INFO_RESPONSE["uri"] = f"{URL}/api/storage/{ARTIFACT_REPO}/child1/gra
 GRANDCHILD_INFO_RESPONSE["path"] = "/child1/grandchild"
 GRANDCHILD_FILE_INFO = ArtifactFileInfoResponse(**GRANDCHILD_INFO_RESPONSE)
 
+LIST_ARTIFACTS_RESPONSE = {
+    "uri": f"{URL}/api/storage/{ARTIFACT_REPO}",
+    "created": "2019-06-06T13:19:14.514Z",
+    "files": [
+      {
+          "uri": "/archived",
+          "size": -1,
+          "lastModified": "2019-06-06T13:19:14.514Z",
+          "folder": True
+      },
+      {
+          "uri": "/doc.txt",
+          "size": 253207,
+          "lastModified": "2019-06-06T13:19:14.514Z",
+          "folder": False,
+          "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
+      },
+      {
+          "uri": "/archived/doc1.txt",
+          "size": 253100,
+          "lastModified": "2019-06-06T13:19:14.514Z",
+          "folder": False,
+          "sha1": "542c287c760e03b03c17eb920f5358d05f44dd3b",
+      }
+    ]
+}
+LIST_ARTIFACTS = ArtifactListResponse(**LIST_ARTIFACTS_RESPONSE)
 
 ARTIFACT_STATS = ArtifactStatsResponse(
     uri="my_uri",
@@ -289,6 +319,37 @@ def test_get_artifact_property_not_found_error():
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(PropertyNotFoundException):
         artifactory.properties(ARTIFACT_PATH, properties=["a_property_not_found"])
+
+@responses.activate
+def test_get_list_of_artifacts():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}?list&deep=1&listFolders=1",
+        json=LIST_ARTIFACTS_RESPONSE,
+        status=200,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_list = artifactory.list(ARTIFACT_REPO)
+    assert artifact_list.dict() == LIST_ARTIFACTS.dict()
+    assert len(artifact_list.files) == 3
+    assert isinstance(artifact_list.files[0], ArtifactListFolderResponse)
+    assert isinstance(artifact_list.files[1], ArtifactListFileResponse)
+    assert isinstance(artifact_list.files[2], ArtifactListFileResponse)
+
+
+@responses.activate
+def test_get_list_of_artifacts_not_found_error():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_REPO}?list&deep=1&listFolders=1",
+        json={"errors": [{"status": 404, "message": "Artifact not found."}]},
+        status=404,
+    )
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    with pytest.raises(ArtifactNotFoundException):
+        artifactory.list(ARTIFACT_REPO)
 
 
 @responses.activate

@@ -31,6 +31,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Deploy an artifact](#deploy-an-artifact)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
+    + [Retrieve artifact list](#retrieve-artifact-list)
     + [Set artifact properties](#set-artifact-properties)
     + [Update artifact properties](#update-artifact-properties)
     + [Retrieve artifact stats](#retrieve-artifact-stats)
@@ -372,6 +373,14 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 # artifact = art.artifacts.download("my-artifactory-repository/my/new/artifact/file.txt", "Desktop/my/local/directory")
 # The artifact location is returned by the download method
 # If you have not set a <LOCAL_DIRECTORY_PATH>, the artifact will be downloaded in the current directory
+```
+
+#### Retrieve artifact list
+```python
+artifacts = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# files_only = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
+# non_recursive = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
+# max_depth = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
 ```
 
 #### Retrieve artifact properties

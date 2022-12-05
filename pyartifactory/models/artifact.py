@@ -4,7 +4,7 @@ Definition of all artifact models.
 
 
 from datetime import datetime
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Literal, Dict, Union
 from pydantic import BaseModel
 
 
@@ -64,6 +64,37 @@ class ArtifactFileInfoResponse(ArtifactInfoResponseBase):
     size: Optional[int] = None
     checksums: Optional[Checksums] = None
     originalChecksums: Optional[OriginalChecksums] = None
+
+
+class ArtifactListEntryResponse(BaseModel):
+    """Base model for an entry in an artifact list response."""
+
+    uri: str
+    size: int
+    lastModified: datetime
+    folder: bool
+
+
+class ArtifactListFolderResponse(ArtifactListEntryResponse):
+    """Models a folder in an artifact list response."""
+
+    folder: Literal[True]
+
+
+class ArtifactListFileResponse(ArtifactListEntryResponse):
+    """Models a file in an artifact list response."""
+
+    folder: Literal[False]
+    sha1: Optional[str] = None
+    sha2: Optional[str] = None
+
+
+class ArtifactListResponse(BaseModel):
+    """Models an artifact list response."""
+
+    uri: str
+    created: datetime
+    files: List[Union[ArtifactListFileResponse, ArtifactListFolderResponse]]
 
 
 class ArtifactStatsResponse(BaseModel):

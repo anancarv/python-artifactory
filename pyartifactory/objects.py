@@ -58,6 +58,7 @@ from pyartifactory.models import (
 from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
+    ArtifactListResponse
 )
 from pyartifactory.utils import custom_encoder
 
@@ -894,6 +895,48 @@ class ArtifactoryArtifact(ArtifactoryObject):
             else:
                 self._download(full_path, local_path.parent)
         return f"{local_directory_path}/{basename}"
+
+    def list(
+        self,
+        artifact_path: str,
+        recursive: bool = True,
+        depth: Optional[int] = None,
+        list_folders: bool = True
+    ) -> ArtifactListResponse:
+        """
+        Retrieve a list of files or a folders
+
+        See https://www.jfrog.com/confluence/display/JFROG/Artifactory+REST+API#ArtifactoryRESTAPI-FileList
+
+        :param artifact_path: Path to folder in Artifactory
+        :param recursive: Recursively retrieve files and folders
+        :param depth: The depth to recursively retrieve
+        :param list_folders: Whether or not to include folders in the response
+        :return: A list of artifacts in Artifactory
+        """
+        try:
+            params = {
+                "deep": int(recursive),
+                "listFolders": int(list_folders),
+            }
+            if depth is not None:
+                params.update(depth=depth)
+            response = self._get(
+                f"api/storage/{artifact_path}?list",
+                params=params
+            )
+            artifact_list: ArtifactListResponse = parse_obj_as(
+                ArtifactListResponse,
+                response.json()
+            )
+            return artifact_list
+        except requests.exceptions.HTTPError as error:
+            if error.response.status_code == 404:
+                logger.error("Artifact %s does not exist", artifact_path)
+                raise ArtifactNotFoundException(
+                    f"Artifact {artifact_path} does not exist"
+                )
+            raise ArtifactoryException from error
 
     def properties(
         self, artifact_path: str, properties: Optional[List[str]] = None
