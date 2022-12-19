@@ -8,17 +8,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install Poetry
-        uses: snok/install-poetry@v1.1.1
+        uses: nok/install-poetry@v1
         with:
-          version: 1.1.14
           virtualenvs-in-project: false
           virtualenvs-path: ~/.virtualenvs
 

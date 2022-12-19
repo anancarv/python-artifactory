@@ -4,12 +4,8 @@ Definition of all artifact models.
 
 
 from datetime import datetime
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Literal
 
-try:
-    from typing import Literal  # type: ignore
-except ImportError:
-    from typing_extensions import Literal
 
 from pydantic import BaseModel
 

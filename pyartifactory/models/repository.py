@@ -2,8 +2,7 @@
 Definition of all repository models.
 """
 from enum import Enum
-from typing import Optional, List
-from typing_extensions import Literal
+from typing import Optional, List, Literal
 
 from pydantic import BaseModel, SecretStr
 
