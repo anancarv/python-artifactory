@@ -394,13 +394,13 @@ artifact_properties.properties["prop1"]  # ["value1", "value1-bis"]
 #### Set artifact properties
 ```python
 artifact_properties = art.artifacts.set_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"})  # recursive mode is enabled by default
-artifact_properties = art.artifacts.set_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value", "value2", "etc"]}, False) # disable recursive mode
+artifact_properties = art.artifacts.set_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"]}, False) # disable recursive mode
 ```
 
 #### Update artifact properties
 ```python
-artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": "value", "prop2": "value"})  # recursive mode is enabled by default
-artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": "value", "prop2": "value"}, False) # disable recursive mode
+artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"})  # recursive mode is enabled by default
+artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"}, False) # disable recursive mode
 ```
 
 #### Retrieve artifact stats
