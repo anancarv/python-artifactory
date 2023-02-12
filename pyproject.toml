@@ -54,7 +54,7 @@ typing_extensions = [
 ]
 
 [tool.poetry.dev-dependencies]
-pytest = "^3.0"
+pytest = "^7.0.1"
 mypy = "^0.740"
 black = { version = "^22.3.0", allow-prereleases = true }
 pre-commit = "^2.9.2"

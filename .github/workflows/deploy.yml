@@ -6,21 +6,20 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.6
+          python-version: 3.7
 
       - name: Install Poetry
-        uses: snok/install-poetry@v1.1.1
+        uses: snok/install-poetry@v1
         with:
-          version: 1.1.14
-          virtualenvs-in-project: false
-          virtualenvs-path: ~/.virtualenvs
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
       - name: Set Poetry config
         run: |
