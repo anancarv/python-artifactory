@@ -165,6 +165,7 @@ class LocalRepository(BaseRepositoryModel):
     primaryKeyPairRef: Optional[str] = None
     secondaryKeyPairRef: Optional[str] = None
     priorityResolution: str = "false"
+    cargoInternalIndex: bool = False
 
 
 class LocalRepositoryResponse(LocalRepository):
@@ -284,6 +285,7 @@ class RemoteRepository(BaseRepositoryModel):
     priorityResolution: bool = False
     disableUrlNormalization: bool = False
     xrayIndex: bool = False
+    cargoInternalIndex: bool = False
 
 
 class RemoteRepositoryResponse(RemoteRepository):
