@@ -285,6 +285,7 @@ class RemoteRepository(BaseRepositoryModel):
     priorityResolution: bool = False
     disableUrlNormalization: bool = False
     xrayIndex: bool = False
+    cargoInternalIndex: bool = False
 
 
 class RemoteRepositoryResponse(RemoteRepository):
