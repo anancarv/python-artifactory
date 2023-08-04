@@ -41,6 +41,7 @@ class PackageTypeEnum(str, Enum):
     vagrant = "vagrant"
     conda = "conda"
     cargo = "cargo"
+    terraform = "terraform"
 
 
 class RClassEnum(str, Enum):
