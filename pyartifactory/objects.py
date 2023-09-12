@@ -7,53 +7,53 @@ import os
 import warnings
 from os.path import isdir, join
 from pathlib import Path
-from typing import List, Optional, Dict, Tuple, Union, Iterator, overload
+from typing import Dict, Iterator, List, Optional, Tuple, Union, overload
 
 import requests
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 
 from pyartifactory.artifactory_object import ArtifactoryObject
 from pyartifactory.exception import (
-    UserNotFoundException,
-    UserAlreadyExistsException,
-    GroupNotFoundException,
-    RepositoryAlreadyExistsException,
-    GroupAlreadyExistsException,
-    RepositoryNotFoundException,
-    ArtifactoryException,
-    InvalidTokenDataException,
-    PropertyNotFoundException,
     ArtifactNotFoundException,
+    ArtifactoryException,
     BadPropertiesException,
+    GroupAlreadyExistsException,
+    GroupNotFoundException,
+    InvalidTokenDataException,
     PermissionAlreadyExistsException,
     PermissionNotFoundException,
+    PropertyNotFoundException,
+    RepositoryAlreadyExistsException,
+    RepositoryNotFoundException,
+    UserAlreadyExistsException,
+    UserNotFoundException,
 )
 from pyartifactory.models import (
-    AuthModel,
-    ApiKeyModel,
-    PasswordModel,
     AccessTokenModel,
-    Group,
-    LocalRepository,
-    VirtualRepository,
-    LocalRepositoryResponse,
-    VirtualRepositoryResponse,
-    RemoteRepository,
-    RemoteRepositoryResponse,
-    SimpleRepository,
+    AnyPermission,
     AnyRepository,
     AnyRepositoryResponse,
-    UserResponse,
-    NewUser,
-    SimpleUser,
-    User,
+    ApiKeyModel,
+    ArtifactInfoResponse,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
-    ArtifactInfoResponse,
+    AuthModel,
+    Group,
+    LocalRepository,
+    LocalRepositoryResponse,
+    NewUser,
+    PasswordModel,
     Permission,
     PermissionV2,
+    RemoteRepository,
+    RemoteRepositoryResponse,
     SimplePermission,
-    AnyPermission,
+    SimpleRepository,
+    SimpleUser,
+    User,
+    UserResponse,
+    VirtualRepository,
+    VirtualRepositoryResponse,
 )
 from pyartifactory.models.artifact import (
     ArtifactFileInfoResponse,
@@ -61,7 +61,6 @@ from pyartifactory.models.artifact import (
     ArtifactListResponse,
 )
 from pyartifactory.utils import custom_encoder
-
 
 logger = logging.getLogger("pyartifactory")
 
@@ -485,7 +484,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            repo: AnyRepositoryResponse = parse_obj_as(
+            repo: AnyRepositoryResponse = TypeAdapter.validate_python(
                 Union[
                     LocalRepositoryResponse,
                     VirtualRepositoryResponse,
@@ -804,7 +803,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_path = artifact_path.lstrip("/")
         try:
             response = self._get(f"api/storage/{artifact_path}")
-            artifact_info: ArtifactInfoResponse = parse_obj_as(
+            artifact_info: ArtifactInfoResponse = TypeAdapter.validate_python(
                 Union[ArtifactFolderInfoResponse, ArtifactFileInfoResponse],
                 response.json(),
             )
@@ -922,7 +921,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if depth is not None:
                 params.update(depth=depth)
             response = self._get(f"api/storage/{artifact_path}?list", params=params)
-            artifact_list: ArtifactListResponse = parse_obj_as(
+            artifact_list: ArtifactListResponse = TypeAdapter.validate_python(
                 ArtifactListResponse, response.json()
             )
             return artifact_list

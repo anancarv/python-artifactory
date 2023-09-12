@@ -109,7 +109,7 @@ class ArtifactStatsResponse(BaseModel):
     uri: str
     downloadCount: int
     lastDownloaded: int
-    lastDownloadedBy: Optional[str]
+    lastDownloadedBy: Optional[str] = None
     remoteDownloadCount: int
     remoteLastDownloaded: int
 
