@@ -5,7 +5,7 @@ Definition of all permission models.
 from enum import Enum
 from typing import List, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 
 class SimplePermission(BaseModel):
@@ -77,11 +77,7 @@ class BasePermissionV2(BaseModel):
     # by_alias=True when exporting (like permission.json(by_alias=True))
     includePatterns: List[str] = Field(["**"], alias="include-patterns")
     excludePatterns: List[str] = Field([""], alias="exclude-patterns")
-
-    class Config:
-        """We need this to be able to use 'includePatterns' in the constructor"""
-
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class RepoV2(BasePermissionV2):
