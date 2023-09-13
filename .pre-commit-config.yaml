@@ -1,35 +1,53 @@
 repos:
--   repo: https://github.com/psf/black
-    rev: '22.3.0'
-    hooks:
-    - id: black
--   repo: local
-    hooks:
-        - id: mypy
-          name: mypy
-          entry: mypy
-          language: system
-          types: [python]
-          files: pyartifactory/
--   repo: https://github.com/Yelp/detect-secrets
-    rev: 'v1.2.0'
-    hooks:
-    -   id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
--   repo: https://github.com/PyCQA/bandit
-    rev: '1.7.4'
-    hooks:
-    - id: bandit
-      args: ['--exclude', 'tests/*,venv,.venv']
--   repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
-    rev: v1.1.0
-    hooks:
-    -   id: markdown-toc
--   repo: local
-    hooks:
-    -   id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
-        files: pyartifactory/
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-added-large-files
+
+    - repo: https://github.com/psf/black
+      rev: 23.3.0
+      hooks:
+          - id: black
+            args:
+                - "--line-length=120"
+
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.5.1
+      hooks:
+          - id: mypy
+            additional_dependencies:
+                - pydantic
+                - types-requests
+            args: [--config, pyproject.toml]
+            files: pyartifactory/
+
+
+    - repo: https://github.com/charliermarsh/ruff-pre-commit
+      rev: "v0.0.272"
+      hooks:
+          - id: ruff
+
+    - repo: https://github.com/python-poetry/poetry
+      rev: "1.5.0"
+      hooks:
+          - id: poetry-check
+
+    - repo: https://github.com/Yelp/detect-secrets
+      rev: 'v1.2.0'
+      hooks:
+          - id: detect-secrets
+            args: ['--baseline', '.secrets.baseline']
+    - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+      rev: v1.1.0
+      hooks:
+          - id: markdown-toc
+
+    - repo: https://github.com/compilerla/conventional-pre-commit
+      rev: "v2.3.0"
+      hooks:
+          - id: conventional-pre-commit
+            stages: [commit-msg]
+            args: []
