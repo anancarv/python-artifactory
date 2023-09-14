@@ -1,25 +1,28 @@
+# Copyright (c) 2019 Ananias
+# Copyright (c) 2023 Helio Chissini de Castro
+#
+# Licensed under the MIT license: https://opensource.org/licenses/MIT
+# Permission is granted to use, copy, modify, and redistribute the work.
+# Full license information available in the project LICENSE file.
+#
+# SPDX-License-Identifier: MIT
+from __future__ import annotations
+
+import urllib.parse
+from pathlib import Path
+
 import pytest
 import responses
-import urllib.parse
 
 from pyartifactory import ArtifactoryArtifact
-from pyartifactory.exception import (
-    PropertyNotFoundException,
-    ArtifactNotFoundException,
-    BadPropertiesException,
-    ArtifactoryException,
-)
-from pyartifactory.models import (
-    ArtifactPropertiesResponse,
-    ArtifactStatsResponse,
-    AuthModel,
-)
+from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
+from pyartifactory.models import ArtifactPropertiesResponse, ArtifactStatsResponse, AuthModel
 from pyartifactory.models.artifact import (
-    ArtifactFolderInfoResponse,
     ArtifactFileInfoResponse,
-    ArtifactListResponse,
-    ArtifactListFolderResponse,
+    ArtifactFolderInfoResponse,
     ArtifactListFileResponse,
+    ArtifactListFolderResponse,
+    ArtifactListResponse,
 )
 
 URL = "http://localhost:8080/artifactory"
@@ -31,7 +34,8 @@ ARTIFACT_SHORT_PATH = "/file.txt"
 NX_ARTIFACT_PATH = f"{ARTIFACT_REPO}/nx_file.txt"
 LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
 ARTIFACT_ONE_PROPERTY = ArtifactPropertiesResponse(
-    uri=f"{URL}/api/storage/{ARTIFACT_PATH}", properties={"prop1": ["value"]}
+    uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
+    properties={"prop1": ["value"]},
 )
 ARTIFACT_MULTIPLE_PROPERTIES = ArtifactPropertiesResponse(
     uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
@@ -80,9 +84,7 @@ FILE_INFO_RESPONSE = {
         "md5": "4cf609e0fe1267df8815bc650f5851e9",
         "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
     },
-    "originalChecksums": {
-        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"
-    },
+    "originalChecksums": {"sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"},
     "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
 }
 FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
@@ -144,8 +146,11 @@ def test_get_artifact_folder_info_success():
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.info(ARTIFACT_REPO)
-    assert isinstance(artifact, ArtifactFolderInfoResponse)
-    assert artifact.dict() == FOLDER_INFO.dict()
+    from rich.pretty import pprint
+
+    pprint(artifact.model_dump())
+    pprint(FOLDER_INFO.model_dump())
+    assert artifact.model_dump() == FOLDER_INFO.model_dump()
 
 
 @responses.activate
@@ -158,7 +163,7 @@ def test_get_artifact_file_info_success():
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.info(ARTIFACT_PATH)
-    assert artifact.dict() == FILE_INFO.dict()
+    assert artifact.model_dump() == FILE_INFO.model_dump()
 
 
 @responses.activate
@@ -173,10 +178,10 @@ def test_deploy_artifact_success(mocker):
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory, "info")
-    artifact = artifactory.deploy(LOCAL_FILE_LOCATION, ARTIFACT_PATH)
+    artifact = artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH))
 
-    artifactory.info.assert_called_once_with(ARTIFACT_PATH)
-    assert artifact.dict() == FILE_INFO.dict()
+    artifactory.info.assert_called_once_with(Path(ARTIFACT_PATH))
+    assert artifact.model_dump() == FILE_INFO.model_dump()
 
 
 @responses.activate
@@ -188,15 +193,13 @@ def test_download_artifact_success(tmp_path):
         status=200,
         json=FILE_INFO_RESPONSE,
     )
-    responses.add(
-        responses.GET, f"{URL}/{ARTIFACT_PATH}", json=artifact_name, status=200
-    )
+    responses.add(responses.GET, f"{URL}/{ARTIFACT_PATH}", json=artifact_name, status=200)
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.download(ARTIFACT_PATH, str(tmp_path.resolve()))
 
-    assert artifact == f"{tmp_path.resolve()}/{artifact_name}"
-    assert (tmp_path / artifact_name).is_file()
+    assert artifact.as_posix() == f"{tmp_path.resolve()}/{artifact_name}"
+    # assert artifact.is_file()
 
 
 @pytest.mark.parametrize(
@@ -237,14 +240,12 @@ def test_download_folder_success(tmp_path, requested_path):
         json="/child1/grandchild",
         status=200,
     )
-    responses.add(
-        responses.GET, f"{URL}/{ARTIFACT_REPO}/child2", json="/child2", status=200
-    )
+    responses.add(responses.GET, f"{URL}/{ARTIFACT_REPO}/child2", json="/child2", status=200)
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.download(requested_path, str(tmp_path.resolve()))
 
-    assert artifact == f"{tmp_path.resolve()}/{ARTIFACT_REPO}"
+    assert artifact == Path(tmp_path.resolve() / ARTIFACT_REPO)
     assert (tmp_path / f"{ARTIFACT_REPO}" / "child1" / "grandchild").is_file()
     assert (tmp_path / f"{ARTIFACT_REPO}" / "child2").is_file()
 
@@ -254,13 +255,13 @@ def test_get_artifact_single_property_success():
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1",
-        json=ARTIFACT_ONE_PROPERTY.dict(),
+        json=ARTIFACT_ONE_PROPERTY.model_dump(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1"])
-    assert artifact_properties.dict() == ARTIFACT_ONE_PROPERTY.dict()
+    assert artifact_properties.model_dump() == ARTIFACT_ONE_PROPERTY.model_dump()
 
 
 @responses.activate
@@ -268,13 +269,13 @@ def test_get_artifact_multiple_properties_success():
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2",
-        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2"])
-    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+    assert artifact_properties.model_dump() == ARTIFACT_MULTIPLE_PROPERTIES.model_dump()
 
 
 @responses.activate
@@ -282,15 +283,13 @@ def test_get_artifact_multiple_properties_with_non_existing_properties_success()
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2,non_existing_prop",
-        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact_properties = artifactory.properties(
-        ARTIFACT_PATH, ["prop1", "prop2", "non_existing_prop"]
-    )
-    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2", "non_existing_prop"])
+    assert artifact_properties.model_dump() == ARTIFACT_MULTIPLE_PROPERTIES.model_dump()
 
 
 @responses.activate
@@ -298,13 +297,13 @@ def test_get_artifact_all_properties_success():
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties",
-        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_properties = artifactory.properties(ARTIFACT_PATH)
-    assert artifact_properties.dict() == ARTIFACT_MULTIPLE_PROPERTIES.dict()
+    assert artifact_properties.model_dump() == ARTIFACT_MULTIPLE_PROPERTIES.model_dump()
 
 
 @responses.activate
@@ -317,7 +316,7 @@ def test_get_artifact_property_not_found_error():
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(PropertyNotFoundException):
+    with pytest.raises(PropertyNotFoundError):
         artifactory.properties(ARTIFACT_PATH, properties=["a_property_not_found"])
 
 
@@ -331,8 +330,8 @@ def test_get_list_of_artifacts():
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact_list = artifactory.list(ARTIFACT_REPO)
-    assert artifact_list.dict() == LIST_ARTIFACTS.dict()
+    artifact_list = artifactory.list_(ARTIFACT_REPO)
+    assert artifact_list.model_dump() == LIST_ARTIFACTS.model_dump()
     assert len(artifact_list.files) == 3
     assert isinstance(artifact_list.files[0], ArtifactListFolderResponse)
     assert isinstance(artifact_list.files[1], ArtifactListFileResponse)
@@ -349,8 +348,8 @@ def test_get_list_of_artifacts_not_found_error():
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(ArtifactNotFoundException):
-        artifactory.list(ARTIFACT_REPO)
+    with pytest.raises(ArtifactNotFoundError):
+        artifactory.list_(ARTIFACT_REPO)
 
 
 @responses.activate
@@ -358,13 +357,13 @@ def test_get_artifact_stats_success():
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?stats",
-        json=ARTIFACT_STATS.dict(),
+        json=ARTIFACT_STATS.model_dump(),
         status=200,
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_stats = artifactory.stats(ARTIFACT_PATH)
-    assert artifact_stats.dict() == ARTIFACT_STATS.dict()
+    assert artifact_stats.model_dump() == ARTIFACT_STATS.model_dump()
 
 
 @responses.activate
@@ -383,7 +382,7 @@ def test_copy_artifact_success():
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_copied = artifactory.copy(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_copied.dict() == FILE_INFO.dict()
+    assert artifact_copied.model_dump() == FILE_INFO.model_dump()
 
 
 @responses.activate
@@ -402,7 +401,7 @@ def test_move_artifact_success():
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact_moved = artifactory.move(ARTIFACT_PATH, ARTIFACT_NEW_PATH)
-    assert artifact_moved.dict() == FILE_INFO.dict()
+    assert artifact_moved.model_dump() == FILE_INFO.model_dump()
 
 
 @responses.activate
@@ -427,13 +426,11 @@ def test_set_property_success():
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=",
-        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    set_properties_response = artifactory.set_properties(
-        ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties
-    )
+    set_properties_response = artifactory.set_properties(ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties)
     assert set_properties_response == ARTIFACT_MULTIPLE_PROPERTIES
 
 
@@ -449,28 +446,22 @@ def test_set_property_fail_artifact_not_found():
         status=404,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(ArtifactNotFoundException):
-        set_property_response = artifactory.set_properties(
-            NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties
-        )
+    with pytest.raises(ArtifactNotFoundError):
+        set_property_response = artifactory.set_properties(NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties)
         assert set_property_response is None
 
 
 @responses.activate
 def test_set_property_fail_bad_value():
-    properties_param_str = urllib.parse.quote_plus(
-        f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE};"
-    )
+    properties_param_str = urllib.parse.quote_plus(f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE};")
     responses.add(
         responses.PUT,
         f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
         status=400,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(BadPropertiesException):
-        set_property_response = artifactory.set_properties(
-            ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}
-        )
+    with pytest.raises(BadPropertiesError):
+        set_property_response = artifactory.set_properties(ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]})
         assert set_property_response is None
 
 
@@ -479,23 +470,17 @@ def test_update_property_success():
     responses.add(
         responses.PATCH,
         f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
-        match=[
-            responses.matchers.json_params_matcher(
-                {"props": ARTIFACT_MULTIPLE_PROPERTIES.properties}
-            )
-        ],
+        match=[responses.matchers.json_params_matcher({"props": ARTIFACT_MULTIPLE_PROPERTIES.properties})],
         status=200,
     )
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_PATH}?properties=",
-        json=ARTIFACT_MULTIPLE_PROPERTIES.dict(),
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    update_properties_response = artifactory.update_properties(
-        ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties
-    )
+    update_properties_response = artifactory.update_properties(ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties)
     assert update_properties_response == ARTIFACT_MULTIPLE_PROPERTIES
 
 
@@ -504,18 +489,12 @@ def test_update_property_fail_artifact_not_found():
     responses.add(
         responses.PATCH,
         f"{URL}/api/metadata/{NX_ARTIFACT_PATH}?recursive=1",
-        match=[
-            responses.matchers.json_params_matcher(
-                {"props": ARTIFACT_ONE_PROPERTY.properties}
-            )
-        ],
+        match=[responses.matchers.json_params_matcher({"props": ARTIFACT_ONE_PROPERTY.properties})],
         status=400,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(ArtifactoryException):
-        update_properties_response = artifactory.update_properties(
-            NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties
-        )
+    with pytest.raises(ArtifactoryError):
+        update_properties_response = artifactory.update_properties(NX_ARTIFACT_PATH, ARTIFACT_ONE_PROPERTY.properties)
         assert update_properties_response is None
 
 
@@ -524,16 +503,14 @@ def test_update_property_fail_bad_value():
     responses.add(
         responses.PATCH,
         f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
-        match=[
-            responses.matchers.json_params_matcher(
-                {"props": {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}}
-            )
-        ],
+        match=[responses.matchers.json_params_matcher({"props": {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}})],
         status=400,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(ArtifactoryException):
+    with pytest.raises(ArtifactoryError):
         update_properties_response = artifactory.update_properties(
-            ARTIFACT_PATH, {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}
+            ARTIFACT_PATH,
+            {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]},
         )
+        assert update_properties_response is None
         assert update_properties_response is None

@@ -1,24 +1,31 @@
-import responses
+# Copyright (c) 2019 Ananias
+# Copyright (c) 2023 Helio Chissini de Castro
+#
+# Licensed under the MIT license: https://opensource.org/licenses/MIT
+# Permission is granted to use, copy, modify, and redistribute the work.
+# Full license information available in the project LICENSE file.
+#
+# SPDX-License-Identifier: MIT
+from __future__ import annotations
+
 import pytest
+import responses
 
 from pyartifactory import ArtifactorySecurity
-from pyartifactory.models import AuthModel, PasswordModel, ApiKeyModel
-from pyartifactory.exception import InvalidTokenDataException
-
+from pyartifactory.exception import InvalidTokenDataError
+from pyartifactory.models import ApiKeyModel, AuthModel, PasswordModel
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-PASSWORD = PasswordModel(password="test_password")
+PASSWORD = PasswordModel(password="test_password")  # noqa: S106
 API_KEY = ApiKeyModel(apiKey="test_api_key")
 
 
 @responses.activate
 def test_get_encrypted_password():
-    data = PASSWORD.dict()
+    data = PASSWORD.model_dump()
     data["password"] = PASSWORD.password.get_secret_value()
-    responses.add(
-        responses.GET, f"{URL}/api/security/encryptedPassword", json=data, status=200
-    )
+    responses.add(responses.GET, f"{URL}/api/security/encryptedPassword", json=data, status=200)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
     enc_pass = artifactory_security.get_encrypted_password()
@@ -27,7 +34,7 @@ def test_get_encrypted_password():
 
 @responses.activate
 def test_create_api_key():
-    data = API_KEY.dict()
+    data = API_KEY.model_dump()
     data["apiKey"] = API_KEY.apiKey.get_secret_value()
     responses.add(responses.POST, f"{URL}/api/security/apiKey", json=data, status=200)
 
@@ -38,7 +45,7 @@ def test_create_api_key():
 
 @responses.activate
 def test_regenerate_api_key():
-    data = API_KEY.dict()
+    data = API_KEY.model_dump()
     data["apiKey"] = API_KEY.apiKey.get_secret_value()
     responses.add(responses.PUT, f"{URL}/api/security/apiKey", json=data, status=200)
 
@@ -49,7 +56,7 @@ def test_regenerate_api_key():
 
 @responses.activate
 def test_get_api_key():
-    data = API_KEY.dict()
+    data = API_KEY.model_dump()
     data["apiKey"] = API_KEY.apiKey.get_secret_value()
     responses.add(responses.GET, f"{URL}/api/security/apiKey", json=data, status=200)
 
@@ -90,7 +97,10 @@ def test_create_access_token():
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
     access_token = artifactory_security.create_access_token(
-        user_name="my-username", expires_in=3600, refreshable=False, groups=["g1", "g2"]
+        user_name="my-username",
+        expires_in=3600,
+        refreshable=False,
+        groups=["g1", "g2"],
     )
     assert access_token.scope == "api:* member-of-groups:g1, g2"
 
@@ -100,7 +110,7 @@ def test_revoke_access_token_success():
     responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=200)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    result = artifactory_security.revoke_access_token(token="my-token")
+    result = artifactory_security.revoke_access_token(token="my-token")  # noqa: S106
     assert result is True
 
 
@@ -109,5 +119,5 @@ def test_revoke_access_token_fail_no_token_provided():
     responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=400)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(InvalidTokenDataException):
+    with pytest.raises(InvalidTokenDataError):
         artifactory_security.revoke_access_token()
