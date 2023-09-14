@@ -1,11 +1,11 @@
 """
 Definition of all permission models.
 """
+from __future__ import annotations
 
 from enum import Enum
-from typing import List, Dict, Optional
 
-from pydantic import ConfigDict, BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SimplePermission(BaseModel):
@@ -30,8 +30,8 @@ class PermissionEnum(str, Enum):
 class PrincipalsPermission(BaseModel):
     """Models a principals permission."""
 
-    users: Optional[Dict[str, List[PermissionEnum]]] = None
-    groups: Optional[Dict[str, List[PermissionEnum]]] = None
+    users: dict[str, list[PermissionEnum]] | None = None
+    groups: dict[str, list[PermissionEnum]] | None = None
 
 
 class Permission(BaseModel):
@@ -40,7 +40,7 @@ class Permission(BaseModel):
     name: str
     includesPattern: str = "**"
     excludesPattern: str = ""
-    repositories: List[str]
+    repositories: list[str]
     principals: PrincipalsPermission
 
 
@@ -59,14 +59,14 @@ class PermissionEnumV2(str, Enum):
 class PrincipalsPermissionV2(BaseModel):
     """Models a principals permission API v2."""
 
-    users: Optional[Dict[str, List[PermissionEnumV2]]] = None
-    groups: Optional[Dict[str, List[PermissionEnumV2]]] = None
+    users: dict[str, list[PermissionEnumV2]] | None = None
+    groups: dict[str, list[PermissionEnumV2]] | None = None
 
 
 class BasePermissionV2(BaseModel):
     """Models the base of a permission v2 API."""
 
-    repositories: List[str]
+    repositories: list[str]
     actions: PrincipalsPermissionV2
     # Note: the Jfrog API changed these parameters names in v2,
     # from 'includesPattern' to 'include-patterns'. Because they are not
@@ -75,8 +75,8 @@ class BasePermissionV2(BaseModel):
     # Note that when serializing this model Pydantic will by default use the
     # identifier name, *not* the alias, so you need to pass the parameter
     # by_alias=True when exporting (like permission.json(by_alias=True))
-    includePatterns: List[str] = Field(["**"], alias="include-patterns")
-    excludePatterns: List[str] = Field([""], alias="exclude-patterns")
+    includePatterns: list[str] = Field(["**"], alias="include-patterns")
+    excludePatterns: list[str] = Field([""], alias="exclude-patterns")
     model_config = ConfigDict(populate_by_name=True)
 
 
@@ -87,20 +87,20 @@ class RepoV2(BasePermissionV2):
 class BuildV2(BasePermissionV2):
     """Models a build v2 API."""
 
-    includePatterns: List[str] = Field([""], alias="include-patterns")
-    repositories: List[str] = ["artifactory-build-info"]
+    includePatterns: list[str] = Field([""], alias="include-patterns")
+    repositories: list[str] = ["artifactory-build-info"]
 
 
 class ReleaseBundleV2(BasePermissionV2):
     """Models a releaseBundle v2 API."""
 
-    excludePatterns: List[str] = Field([], alias="exclude-patterns")
+    excludePatterns: list[str] = Field([], alias="exclude-patterns")
 
 
 class PermissionV2(BaseModel):
     """Models a permission v2 API."""
 
     name: str
-    repo: Optional[RepoV2] = None
-    build: Optional[BuildV2] = None
-    releaseBundle: Optional[ReleaseBundleV2] = None
+    repo: RepoV2 | None = None
+    build: BuildV2 | None = None
+    releaseBundle: ReleaseBundleV2 | None = None
