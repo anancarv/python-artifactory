@@ -1,15 +1,13 @@
 # PyArtifactory
 
-[![GitHub Actions workflow](https://github.com/anancarv/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/anancarv/python-artifactory/actions)
+[![GitHub Actions workflow](https://github.com/heliocastro/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/heliocastro/python-artifactory/actions)
 [![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/c02851e5b9f24fe299783b48eab18f54)](https://www.codacy.com/gh/anancarv/python-artifactory/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=anancarv/python-artifactory&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/c02851e5b9f24fe299783b48eab18f54)](https://www.codacy.com/gh/anancarv/python-artifactory/dashboard?utm_source=github.com&utm_medium=referral&utm_content=anancarv/python-artifactory&utm_campaign=Badge_Coverage)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API).
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.6+ type hints.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.9+ type hints.
 
 <!-- toc -->
 
