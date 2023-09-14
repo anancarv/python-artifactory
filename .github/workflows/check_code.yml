@@ -1,23 +1,24 @@
 name: Check code
 
-on: [push]
+on: [pull_request, push]
 
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.7
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: '3.10'
 
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         virtualenvs-create: true
         virtualenvs-in-project: true
+        version: 1.6.1
 
     - name: Load cached dependencies
       id: cached-poetry-dependencies
@@ -35,13 +36,16 @@ jobs:
         poetry run pre-commit run --all-files
 
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
+      - uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: "Europe/Berlin"
 
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
@@ -51,30 +55,20 @@ jobs:
 
       - name: Install Poetry
         run: |
-          pipx install poetry==1.3.2
-          poetry --version
-          poetry self show plugins
-          poetry config virtualenvs.in-project true
-
-      - name: Load cached dependencies
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry env use python${{ matrix.python-version }}
+          pip install poetry==1.6.1
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.create false
           poetry install --no-interaction
 
       - name: Run pytest
-        run: |
-          # https://stackoverflow.com/a/16081218
-          EXIT_STATUS=0
-          poetry run pytest --cov=pyartifactory --cov-branch --cov-report=xml || EXIT_STATUS=$?
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml || EXIT_STATUS=$?
-          exit $EXIT_STATUS
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        uses: pavelzw/pytest-action@v2
+        with:
+          emoji: true
+          verbose: false
+          job-summary: true
+          report-title: 'PyArtifactory Test Report'
+          click-to-expand: true
+          custom-arguments: '--cov=pyartifactory --cov-report=xml'
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
