@@ -12,16 +12,14 @@ Import all object definitions here.
 """
 from __future__ import annotations
 
-from pyartifactory.objects import (
-    AccessTokenModel,
-    Artifactory,
-    ArtifactoryArtifact,
-    ArtifactoryGroup,
-    ArtifactoryPermission,
-    ArtifactoryRepository,
-    ArtifactorySecurity,
-    ArtifactoryUser,
-)
+from pyartifactory.models.auth import AccessTokenModel
+from pyartifactory.objects.artifact import ArtifactoryArtifact
+from pyartifactory.objects.artifactory import Artifactory
+from pyartifactory.objects.group import ArtifactoryGroup
+from pyartifactory.objects.permission import ArtifactoryPermission
+from pyartifactory.objects.repository import ArtifactoryRepository
+from pyartifactory.objects.security import ArtifactorySecurity
+from pyartifactory.objects.user import ArtifactoryUser
 
 __all__ = [
     "AccessTokenModel",
