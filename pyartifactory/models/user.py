@@ -1,10 +1,11 @@
 """
 Definition of all user related models.
 """
+from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, EmailStr, SecretStr, HttpUrl
+
+from pydantic import BaseModel, EmailStr, HttpUrl, SecretStr
 
 
 class SimpleUser(BaseModel):
@@ -12,7 +13,7 @@ class SimpleUser(BaseModel):
 
     name: str
     uri: HttpUrl
-    realm: Optional[str] = None
+    realm: str | None = None
 
 
 class BaseUserModel(BaseModel):
@@ -22,11 +23,11 @@ class BaseUserModel(BaseModel):
     """
 
     name: str
-    admin: Optional[bool] = False
-    profileUpdatable: Optional[bool] = True
-    disableUIAccess: Optional[bool] = False
-    internalPasswordDisabled: Optional[bool] = False
-    groups: Optional[List[str]] = None
+    admin: bool | None = False
+    profileUpdatable: bool | None = True
+    disableUIAccess: bool | None = False
+    internalPasswordDisabled: bool | None = False
+    groups: list[str] | None = None
 
 
 class NewUser(BaseUserModel):
@@ -39,13 +40,13 @@ class NewUser(BaseUserModel):
 class User(BaseUserModel):
     """Models a user."""
 
-    email: Optional[EmailStr] = None
+    email: EmailStr | None = None
 
 
 class UserResponse(BaseUserModel):
     """Models a user response."""
 
     email: EmailStr
-    lastLoggedIn: Optional[datetime] = None
-    realm: Optional[str] = None
+    lastLoggedIn: datetime | None = None
+    realm: str | None = None
     offlineMode: bool = False
