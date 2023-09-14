@@ -1,9 +1,10 @@
 """
 Definition of all repository models.
 """
+from __future__ import annotations
+
 from enum import Enum
-from typing import Optional, List
-from typing_extensions import Literal
+from typing import Literal
 
 from pydantic import BaseModel, SecretStr
 
@@ -11,37 +12,37 @@ from pydantic import BaseModel, SecretStr
 class PackageTypeEnum(str, Enum):
     """Enumerates package types."""
 
-    maven = "maven"
-    gradle = "gradle"
-    ivy = "ivy"
-    sbt = "sbt"
-    helm = "helm"
-    cocoapods = "cocoapods"
-    opkg = "opkg"
-    rpm = "rpm"
-    nuget = "nuget"
-    cran = "cran"
-    gems = "gems"
-    npm = "npm"
-    bower = "bower"
-    debian = "debian"
-    pypi = "pypi"
-    docker = "docker"
-    yum = "yum"
-    vcs = "vcs"
-    composer = "composer"
-    go = "go"
-    p2 = "p2"
-    chef = "chef"
-    puppet = "puppet"
-    generic = "generic"
-    conan = "conan"
     alpine = "alpine"
-    gitlfs = "gitlfs"
-    vagrant = "vagrant"
-    conda = "conda"
+    bower = "bower"
     cargo = "cargo"
+    chef = "chef"
+    cocoapods = "cocoapods"
+    composer = "composer"
+    conan = "conan"
+    conda = "conda"
+    cran = "cran"
+    debian = "debian"
+    docker = "docker"
+    gems = "gems"
+    generic = "generic"
+    gitlfs = "gitlfs"
+    go = "go"
+    gradle = "gradle"
+    helm = "helm"
+    ivy = "ivy"
+    maven = "maven"
+    npm = "npm"
+    nuget = "nuget"
+    opkg = "opkg"
+    p2 = "p2"
+    puppet = "puppet"
+    pypi = "pypi"
+    rpm = "rpm"
+    sbt = "sbt"
     terraform = "terraform"
+    vagrant = "vagrant"
+    vcs = "vcs"
+    yum = "yum"
 
 
 class RClassEnum(str, Enum):
@@ -117,8 +118,8 @@ class SimpleRepository(BaseModel):
     """Models a simple repository."""
 
     key: str
-    type: str
-    description: Optional[str] = None
+    type_: str
+    description: str | None = None
     url: str
     packageType: str
 
@@ -127,11 +128,11 @@ class BaseRepositoryModel(BaseModel):
     """Models a base repository."""
 
     key: str
-    projectKey: Optional[str] = None
+    projectKey: str | None = None
     rclass: RClassEnum
     packageType: PackageTypeEnum = PackageTypeEnum.generic
-    description: Optional[str] = None
-    notes: Optional[str] = None
+    description: str | None = None
+    notes: str | None = None
     includesPattern: str = "**/*"
     excludesPattern: str = ""
     repoLayoutRef: str = "maven-2-default"
@@ -147,24 +148,22 @@ class LocalRepository(BaseRepositoryModel):
     maxUniqueSnapshots: int = 0
     maxUniqueTags: int = 0
     debianTrivialLayout: bool = False
-    snapshotVersionBehavior: SnapshotVersionBehavior = (
-        SnapshotVersionBehavior.non_unique
-    )
+    snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
     suppressPomConsistencyChecks: bool = False
     blackedOut: bool = False
     xrayIndex: bool = False
-    propertySets: Optional[List[str]] = None
+    propertySets: list[str] | None = None
     dockerApiVersion: str = "V2"
     archiveBrowsingEnabled: bool = False
     calculateYumMetadata: bool = False
     yumRootDepth: int = 0
     enableFileListsIndexing: str = "false"
-    optionalIndexCompressionFormats: Optional[List[str]] = None
+    optionalIndexCompressionFormats: list[str] | None = None
     downloadRedirect: str = "false"
     cdnRedirect: str = "false"
     blockPushingSchema1: str = "false"
-    primaryKeyPairRef: Optional[str] = None
-    secondaryKeyPairRef: Optional[str] = None
+    primaryKeyPairRef: str | None = None
+    secondaryKeyPairRef: str | None = None
     priorityResolution: str = "false"
     cargoInternalIndex: bool = False
 
@@ -193,20 +192,18 @@ class VirtualRepository(BaseRepositoryModel):
     """Models a virtual repository."""
 
     rclass: Literal[RClassEnum.virtual] = RClassEnum.virtual
-    repositories: Optional[List[str]] = None
+    repositories: list[str] | None = None
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
-    keyPair: Optional[str] = None
-    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = (
-        PomRepoRefCleanupPolicy.discard_active_reference
-    )
-    defaultDeploymentRepo: Optional[str] = None
+    keyPair: str | None = None
+    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
+    defaultDeploymentRepo: str | None = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False
-    externalDependenciesPatterns: Optional[List[str]] = None
-    externalDependenciesRemoteRepo: Optional[str] = None
-    primaryKeyPairRef: Optional[str] = None
-    secondaryKeyPairRef: Optional[str] = None
+    externalDependenciesPatterns: list[str] | None = None
+    externalDependenciesRemoteRepo: str | None = None
+    primaryKeyPairRef: str | None = None
+    secondaryKeyPairRef: str | None = None
 
 
 class VirtualRepositoryResponse(VirtualRepository):
@@ -235,9 +232,9 @@ class RemoteRepository(BaseRepositoryModel):
 
     rclass: Literal[RClassEnum.remote] = RClassEnum.remote
     url: str
-    username: Optional[str] = None
-    password: Optional[SecretStr] = None
-    proxy: Optional[str] = None
+    username: str | None = None
+    password: SecretStr | None = None
+    proxy: str | None = None
     remoteRepoChecksumPolicyType: str = "generate-if-absent"
     handleReleases: bool = True
     handleSnapshots: bool = True
@@ -248,7 +245,7 @@ class RemoteRepository(BaseRepositoryModel):
     blackedOut: bool = False
     storeArtifactsLocally: bool = True
     socketTimeoutMillis: int = 15000
-    localAddress: Optional[str] = None
+    localAddress: str | None = None
     retrievalCachePeriodSecs: int = 43200
     failedRetrievalCachePeriodSecs: int = 30
     missedRetrievalCachePeriodSecs: int = 7200
@@ -261,7 +258,7 @@ class RemoteRepository(BaseRepositoryModel):
     shareConfiguration: bool = False
     synchronizeProperties: bool = False
     blockMismatchingMimeTypes: bool = True
-    propertySets: Optional[List[str]] = None
+    propertySets: list[str] | None = None
     allowAnyHostAuth: bool = False
     enableCookieManagement: bool = False
     enableTokenAuthentication: bool = False
@@ -275,7 +272,7 @@ class RemoteRepository(BaseRepositoryModel):
     bypassHeadRequests: bool = False
     clientTlsCertificate: str = ""
     externalDependenciesEnabled: bool = False
-    externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
+    externalDependenciesPatterns: list[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
     cdnRedirect: str = "false"
     contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
