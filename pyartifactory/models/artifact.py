@@ -1,15 +1,19 @@
+# Copyright (c) 2019 Ananias
+# Copyright (c) 2023 Helio Chissini de Castro
+#
+# Licensed under the MIT license: https://opensource.org/licenses/MIT
+# Permission is granted to use, copy, modify, and redistribute the work.
+# Full license information available in the project LICENSE file.
+#
+# SPDX-License-Identifier: MIT
+
 """
 Definition of all artifact models.
 """
-
+from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, List, Dict, Union
-
-try:
-    from typing import Literal  # type: ignore
-except ImportError:
-    from typing_extensions import Literal
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -39,7 +43,7 @@ class ArtifactPropertiesResponse(BaseModel):
     """Models an artifact properties response."""
 
     uri: str
-    properties: Dict[str, List[str]]
+    properties: dict[str, list[str]]
 
 
 class ArtifactInfoResponseBase(BaseModel):
@@ -47,29 +51,29 @@ class ArtifactInfoResponseBase(BaseModel):
 
     repo: str
     path: str
-    created: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    lastModified: Optional[datetime] = None
-    modifiedBy: Optional[str] = None
-    lastUpdated: Optional[datetime] = None
+    created: datetime | None = None
+    createdBy: str | None = None
+    lastModified: datetime | None = None
+    modifiedBy: str | None = None
+    lastUpdated: datetime | None = None
     uri: str
 
 
 class ArtifactFolderInfoResponse(ArtifactInfoResponseBase):
     """Models an artifact folder info response."""
 
-    children: List[Child]
+    children: list[Child]
 
 
 class ArtifactFileInfoResponse(ArtifactInfoResponseBase):
     """Models an artifact file info response."""
 
-    downloadUri: Optional[str] = None
-    remoteUrl: Optional[str] = None
-    mimeType: Optional[str] = None
-    size: Optional[int] = None
-    checksums: Optional[Checksums] = None
-    originalChecksums: Optional[OriginalChecksums] = None
+    downloadUri: str | None = None
+    remoteUrl: str | None = None
+    mimeType: str | None = None
+    size: int | None = None
+    checksums: Checksums | None = None
+    originalChecksums: OriginalChecksums | None = None
 
 
 class ArtifactListEntryResponse(BaseModel):
@@ -91,8 +95,8 @@ class ArtifactListFileResponse(ArtifactListEntryResponse):
     """Models a file in an artifact list response."""
 
     folder: Literal[False]
-    sha1: Optional[str] = None
-    sha2: Optional[str] = None
+    sha1: str | None = None
+    sha2: str | None = None
 
 
 class ArtifactListResponse(BaseModel):
@@ -100,7 +104,7 @@ class ArtifactListResponse(BaseModel):
 
     uri: str
     created: datetime
-    files: List[Union[ArtifactListFileResponse, ArtifactListFolderResponse]]
+    files: list[ArtifactListFileResponse | ArtifactListFolderResponse]
 
 
 class ArtifactStatsResponse(BaseModel):
@@ -109,9 +113,9 @@ class ArtifactStatsResponse(BaseModel):
     uri: str
     downloadCount: int
     lastDownloaded: int
-    lastDownloadedBy: Optional[str] = None
+    lastDownloadedBy: str | None = None
     remoteDownloadCount: int
     remoteLastDownloaded: int
 
 
-ArtifactInfoResponse = Union[ArtifactFileInfoResponse, ArtifactFolderInfoResponse]
+ArtifactInfoResponse = ArtifactFolderInfoResponse | ArtifactFileInfoResponse
