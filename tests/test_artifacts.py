@@ -146,10 +146,7 @@ def test_get_artifact_folder_info_success():
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.info(ARTIFACT_REPO)
-    from rich.pretty import pprint
 
-    pprint(artifact.model_dump())
-    pprint(FOLDER_INFO.model_dump())
     assert artifact.model_dump() == FOLDER_INFO.model_dump()
 
 
