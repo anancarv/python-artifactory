@@ -17,7 +17,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "Typing :: Typed",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Topic :: Software Development :: Libraries",
@@ -29,7 +28,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/heliocastro/python-artifactory/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 requests = "^2.31"
 typing_extensions = "^4.7.1"
 pydantic = {extras = ["email"], version = "^2.3.0"}
@@ -72,7 +71,7 @@ use_parentheses = true
 line_length = 120
 
 [tool.black]
-target-version = ["py39"]
+target-version = ["py310"]
 line-length = 120
 include = '\.pyi?$'
 exclude = '''
@@ -223,7 +222,7 @@ per-file-ignores = {}
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Assume Python 3.9.
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
