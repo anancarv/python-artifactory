@@ -67,8 +67,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         try:
             response = self._get(f"api/storage/{artifact_path.as_posix()}")
-            adapter: TypeAdapter[ArtifactInfoResponse] = TypeAdapter(ArtifactInfoResponse)
-            return adapter.validate_python(response.json())
+            return TypeAdapter(ArtifactInfoResponse).validate_python(response.json())  # type: ignore
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)

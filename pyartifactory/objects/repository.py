@@ -47,8 +47,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            repo: AnyRepositoryResponse = TypeAdapter(AnyRepositoryResponse).validate_python(response.json())
-            return repo
+            return TypeAdapter(AnyRepositoryResponse).validate_python(response.json())  # type: ignore
         except requests.exceptions.HTTPError as error:
             if error.response.status_code in (404, 400):
                 logger.error("Repository %s does not exist", repo_name)
