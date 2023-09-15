@@ -287,7 +287,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         logger.debug("Repository %s successfully updated", repo_name)
         return self.get_remote_repo(repo_name)
 
-    def list_(self) -> list[SimpleRepository]:
+    def list_all(self) -> list[SimpleRepository]:
         """
         Lists all the repositories
         :return: A list of repositories

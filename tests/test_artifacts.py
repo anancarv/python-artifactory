@@ -327,7 +327,7 @@ def test_get_list_of_artifacts():
     )
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact_list = artifactory.list_(ARTIFACT_REPO)
+    artifact_list = artifactory.file_list(ARTIFACT_REPO)
     assert artifact_list.model_dump() == LIST_ARTIFACTS.model_dump()
     assert len(artifact_list.files) == 3
     assert isinstance(artifact_list.files[0], ArtifactListFolderResponse)
@@ -346,7 +346,7 @@ def test_get_list_of_artifacts_not_found_error():
 
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     with pytest.raises(ArtifactNotFoundError):
-        artifactory.list_(ARTIFACT_REPO)
+        artifactory.file_list(ARTIFACT_REPO)
 
 
 @responses.activate

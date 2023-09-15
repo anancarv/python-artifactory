@@ -156,7 +156,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             logger.error("Artifact %s does not exist", artifact_path)
         return None
 
-    def list_(
+    def file_list(
         self,
         artifact_path: str,
         recursive: bool = True,

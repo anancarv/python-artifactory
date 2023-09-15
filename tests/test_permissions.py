@@ -162,9 +162,9 @@ def test_list_group_success(mocker, api_version, api_uri):
     )
 
     artifactory_permission = ArtifactoryPermission(AuthModel(url=URL, auth=AUTH, api_version=api_version))
-    mocker.spy(artifactory_permission, "list_")
-    permission_list = artifactory_permission.list_()
-    artifactory_permission.list_.assert_called_once()
+    mocker.spy(artifactory_permission, "list_all")
+    permission_list = artifactory_permission.list_all()
+    artifactory_permission.list_all.assert_called_once()
     assert permission_list == [SIMPLE_PERMISSION]
 
 
