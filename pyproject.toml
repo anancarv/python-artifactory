@@ -1,16 +1,16 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "1.14.0"
+version = "2.0.0"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = [
     "Ananias CARVALHO <carvalhoananias@hotmail.com>",
     "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>",
-    "Helio Chissini de Castro >heliocastro@gmail.com"
+    "Helio Chissini de Castro <heliocastro@gmail.com"
 ]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/anancarv/python-artifactory"
-documentation = "https://github.com/anancarv/python-artifactory"
+repository = "https://github.com/heliocastro/python-artifactory"
+documentation = "https://github.com/heliocastro/python-artifactory"
 keywords = ["artifactory"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
