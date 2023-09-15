@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import Any
 
 from pydantic import SecretStr
-from pydantic.json import pydantic_encoder
+from pydantic_core import to_jsonable_python
 
 
 def custom_encoder(obj: Any) -> Any:
@@ -26,4 +26,4 @@ def custom_encoder(obj: Any) -> Any:
     """
     if isinstance(obj, SecretStr):
         return obj.get_secret_value()
-    return pydantic_encoder(obj)
+    return to_jsonable_python(obj)

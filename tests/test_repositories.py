@@ -52,7 +52,7 @@ UPDATED_REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
 
 
 @responses.activate
-def test_create_local_repository_using_create_repo_fail_if_repository_already_exists(
+def test_create_local_repository_fail_if_repository_already_exists(
     mocker,
 ):
     responses.add(
@@ -71,24 +71,7 @@ def test_create_local_repository_using_create_repo_fail_if_repository_already_ex
 
 
 @responses.activate
-def test_create_local_repository_fail_if_repository_already_exists(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_local_repo")
-    with pytest.raises(RepositoryAlreadyExistsError):
-        artifactory_repo.create_local_repo(LOCAL_REPOSITORY)
-
-    artifactory_repo.get_local_repo.assert_called_once_with(LOCAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_create_virtual_repository_using_create_repo_fail_if_repository_already_exists(
+def test_create_virtual_repository_fail_if_repository_already_exists(
     mocker,
 ):
     responses.add(
@@ -107,24 +90,7 @@ def test_create_virtual_repository_using_create_repo_fail_if_repository_already_
 
 
 @responses.activate
-def test_create_virtual_repository_fail_if_repository_already_exists(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=VIRTUAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_virtual_repo")
-    with pytest.raises(RepositoryAlreadyExistsError):
-        artifactory_repo.create_virtual_repo(VIRTUAL_REPOSITORY)
-
-    artifactory_repo.get_virtual_repo.assert_called_once_with(VIRTUAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_create_remote_repository_using_create_repo_fail_if_repository_already_exists(
+def test_create_remote_repository_fail_if_repository_already_exists(
     mocker,
 ):
     responses.add(
@@ -143,24 +109,7 @@ def test_create_remote_repository_using_create_repo_fail_if_repository_already_e
 
 
 @responses.activate
-def test_create_remote_repository_fail_if_repository_already_exists(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_remote_repo")
-    with pytest.raises(RepositoryAlreadyExistsError):
-        artifactory_repo.create_remote_repo(REMOTE_REPOSITORY)
-
-    artifactory_repo.get_remote_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
-
-
-@responses.activate
-def test_create_local_repository_using_create_repo_success(mocker):
+def test_create_local_repository_success(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
     responses.add(
         responses.PUT,
@@ -184,32 +133,7 @@ def test_create_local_repository_using_create_repo_success(mocker):
 
 
 @responses.activate
-def test_create_local_repository_success(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
-    responses.add(
-        responses.PUT,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=201,
-    )
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_local_repo")
-    local_repo = artifactory_repo.create_local_repo(LOCAL_REPOSITORY)
-
-    artifactory_repo.get_local_repo.assert_called_with(LOCAL_REPOSITORY.key)
-    assert artifactory_repo.get_local_repo.call_count == 2
-    assert local_repo == LOCAL_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_create_virtual_repository_using_create_repo_success(mocker):
+def test_create_virtual_repository_repo_success(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=404)
     responses.add(
         responses.PUT,
@@ -232,32 +156,7 @@ def test_create_virtual_repository_using_create_repo_success(mocker):
 
 
 @responses.activate
-def test_create_virtual_repository_success(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=404)
-    responses.add(
-        responses.PUT,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=VIRTUAL_REPOSITORY_RESPONSE.model_dump(),
-        status=201,
-    )
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=VIRTUAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_virtual_repo")
-    virtual_repo = artifactory_repo.create_virtual_repo(VIRTUAL_REPOSITORY)
-
-    artifactory_repo.get_virtual_repo.assert_called_with(VIRTUAL_REPOSITORY.key)
-    assert artifactory_repo.get_virtual_repo.call_count == 2
-    assert virtual_repo.model_dump() == VIRTUAL_REPOSITORY_RESPONSE.model_dump()
-
-
-@responses.activate
-def test_create_remote_repository_using_create_repo_success(mocker):
+def test_create_remote_repository_success(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404)
     responses.add(
         responses.PUT,
@@ -280,32 +179,7 @@ def test_create_remote_repository_using_create_repo_success(mocker):
 
 
 @responses.activate
-def test_create_remote_repository_success(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404)
-    responses.add(
-        responses.PUT,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=201,
-    )
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_remote_repo")
-    remote_repo = artifactory_repo.create_remote_repo(REMOTE_REPOSITORY)
-
-    artifactory_repo.get_remote_repo.assert_called_with(REMOTE_REPOSITORY.key)
-    assert artifactory_repo.get_remote_repo.call_count == 2
-    assert remote_repo == REMOTE_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_get_local_repository_using_get_repo_error_not_found(mocker):
+def test_get_local_repository_error_not_found(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
@@ -315,34 +189,7 @@ def test_get_local_repository_using_get_repo_error_not_found(mocker):
 
 
 @responses.activate
-def test_get_local_repository_error_not_found():
-    responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.get_local_repo(LOCAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_get_virtual_repository_error_not_found():
-    responses.add(responses.GET, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.get_virtual_repo(VIRTUAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_get_remote_repository_error_not_found():
-    responses.add(responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.get_remote_repo(REMOTE_REPOSITORY.key)
-
-
-@responses.activate
-def test_get_local_repository_using_get_repo_success():
+def test_get_local_repository_success():
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
@@ -357,24 +204,7 @@ def test_get_local_repository_using_get_repo_success():
 
 
 @responses.activate
-def test_get_local_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_local_repo")
-    local_repo = artifactory_repo.get_local_repo(LOCAL_REPOSITORY.key)
-
-    artifactory_repo.get_local_repo.assert_called_once()
-    assert local_repo == LOCAL_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_get_virtual_repository_using_get_repo_success(mocker):
+def test_get_virtual_repository_success(mocker):
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
@@ -389,24 +219,7 @@ def test_get_virtual_repository_using_get_repo_success(mocker):
 
 
 @responses.activate
-def test_get_virtual_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=VIRTUAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_virtual_repo")
-    virtual_repo = artifactory_repo.get_virtual_repo(VIRTUAL_REPOSITORY.key)
-
-    artifactory_repo.get_virtual_repo.assert_called_once()
-    assert virtual_repo == VIRTUAL_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_get_remote_repository_using_get_repo_success():
+def test_get_remote_repository_success():
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
@@ -417,23 +230,6 @@ def test_get_remote_repository_using_get_repo_success():
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     remote_repo = artifactory_repo.get_repo(REMOTE_REPOSITORY.key)
 
-    assert remote_repo == REMOTE_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_get_remote_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_remote_repo")
-    remote_repo = artifactory_repo.get_remote_repo(REMOTE_REPOSITORY.key)
-
-    artifactory_repo.get_remote_repo.assert_called_once()
     assert remote_repo == REMOTE_REPOSITORY_RESPONSE
 
 
@@ -454,7 +250,7 @@ def test_list_repositories_success(mocker):
 
 
 @responses.activate
-def test_update_local_repository_using_update_repo_fail_if_repo_not_found(mocker):
+def test_update_local_repository_fail_if_repo_not_found(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
@@ -465,19 +261,7 @@ def test_update_local_repository_using_update_repo_fail_if_repo_not_found(mocker
 
 
 @responses.activate
-def test_update_local_repository_fail_if_repo_not_found(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_local_repo")
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.update_local_repo(LOCAL_REPOSITORY)
-
-    artifactory_repo.get_local_repo.assert_called_once_with(LOCAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_update_virtual_repository_using_update_repo_fail_if_repo_not_found(mocker):
+def test_update_virtual_repository_fail_if_repo_not_found(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=404)
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
@@ -489,19 +273,7 @@ def test_update_virtual_repository_using_update_repo_fail_if_repo_not_found(mock
 
 
 @responses.activate
-def test_update_virtual_repository_fail_if_repo_not_found(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_virtual_repo")
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.update_virtual_repo(VIRTUAL_REPOSITORY)
-
-    artifactory_repo.get_virtual_repo.assert_called_once_with(VIRTUAL_REPOSITORY.key)
-
-
-@responses.activate
-def test_update_remote_repository_using_update_repo_fail_if_repo_not_found(mocker):
+def test_update_remote_repository_fail_if_repo_not_found(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404)
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
@@ -513,19 +285,7 @@ def test_update_remote_repository_using_update_repo_fail_if_repo_not_found(mocke
 
 
 @responses.activate
-def test_update_remote_repository_fail_if_repo_not_found(mocker):
-    responses.add(responses.GET, f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}", status=404)
-
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_remote_repo")
-    with pytest.raises(RepositoryNotFoundError):
-        artifactory_repo.update_remote_repo(REMOTE_REPOSITORY)
-
-    artifactory_repo.get_remote_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
-
-
-@responses.activate
-def test_update_local_repository_using_update_repo_success(mocker):
+def test_update_local_repository_success(mocker):
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{UPDATED_LOCAL_REPOSITORY.key}",
@@ -553,30 +313,7 @@ def test_update_local_repository_using_update_repo_success(mocker):
 
 
 @responses.activate
-def test_update_local_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    responses.add(
-        responses.POST,
-        f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}",
-        json=LOCAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_local_repo")
-    artifactory_repo.update_local_repo(LOCAL_REPOSITORY)
-
-    artifactory_repo.get_local_repo.assert_called_with(LOCAL_REPOSITORY.key)
-    assert artifactory_repo.get_local_repo.call_count == 2
-
-
-@responses.activate
-def test_update_virtual_repository_using_update_repo_success():
+def test_update_virtual_repository_success():
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{UPDATED_VIRTUAL_REPOSITORY.key}",
@@ -601,29 +338,7 @@ def test_update_virtual_repository_using_update_repo_success():
 
 
 @responses.activate
-def test_update_virtual_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        json=VIRTUAL_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    responses.add(
-        responses.POST,
-        f"{URL}/api/repositories/{VIRTUAL_REPOSITORY.key}",
-        status=200,
-    )
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_virtual_repo")
-    artifactory_repo.update_virtual_repo(VIRTUAL_REPOSITORY)
-
-    artifactory_repo.get_virtual_repo.assert_called_with(VIRTUAL_REPOSITORY.key)
-    assert artifactory_repo.get_virtual_repo.call_count == 2
-
-
-@responses.activate
-def test_update_remote_repository_using_update_repo_success():
+def test_update_remote_repository_success():
     responses.add(
         responses.GET,
         f"{URL}/api/repositories/{UPDATED_REMOTE_REPOSITORY.key}",
@@ -645,29 +360,6 @@ def test_update_remote_repository_using_update_repo_success():
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     updated_repo = artifactory_repo.update_repo(UPDATED_REMOTE_REPOSITORY)
     assert updated_repo == UPDATED_REMOTE_REPOSITORY_RESPONSE
-
-
-@responses.activate
-def test_update_remote_repository_success(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-
-    responses.add(
-        responses.POST,
-        f"{URL}/api/repositories/{REMOTE_REPOSITORY.key}",
-        json=REMOTE_REPOSITORY_RESPONSE.model_dump(),
-        status=200,
-    )
-    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "get_remote_repo")
-    artifactory_repo.update_remote_repo(REMOTE_REPOSITORY)
-
-    artifactory_repo.get_remote_repo.assert_called_with(REMOTE_REPOSITORY.key)
-    assert artifactory_repo.get_remote_repo.call_count == 2
 
 
 @responses.activate
