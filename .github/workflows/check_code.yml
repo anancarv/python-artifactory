@@ -1,6 +1,16 @@
 name: Check code
 
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.10'
+  POETRY_VERSION: '1.6.1'
+
 
 jobs:
   lint:
@@ -8,28 +18,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.10
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        version: 1.6.1
-
-    - name: Load cached dependencies
-      id: cached-poetry-dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction
+    - name: Install Poetry and dependencies
+      run: |
+        pip install poetry==$POETRY_VERSION
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.create false
+        poetry lock
+        poetry install --no-interaction
 
     - name: Lint with pre-commit
       run: |
@@ -39,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -52,12 +53,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
-      - name: Install Poetry
+      - name: Install Poetry and dependencies
         run: |
-          pip install poetry==1.6.1
+          pip install poetry==$POETRY_VERSION
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.create false
+          poetry lock
           poetry install --no-interaction
 
       - name: Run pytest
