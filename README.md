@@ -1,13 +1,14 @@
 # PyArtifactory
 
 [![GitHub Actions workflow](https://github.com/heliocastro/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/heliocastro/python-artifactory/actions)
-[![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
+[![Coverage Status](https://coveralls.io/repos/github/heliocastro/python-artifactory/badge.svg?branch=main)](https://coveralls.io/github/heliocastro/python-artifactory?branch=main)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API).
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.9+ type hints.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.10+ type hints.
 
 <!-- toc -->
 
@@ -42,7 +43,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
 
 ## Requirements
 
-* Python 3.6+
+* Python 3.10+
 
 
 ## Install
@@ -89,7 +90,7 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 
 Get the list of users:
 ```python
-users = art.users.list()
+users = art.users.list_all()
 ```
 
 Get a single user:
@@ -135,7 +136,7 @@ art.users.unlock("test_user")
 
 Get the list of groups:
 ```python
-groups = art.groups.list()
+groups = art.groups.list_all()
 ```
 
 Get a single group:
@@ -192,7 +193,7 @@ art.security.revoke_access_token(token.access_token)
 
 Get the list of repositories:
 ```python
-repositories = art.repositories.list()
+repositories = art.repositories.list_all()
 ```
 
 Get a single repository
@@ -231,7 +232,7 @@ art.repositories.delete("test_local_repo")
 #### Permission
 Get the list of permissions:
 ```python
-permissions = art.permissions.list()
+permissions = art.permissions.list_all()
 ```
 
 Get a single permission:
@@ -375,10 +376,10 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 
 #### Retrieve artifact list
 ```python
-artifacts = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
-# files_only = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
-# non_recursive = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
-# max_depth = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
+artifacts = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+# files_only = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
+# non_recursive = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
+# max_depth = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
 ```
 
 #### Retrieve artifact properties
