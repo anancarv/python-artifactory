@@ -88,8 +88,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
-            with local_file_location.open(mode="rb") as file:
-                self._put(route=artifact_path.as_posix(), data=file)
+            with local_file_location.open(mode="rb") as streamfile:
+                self._put(route=artifact_path.as_posix(), data=streamfile)
                 logger.debug("Artifact %s successfully deployed", artifact_path.name)
         return self.info(artifact_path)
 
