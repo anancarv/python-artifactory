@@ -1,7 +1,7 @@
 # PyArtifactory
 
-[![GitHub Actions workflow](https://github.com/heliocastro/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/heliocastro/python-artifactory/actions)
-[![Coverage Status](https://coveralls.io/repos/github/heliocastro/python-artifactory/badge.svg?branch=main)](https://coveralls.io/github/heliocastro/python-artifactory?branch=main)
+[![GitHub Actions workflow](https://github.com/anancarv/python-artifactory/workflows/Check%20code/badge.svg)](https://github.com/anancarv/python-artifactory/actions)
+[![Coverage Status](https://coveralls.io/repos/github/anancarv/python-artifactory/badge.svg?branch=main)](https://coveralls.io/github/anancarv/python-artifactory?branch=main)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 [![PyPI version](https://badge.fury.io/py/pyartifactory.svg)](https://badge.fury.io/py/pyartifactory)
 

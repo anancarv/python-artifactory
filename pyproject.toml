@@ -9,8 +9,8 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/heliocastro/python-artifactory"
-documentation = "https://github.com/heliocastro/python-artifactory"
+repository = "https://github.com/anancarv/python-artifactory"
+documentation = "https://github.com/anancarv/python-artifactory"
 keywords = ["artifactory"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/heliocastro/python-artifactory/issues"
+"Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"
