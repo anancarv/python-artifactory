@@ -68,5 +68,4 @@ __all__ = [
     "AnyRepositoryResponse",
     "AnyRepository",
     "AnyPermission",
-    "Artifact",
 ]
