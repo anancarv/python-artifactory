@@ -28,7 +28,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 requests = "^2.31"
 typing_extensions = "^4.7.1"
 pydantic = {extras = ["email"], version = "^2.3.0"}
