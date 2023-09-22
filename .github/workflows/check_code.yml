@@ -24,13 +24,22 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
 
-    - name: Install Poetry and dependencies
-      run: |
-        pip install poetry==$POETRY_VERSION
-        poetry config virtualenvs.in-project false
-        poetry config virtualenvs.create false
-        poetry lock
-        poetry install --no-interaction
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached dependencies
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction
 
     - name: Lint with pre-commit
       run: |
@@ -44,9 +53,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: szenius/set-timezone@v1.2
-        with:
-          timezoneLinux: "Europe/Berlin"
 
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
@@ -55,23 +61,31 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: Install Poetry and dependencies
+      - name: Install Poetry
         run: |
           pip install poetry==$POETRY_VERSION
-          poetry config virtualenvs.in-project false
-          poetry config virtualenvs.create false
-          poetry lock
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.create true
+
+      - name: Load cached dependencies
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry env use python${{ matrix.python-version }}
           poetry install --no-interaction
 
       - name: Run pytest
-        uses: pavelzw/pytest-action@v2
-        with:
-          emoji: true
-          verbose: false
-          job-summary: true
-          report-title: 'PyArtifactory Test Report'
-          click-to-expand: true
-          custom-arguments: '--cov=pyartifactory --cov-report=xml'
-
-      - name: Coveralls
-        uses: coverallsapp/github-action@v2
+        run: |
+          # https://stackoverflow.com/a/16081218
+          EXIT_STATUS=0
+          poetry run pytest --cov=pyartifactory --cov-branch --cov-report=xml || EXIT_STATUS=$?
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml || EXIT_STATUS=$?
+          exit $EXIT_STATUS
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
