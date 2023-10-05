@@ -11,8 +11,6 @@ repos:
       rev: 23.3.0
       hooks:
           - id: black
-            args:
-                - "--line-length=120"
 
     - repo: https://github.com/pre-commit/mirrors-mypy
       rev: v1.5.1
@@ -31,7 +29,7 @@ repos:
           - id: ruff
 
     - repo: https://github.com/python-poetry/poetry
-      rev: "1.5.0"
+      rev: "1.6.1"  # Keep this version synced with POETRY_VERSION in check_code.yml
       hooks:
           - id: poetry-check
 
