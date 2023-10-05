@@ -136,7 +136,7 @@ art.users.unlock("test_user")
 
 Get the list of groups:
 ```python
-groups = art.groups.list_all()
+groups = art.groups.list()
 ```
 
 Get a single group:
@@ -376,7 +376,7 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 
 #### Retrieve artifact list
 ```python
-artifacts = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+artifacts = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # files_only = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
 # non_recursive = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
 # max_depth = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
