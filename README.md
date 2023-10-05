@@ -91,7 +91,7 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
 
 Get the list of users:
 ```python
-users = art.users.list_all()
+users = art.users.list()
 ```
 
 Get a single user:
