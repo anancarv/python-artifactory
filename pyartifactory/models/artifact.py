@@ -4,7 +4,7 @@ Definition of all artifact models.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -34,7 +34,7 @@ class ArtifactPropertiesResponse(BaseModel):
     """Models an artifact properties response."""
 
     uri: str
-    properties: dict[str, list[str]]
+    properties: Dict[str, List[str]]
 
 
 class ArtifactInfoResponseBase(BaseModel):
@@ -42,29 +42,29 @@ class ArtifactInfoResponseBase(BaseModel):
 
     repo: str
     path: str
-    created: datetime | None = None
-    createdBy: str | None = None
-    lastModified: datetime | None = None
-    modifiedBy: str | None = None
-    lastUpdated: datetime | None = None
+    created: Optional[datetime] = None
+    createdBy: Optional[str] = None
+    lastModified: Optional[datetime] = None
+    modifiedBy: Optional[str] = None
+    lastUpdated: Optional[datetime] = None
     uri: str
 
 
 class ArtifactFolderInfoResponse(ArtifactInfoResponseBase):
     """Models an artifact folder info response."""
 
-    children: list[Child]
+    children: List[Child]
 
 
 class ArtifactFileInfoResponse(ArtifactInfoResponseBase):
     """Models an artifact file info response."""
 
-    downloadUri: str | None = None
-    remoteUrl: str | None = None
-    mimeType: str | None = None
-    size: int | None = None
-    checksums: Checksums | None = None
-    originalChecksums: OriginalChecksums | None = None
+    downloadUri: Optional[str] = None
+    remoteUrl: Optional[str] = None
+    mimeType: Optional[str] = None
+    size: Optional[int] = None
+    checksums: Optional[Checksums] = None
+    originalChecksums: Optional[OriginalChecksums] = None
 
 
 class ArtifactListEntryResponse(BaseModel):
@@ -86,8 +86,8 @@ class ArtifactListFileResponse(ArtifactListEntryResponse):
     """Models a file in an artifact list response."""
 
     folder: Literal[False]
-    sha1: str | None = None
-    sha2: str | None = None
+    sha1: Optional[str] = None
+    sha2: Optional[str] = None
 
 
 class ArtifactListResponse(BaseModel):
@@ -95,7 +95,7 @@ class ArtifactListResponse(BaseModel):
 
     uri: str
     created: datetime
-    files: list[ArtifactListFileResponse | ArtifactListFolderResponse]
+    files: List[Union[ArtifactListFileResponse, ArtifactListFolderResponse]]
 
 
 class ArtifactStatsResponse(BaseModel):
@@ -104,9 +104,9 @@ class ArtifactStatsResponse(BaseModel):
     uri: str
     downloadCount: int
     lastDownloaded: int
-    lastDownloadedBy: str | None = None
+    lastDownloadedBy: Optional[str] = None
     remoteDownloadCount: int
     remoteLastDownloaded: int
 
 
-ArtifactInfoResponse = ArtifactFolderInfoResponse | ArtifactFileInfoResponse
+ArtifactInfoResponse = Union[ArtifactFolderInfoResponse, ArtifactFileInfoResponse]

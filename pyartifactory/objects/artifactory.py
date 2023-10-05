@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional, Tuple
+
 from pydantic import SecretStr
 
 from pyartifactory.models.auth import AuthModel
@@ -17,9 +19,9 @@ class Artifactory:
     def __init__(
         self,
         url: str,
-        auth: tuple[str, SecretStr],
+        auth: Tuple[str, SecretStr],
         verify: bool = True,
-        cert: str | None = None,
+        cert: Optional[str] = None,
         api_version: int = 1,
     ):
         self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert, api_version=api_version)

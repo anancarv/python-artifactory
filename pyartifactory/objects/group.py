@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import List
 
 import requests
 
@@ -48,7 +49,7 @@ class ArtifactoryGroup(ArtifactoryObject):
                 raise GroupNotFoundError(f"Group {name} does not exist")
             raise ArtifactoryError from error
 
-    def list_all(self) -> list[Group]:
+    def list_all(self) -> List[Group]:
         """
         Lists all the groups
         :return: GroupList

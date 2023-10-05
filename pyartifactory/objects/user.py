@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import logging
+from typing import List
 
 import requests
 
@@ -51,7 +52,7 @@ class ArtifactoryUser(ArtifactoryObject):
                 raise UserNotFoundError(f"{name} does not exist")
             raise ArtifactoryError from error
 
-    def list_all(self) -> list[SimpleUser]:
+    def list_all(self) -> List[SimpleUser]:
         """
         Lists all the users
         :return: UserList

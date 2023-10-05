@@ -4,6 +4,7 @@ Definition of all user related models.
 from __future__ import annotations
 
 from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, HttpUrl, SecretStr
 
@@ -13,7 +14,7 @@ class SimpleUser(BaseModel):
 
     name: str
     uri: HttpUrl
-    realm: str | None = None
+    realm: Optional[str] = None
 
 
 class BaseUserModel(BaseModel):
@@ -23,11 +24,11 @@ class BaseUserModel(BaseModel):
     """
 
     name: str
-    admin: bool | None = False
-    profileUpdatable: bool | None = True
-    disableUIAccess: bool | None = False
-    internalPasswordDisabled: bool | None = False
-    groups: list[str] | None = None
+    admin: Optional[bool] = False
+    profileUpdatable: Optional[bool] = True
+    disableUIAccess: Optional[bool] = False
+    internalPasswordDisabled: Optional[bool] = False
+    groups: Optional[List[str]] = None
 
 
 class NewUser(BaseUserModel):
@@ -40,13 +41,13 @@ class NewUser(BaseUserModel):
 class User(BaseUserModel):
     """Models a user."""
 
-    email: EmailStr | None = None
+    email: Optional[EmailStr] = None
 
 
 class UserResponse(BaseUserModel):
     """Models a user response."""
 
     email: EmailStr
-    lastLoggedIn: datetime | None = None
-    realm: str | None = None
+    lastLoggedIn: Optional[datetime] = None
+    realm: Optional[str] = None
     offlineMode: bool = False

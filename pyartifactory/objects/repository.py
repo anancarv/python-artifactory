@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import overload
+from typing import List, overload
 
 import requests
 from pydantic import TypeAdapter
@@ -110,7 +110,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         return self.get_repo(repo_name)
 
     # Remote repositories operations
-    def list_all(self) -> list[SimpleRepository]:
+    def list_all(self) -> List[SimpleRepository]:
         """
         Lists all the repositories
         :return: A list of repositories

@@ -3,6 +3,8 @@ Definition of all auth models.
 """
 from __future__ import annotations
 
+from typing import Optional, Tuple
+
 from pydantic import BaseModel, SecretStr
 
 
@@ -10,9 +12,9 @@ class AuthModel(BaseModel):
     """Models an auth response."""
 
     url: str
-    auth: tuple[str, SecretStr]
+    auth: Tuple[str, SecretStr]
     verify: bool = True
-    cert: str | None | None = None
+    cert: Optional[str] = None
     api_version: int = 1
 
 
@@ -32,7 +34,7 @@ class AccessTokenModel(BaseModel):
     """Model an access token."""
 
     access_token: str
-    expires_in: int | None = 3600
+    expires_in: Optional[int] = 3600
     scope: str
-    refresh_token: str | None = None
+    refresh_token: Optional[str] = None
     token_type: str

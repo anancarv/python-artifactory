@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Dict, Optional
 
 from pyartifactory.exception import InvalidTokenDataError
 from pyartifactory.models.auth import AccessTokenModel, ApiKeyModel, PasswordModel
@@ -28,7 +29,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         user_name: str,
         expires_in: int = 3600,
         refreshable: bool = False,
-        groups: str | None = None,
+        groups: Optional[str] = None,
     ) -> AccessTokenModel:
         """
         Creates an access token.
@@ -57,7 +58,7 @@ class ArtifactorySecurity(ArtifactoryObject):
             return AccessTokenModel(**response.json())
         raise InvalidTokenDataError(response.json().get("error_description", "Unknown error"))
 
-    def revoke_access_token(self, token: str | None = None, token_id: str | None = None) -> bool:
+    def revoke_access_token(self, token: Optional[str] = None, token_id: Optional[str] = None) -> bool:
         """
         Revokes an access token.
 
@@ -68,7 +69,7 @@ class ArtifactorySecurity(ArtifactoryObject):
         if not any([token, token_id]):
             logger.error("Neither a token or a token id was specified")
             raise InvalidTokenDataError
-        payload: dict[str, str | None] = {"token": token} if token else {"token_id": token_id}
+        payload: Dict[str, Optional[str]] = {"token": token} if token else {"token_id": token_id}
         response = self._post(f"api/{self._uri}/token/revoke", data=payload, raise_for_status=False)
         if response.ok:
             logger.debug("Token revoked successfully, or token did not exist")

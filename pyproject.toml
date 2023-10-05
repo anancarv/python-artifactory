@@ -17,6 +17,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "Typing :: Typed",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -29,7 +30,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 requests = "^2.31"
 typing_extensions = "^4.7.1"
 pydantic = {extras = ["email"], version = "^2.3.0"}
@@ -178,7 +179,7 @@ max-complexity = 10
 [tool.ruff]
 fix = true
 line-length = 120
-ignore = [ "N815", "S101" ]
+ignore = [ "N815", "S101", "UP" ]
 extend-select = [
     "E",   # pycodestyle error
     "W",   # pycodestyle warning
@@ -191,7 +192,6 @@ extend-select = [
     "PTH", # flake8-use-pathlib
     "I",   # isort
     "N",   # pep8 naming
-    "UP",  # pyupgrade
     "S",   # bandit
 ]
 
@@ -222,8 +222,8 @@ per-file-ignores = {}
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Assume Python 3.9.
-target-version = "py310"
+# Assume Python 3.8
+target-version = "py38"
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"

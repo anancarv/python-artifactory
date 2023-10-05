@@ -4,6 +4,7 @@ import logging
 import os
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Dict, List, Optional, Union
 
 import requests
 from pydantic import TypeAdapter
@@ -44,7 +45,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if not topdown:
                 yield info
 
-    def info(self, artifact_path: Path | str) -> ArtifactInfoResponse:
+    def info(self, artifact_path: Union[Path, str]) -> ArtifactInfoResponse:
         """
         Retrieve information about a file or a folder
 
@@ -121,10 +122,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
     def download(
         self,
-        artifact_path: Path | str,
-        local_directory_path: Path | str = Path().cwd(),
+        artifact_path: Union[Path, str],
+        local_directory_path: Union[Path, str] = Path().cwd(),
         flat: bool = False,
-    ) -> Path | None:
+    ) -> Optional[Path]:
         """
         Download artifact (file or directory) into local directory.
         :param artifact_path: Path to file or directory in Artifactory
@@ -151,7 +152,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self,
         artifact_path: str,
         recursive: bool = True,
-        depth: int | None = None,
+        depth: Optional[int] = None,
         list_folders: bool = True,
     ) -> ArtifactListResponse:
         """
@@ -181,7 +182,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
 
-    def properties(self, artifact_path: str, properties: list[str] | None = None) -> ArtifactPropertiesResponse:
+    def properties(self, artifact_path: str, properties: Optional[List[str]] = None) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
         :param properties: List of properties to retrieve
@@ -205,7 +206,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def set_properties(
         self,
         artifact_path: str,
-        properties: dict[str, list[str]],
+        properties: Dict[str, List[str]],
         recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
@@ -243,7 +244,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def update_properties(
         self,
         artifact_path: str,
-        properties: dict[str, list[str]],
+        properties: Dict[str, List[str]],
         recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """

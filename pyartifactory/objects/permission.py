@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import overload
+from typing import List, overload
 
 import requests
 
@@ -75,7 +75,7 @@ class ArtifactoryPermission(ArtifactoryObject):
                 raise PermissionNotFoundError(f"Permission {permission_name} does not exist")
             raise ArtifactoryError from error
 
-    def list_all(self) -> list[SimplePermission]:
+    def list_all(self) -> List[SimplePermission]:
         """
         Lists all the permissions
         :return: A list of permissions

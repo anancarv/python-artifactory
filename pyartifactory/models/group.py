@@ -3,6 +3,8 @@ Definition of all group models.
 """
 from __future__ import annotations
 
+from typing import List, Optional
+
 from pydantic import BaseModel
 
 
@@ -10,14 +12,14 @@ class Group(BaseModel):
     """Models a group."""
 
     name: str
-    description: str | None = None
+    description: Optional[str] = None
     autoJoin: bool = False
     adminPrivileges: bool = False
-    realm: str | None = None
-    realmAttributes: str | None = None
+    realm: Optional[str] = None
+    realmAttributes: Optional[str] = None
     watchManager: bool = False
     policyManager: bool = False
-    userNames: list[str] | None = None
+    userNames: Optional[List[str]] = None
 
 
 class SimpleGroup(BaseModel):

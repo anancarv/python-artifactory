@@ -3,6 +3,8 @@ Import all models here.
 """
 from __future__ import annotations
 
+from typing import Union
+
 from .artifact import (
     ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
@@ -24,10 +26,10 @@ from .repository import (
 )
 from .user import BaseUserModel, NewUser, SimpleUser, User, UserResponse
 
-AnyRepositoryResponse = LocalRepositoryResponse | VirtualRepositoryResponse | RemoteRepositoryResponse
+AnyRepositoryResponse = Union[LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse]
 
-AnyRepository = LocalRepository | VirtualRepository | RemoteRepository
-AnyPermission = Permission | PermissionV2
+AnyRepository = Union[LocalRepository, VirtualRepository, RemoteRepository]
+AnyPermission = Union[Permission, PermissionV2]
 
 __all__ = [
     "ArtifactFileInfoResponse",
