@@ -13,32 +13,33 @@ This library enables you to manage Artifactory resources such as users, groups, 
 
 <!-- toc -->
 
-- [Requirements](#requirements)
-- [Install](#install)
-- [Usage](#usage)
-  * [Authentication](#authentication)
-  * [SSL Cert Verification Options](#ssl-cert-verification-options)
-  * [Admin objects](#admin-objects)
-    + [User](#user)
-    + [Group](#group)
-    + [Security](#security)
-    + [Repository](#repository)
-    + [Permission](#permission)
-      - [Artifactory lower than 6.6.0](#artifactory-lower-than-660)
-      - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
-  * [Artifacts](#artifacts)
-    + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
-    + [Deploy an artifact](#deploy-an-artifact)
-    + [Download an artifact](#download-an-artifact)
-    + [Retrieve artifact list](#retrieve-artifact-list)
-    + [Retrieve artifact properties](#retrieve-artifact-properties)
-    + [Set artifact properties](#set-artifact-properties)
-    + [Update artifact properties](#update-artifact-properties)
-    + [Retrieve artifact stats](#retrieve-artifact-stats)
-    + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
-    + [Move artifact to a new location](#move-artifact-to-a-new-location)
-    + [Delete an artifact](#delete-an-artifact)
-  * [Contributing](#contributing)
+- [PyArtifactory](#pyartifactory)
+  - [Requirements](#requirements)
+  - [Install](#install)
+  - [Usage](#usage)
+    - [Authentication](#authentication)
+    - [SSL Cert Verification Options](#ssl-cert-verification-options)
+    - [Admin objects](#admin-objects)
+      - [User](#user)
+      - [Group](#group)
+      - [Security](#security)
+      - [Repository](#repository)
+      - [Permission](#permission)
+        - [Artifactory lower than 6.6.0](#artifactory-lower-than-660)
+        - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
+    - [Artifacts](#artifacts)
+      - [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
+      - [Deploy an artifact](#deploy-an-artifact)
+      - [Download an artifact](#download-an-artifact)
+      - [Retrieve artifact list](#retrieve-artifact-list)
+      - [Retrieve artifact properties](#retrieve-artifact-properties)
+      - [Set artifact properties](#set-artifact-properties)
+      - [Update artifact properties](#update-artifact-properties)
+      - [Retrieve artifact stats](#retrieve-artifact-stats)
+      - [Copy artifact to a new location](#copy-artifact-to-a-new-location)
+      - [Move artifact to a new location](#move-artifact-to-a-new-location)
+      - [Delete an artifact](#delete-an-artifact)
+    - [Contributing](#contributing)
 
 <!-- tocstop -->
 
@@ -72,12 +73,21 @@ from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), cert="/path_to_file/server.pem",api_version=1)
 ```
 
+Specify a local cert to use as custom CA certificate
+
+```python
+from pyartifactory import Artifactory
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify="/path_to_file/ca.pem", api_version=1)
+```
+
 Disable host cert verification
 
 ```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False, api_version=1)
 ```
+
+> Note that `verify` can be set either as string to refer a local path to a custom CA certificate or a boolean to enable/disable SSL host verification.
 
 ### Admin objects
 
