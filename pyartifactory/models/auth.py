@@ -2,7 +2,7 @@
 Definition of all autho models.
 """
 
-from typing import Tuple, Optional
+from typing import Tuple, Union, Optional
 
 from pydantic import BaseModel, SecretStr
 
@@ -12,7 +12,7 @@ class AuthModel(BaseModel):
 
     url: str
     auth: Tuple[str, SecretStr]
-    verify: bool | str = True
+    verify: Union[bool, str] = True
     cert: Optional[str] = None
     api_version: int = 1
 
