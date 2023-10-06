@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 import responses
 
@@ -83,20 +85,20 @@ def test_get_user_success(mocker):
 
 
 # Disable because mock can't serialize pydantic2 HttpUrl
-# @responses.activate
-# def test_list_user_success(mocker):
-#     responses.add(
-#         responses.GET,
-#         f"{URL}/api/security/users",
-#         json=SIMPLE_USER.model_dump(),
-#         status=200,
-#     )
+@responses.activate
+def test_list_user_success(mocker):
+    responses.add(
+        responses.GET,
+        f"{URL}/api/security/users",
+        json=[json.loads(SIMPLE_USER.model_dump_json())],
+        status=200,
+    )
 
-#     artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
-#     mocker.spy(artifactory_user, "list_")
-#     artifactory_user.list_()
+    artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_user, "list_all")
+    artifactory_user.list_all()
 
-#     artifactory_user.list_.assert_called_once()
+    artifactory_user.list_all.assert_called_once()
 
 
 @responses.activate
