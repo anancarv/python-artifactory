@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import typing
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -60,7 +61,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         try:
             response = self._get(f"api/storage/{artifact_path.as_posix()}")
-            return TypeAdapter(ArtifactInfoResponse).validate_python(response.json())  # type: ignore
+            model = TypeAdapter(ArtifactInfoResponse).validate_python(response.json())
+            return typing.cast(ArtifactInfoResponse, model)
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)
