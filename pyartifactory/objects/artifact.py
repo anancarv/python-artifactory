@@ -69,23 +69,25 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
 
-    def deploy(self, local_file_location: Path, artifact_path: Path) -> ArtifactInfoResponse:
+    def deploy(self, local_file_location: Union[Path, str], artifact_path: Union[Path, str]) -> ArtifactInfoResponse:
         """
         Deploy a file or directory.
         :param artifact_path: Path to artifactory in Artifactory
         :param local_file_location: Location of the file or folder to deploy
         """
+        local_file = Path(local_file_location)
+        artifact_folder = Path(artifact_path)
 
-        if local_file_location.is_dir():
-            for root, _, files in os.walk(local_file_location.as_posix()):
-                new_root = f"{artifact_path}/{root[len(local_file_location.as_posix()):]}"
+        if local_file.is_dir():
+            for root, _, files in os.walk(local_file.as_posix()):
+                new_root = f"{artifact_folder}/{root[len(local_file.as_posix()):]}"
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
-            with local_file_location.open(mode="rb") as streamfile:
-                self._put(route=artifact_path.as_posix(), data=streamfile)
-                logger.debug("Artifact %s successfully deployed", artifact_path.name)
-        return self.info(artifact_path)
+            with local_file.open(mode="rb") as streamfile:
+                self._put(route=artifact_folder.as_posix(), data=streamfile)
+                logger.debug("Artifact %s successfully deployed", artifact_folder.name)
+        return self.info(artifact_folder)
 
     def _download(self, artifact_path: Path, local_directory_path: Path, flat: bool = False):
         """
