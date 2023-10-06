@@ -14,7 +14,7 @@ AUTH = ("user", "password_or_apiKey")
 SIMPLE_USER = SimpleUser(name="test_user", uri="https://some.uri")
 USER = UserResponse(name="test_user", email="test.test@test.com")
 USER_TO_UPDATE = User(name="test_user", email="test.test2@test.com")
-NEW_USER = NewUser(name="test_user", password="test", email="test.test@test.com")  # noqa: S106
+NEW_USER = NewUser(name="test_user", password="test", email="test.test@test.com")
 
 
 @responses.activate

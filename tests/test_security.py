@@ -9,7 +9,7 @@ from pyartifactory.models import ApiKeyModel, AuthModel, PasswordModel
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
-PASSWORD = PasswordModel(password="test_password")  # noqa: S106
+PASSWORD = PasswordModel(password="test_password")
 API_KEY = ApiKeyModel(apiKey="test_api_key")
 
 
@@ -102,7 +102,7 @@ def test_revoke_access_token_success():
     responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=200)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    result = artifactory_security.revoke_access_token(token="my-token")  # noqa: S106
+    result = artifactory_security.revoke_access_token(token="my-token")
     assert result is True
 
 

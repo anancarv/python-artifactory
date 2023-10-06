@@ -11,7 +11,7 @@ URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 NEW_GROUP = Group(name="test_group", description="test_group")
 GROUP_WITH_USERS = Group(name="test_group", userNames=["user1", "user2"])
-PASSWORD = PasswordModel(password="test")  # noqa: S106
+PASSWORD = PasswordModel(password="test")
 
 
 @responses.activate
