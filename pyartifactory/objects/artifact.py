@@ -12,7 +12,6 @@ from pydantic import TypeAdapter
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
 from pyartifactory.models.artifact import (
-    ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
     ArtifactInfoResponse,
     ArtifactListResponse,
@@ -55,9 +54,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         :param artifact_path: Path to file or folder in Artifactory
         """
-
         if isinstance(artifact_path, str):
-            artifact_path = Path(artifact_path)
+            artifact_path = Path(artifact_path.lstrip("/"))
 
         try:
             response = self._get(f"api/storage/{artifact_path.as_posix()}")
@@ -89,68 +87,60 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 logger.debug("Artifact %s successfully deployed", artifact_folder.name)
         return self.info(artifact_folder)
 
-    def _download(self, artifact_path: Path, local_directory_path: Path, flat: bool = False):
+    @staticmethod
+    def _get_path_prefix(artifact_path: str):
+        if artifact_path.startswith("/"):
+            artifact_path = artifact_path[1:]
+        return artifact_path.rsplit("/", 1)[0] + "/" if "/" in artifact_path else ""
+
+    @staticmethod
+    def _remove_prefix(_str: str, prefix: str) -> str:
+        if _str.startswith(prefix):
+            return _str[len(prefix) :]
+        raise ValueError(f"Input string, '{_str}', doesn't have the prefix: '{prefix}'")
+
+    def _download(self, artifact_path: str, local_directory_path: Optional[Path] = None) -> Path:
         """
         Download artifact (file) into local directory.
         :param artifact_path: Path to file in Artifactory
         :param local_directory_path: Local path to where the artifact will be downloaded
         :return: File name
         """
+        artifact_path = artifact_path.lstrip("/")
+        local_filename = artifact_path.split("/")[-1]
 
-        info = self.info(artifact_path)
-        target_path = Path(info.repo) / Path(info.path[1:])
+        if local_directory_path:
+            local_directory_path.mkdir(parents=True, exist_ok=True)
+            local_file_full_path = local_directory_path / local_filename
+        else:
+            local_file_full_path = Path(local_filename)
 
-        if isinstance(info, ArtifactFolderInfoResponse):
-            if not flat:
-                local_directory_path.joinpath(target_path).mkdir(parents=True, exist_ok=True)
-            for child in info.children:
-                self._download(target_path.joinpath(child.uri[1:]), local_directory_path)
-        elif isinstance(info, ArtifactFileInfoResponse):
-            file_path = (
-                local_directory_path.joinpath(target_path)
-                if not flat
-                else local_directory_path.joinpath(target_path.name)
-            )
-            if not flat:
-                local_directory_path.joinpath(target_path).parent.mkdir(parents=True, exist_ok=True)
-            with self._get(artifact_path.as_posix(), stream=True) as response, file_path.open(
-                mode="wb",
-            ) as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:  # filter out keep-alive new chunks
-                        file.write(chunk)
-                logger.debug(
-                    "Artifact %s successfully downloaded",
-                    target_path.as_posix(),
-                )
+        with self._get(f"{artifact_path}", stream=True) as response, local_file_full_path.open("wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:  # filter out keep-alive new chunks
+                    file.write(chunk)
+        logger.debug("Artifact %s successfully downloaded", local_filename)
+        return local_file_full_path
 
-    def download(
-        self,
-        artifact_path: Union[Path, str],
-        local_directory_path: Union[Path, str] = Path().cwd(),
-        flat: bool = False,
-    ) -> Optional[Path]:
+    def download(self, artifact_path: str, local_directory_path: str = ".") -> Path:
         """
         Download artifact (file or directory) into local directory.
         :param artifact_path: Path to file or directory in Artifactory
         :param local_directory_path: Local path to where the artifact will be downloaded
-        :param flat: If set to true, the files will be downloaded to the same directory without the folder structure
-        :return: Path object
+        :return: File name
         """
-        if isinstance(artifact_path, str):
-            artifact_path = Path(artifact_path)
-        if isinstance(local_directory_path, str):
-            local_directory_path = Path(local_directory_path)
-
-        # Strip left slash and remove first path entry mimicking
-        # Jfrog repository path structure
-        path_str = artifact_path.as_posix().lstrip("/")
-        try:
-            self._download(Path(path_str), local_directory_path, flat=flat)
-            return local_directory_path.joinpath(artifact_path.name)
-        except ArtifactNotFoundError:
-            logger.error("Artifact %s does not exist", artifact_path)
-        return None
+        artifact_path = artifact_path.rstrip("/")
+        basename = artifact_path.split("/")[-1]
+        prefix = self._get_path_prefix(artifact_path)
+        for art in self._walk(artifact_path):
+            full_path = art.repo + art.path
+            local_artifact_path = self._remove_prefix(full_path, prefix)
+            local_path = Path(local_directory_path) / local_artifact_path
+            if isinstance(art, ArtifactFolderInfoResponse):
+                local_path.mkdir(exist_ok=True)
+            else:
+                self._download(full_path, local_path.parent)
+        return Path(local_directory_path).joinpath(basename)
 
     def file_list(
         self,

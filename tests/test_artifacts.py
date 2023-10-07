@@ -197,7 +197,6 @@ def test_download_artifact_success(tmp_path):
 )
 @responses.activate
 def test_download_folder_success(tmp_path, requested_path):
-    # artifact_name = ARTIFACT_PATH.split("/")[1]
     responses.add(
         responses.GET,
         f"{URL}/api/storage/{ARTIFACT_REPO}",
