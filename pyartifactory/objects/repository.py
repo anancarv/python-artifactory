@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import typing
 from typing import List, overload
 
 import requests
@@ -38,7 +39,8 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            return TypeAdapter(AnyRepositoryResponse).validate_python(response.json())  # type: ignore
+            model = TypeAdapter(AnyRepositoryResponse).validate_python(response.json())
+            return typing.cast(AnyRepositoryResponse, model)
         except requests.exceptions.HTTPError as error:
             if error.response.status_code in (404, 400):
                 logger.error("Repository %s does not exist", repo_name)
