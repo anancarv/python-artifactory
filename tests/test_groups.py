@@ -91,10 +91,10 @@ def test_list_group_success(mocker):
     )
 
     artifactory_group = ArtifactoryGroup(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_group, "list_all")
-    artifactory_group.list_all()
+    mocker.spy(artifactory_group, "list")
+    artifactory_group.list()
 
-    artifactory_group.list_all.assert_called_once()
+    artifactory_group.list.assert_called_once()
 
 
 @responses.activate

@@ -95,10 +95,10 @@ def test_list_user_success(mocker):
     )
 
     artifactory_user = ArtifactoryUser(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_user, "list_all")
-    artifactory_user.list_all()
+    mocker.spy(artifactory_user, "list")
+    artifactory_user.list()
 
-    artifactory_user.list_all.assert_called_once()
+    artifactory_user.list.assert_called_once()
 
 
 @responses.activate

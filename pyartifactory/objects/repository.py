@@ -110,7 +110,7 @@ class ArtifactoryRepository(ArtifactoryObject):
         return self.get_repo(repo_name)
 
     # Remote repositories operations
-    def list_all(self) -> List[SimpleRepository]:
+    def list(self) -> List[SimpleRepository]:
         """
         Lists all the repositories
         :return: A list of repositories

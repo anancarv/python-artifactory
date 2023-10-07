@@ -75,7 +75,7 @@ class ArtifactoryPermission(ArtifactoryObject):
                 raise PermissionNotFoundError(f"Permission {permission_name} does not exist")
             raise ArtifactoryError from error
 
-    def list_all(self) -> List[SimplePermission]:
+    def list(self) -> List[SimplePermission]:
         """
         Lists all the permissions
         :return: A list of permissions

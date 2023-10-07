@@ -193,8 +193,9 @@ art.security.revoke_access_token(token.access_token)
 #### Repository
 
 Get the list of repositories:
+
 ```python
-repositories = art.repositories.list_all()
+repositories = art.repositories.list()
 ```
 
 Get a single repository
@@ -232,8 +233,9 @@ art.repositories.delete("test_local_repo")
 
 #### Permission
 Get the list of permissions:
+
 ```python
-permissions = art.permissions.list_all()
+permissions = art.permissions.list()
 ```
 
 Get a single permission:

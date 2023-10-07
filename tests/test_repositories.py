@@ -235,10 +235,10 @@ def test_list_repositories_success(mocker):
     )
 
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_repo, "list_all")
-    artifactory_repo.list_all()
+    mocker.spy(artifactory_repo, "list")
+    artifactory_repo.list()
 
-    artifactory_repo.list_all.assert_called_once()
+    artifactory_repo.list.assert_called_once()
 
 
 @responses.activate

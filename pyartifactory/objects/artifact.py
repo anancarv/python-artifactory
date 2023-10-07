@@ -142,7 +142,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 self._download(full_path, local_path.parent)
         return Path(local_directory_path).joinpath(basename)
 
-    def file_list(
+    def list(
         self,
         artifact_path: str,
         recursive: bool = True,

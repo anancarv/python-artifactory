@@ -52,7 +52,7 @@ class ArtifactoryUser(ArtifactoryObject):
                 raise UserNotFoundError(f"{name} does not exist")
             raise ArtifactoryError from error
 
-    def list_all(self) -> List[SimpleUser]:
+    def list(self) -> List[SimpleUser]:
         """
         Lists all the users
         :return: UserList
