@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ast
 import logging
 from typing import List
 
@@ -59,10 +58,7 @@ class ArtifactoryUser(ArtifactoryObject):
         """
         response = self._get(f"api/{self._uri}")
         logger.debug("List all users successful")
-        data = response.json()
-
-        userlist = ast.literal_eval(data) if isinstance(data, str) else data
-        return [SimpleUser(**user) for user in userlist]
+        return [SimpleUser(**user) for user in response.json()]
 
     def update(self, user: User) -> UserResponse:
         """
