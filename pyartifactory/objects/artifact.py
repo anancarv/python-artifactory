@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import requests
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
 from pyartifactory.models.artifact import (
@@ -171,7 +171,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if depth is not None:
                 params.update(depth=depth)
             response = self._get(f"api/storage/{artifact_path}?list", params=params)
-            artifact_list: ArtifactListResponse = TypeAdapter(ArtifactListResponse).validate_python(response.json())
+            artifact_list: ArtifactListResponse = ArtifactListResponse.model_validate(response.json())
             return artifact_list
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404:
