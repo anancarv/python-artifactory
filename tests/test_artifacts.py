@@ -501,4 +501,3 @@ def test_update_property_fail_bad_value():
             {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]},
         )
         assert update_properties_response is None
-        assert update_properties_response is None
