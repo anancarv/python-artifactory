@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
-import typing
 from typing import List, overload
 
 import requests
-from pydantic import TypeAdapter
+from pydantic import ValidationError
 
 from pyartifactory.exception import ArtifactoryError, RepositoryAlreadyExistsError, RepositoryNotFoundError
 from pyartifactory.models import AnyRepository, AnyRepositoryResponse
@@ -39,8 +38,14 @@ class ArtifactoryRepository(ArtifactoryObject):
         """
         try:
             response = self._get(f"api/{self._uri}/{repo_name}")
-            model = TypeAdapter(AnyRepositoryResponse).validate_python(response.json())
-            return typing.cast(AnyRepositoryResponse, model)
+            try:
+                artifact_info: AnyRepositoryResponse = LocalRepositoryResponse.model_validate(response.json())
+            except ValidationError:
+                try:
+                    artifact_info = VirtualRepositoryResponse.model_validate(response.json())
+                except ValidationError:
+                    artifact_info = RemoteRepositoryResponse.model_validate(response.json())
+            return artifact_info
         except requests.exceptions.HTTPError as error:
             if error.response.status_code in (404, 400):
                 logger.error("Repository %s does not exist", repo_name)

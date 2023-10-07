@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import logging
 import os
-import typing
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import requests
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
 from pyartifactory.models.artifact import (
+    ArtifactFileInfoResponse,
     ArtifactFolderInfoResponse,
     ArtifactInfoResponse,
     ArtifactListResponse,
@@ -59,8 +59,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         try:
             response = self._get(f"api/storage/{artifact_path.as_posix()}")
-            model = TypeAdapter(ArtifactInfoResponse).validate_python(response.json())
-            return typing.cast(ArtifactInfoResponse, model)
+            try:
+                artifact_info: ArtifactInfoResponse = ArtifactFolderInfoResponse.model_validate(response.json())
+            except ValidationError:
+                artifact_info = ArtifactFileInfoResponse.model_validate(response.json())
+            return artifact_info
         except requests.exceptions.HTTPError as error:
             if error.response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)
