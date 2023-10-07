@@ -49,3 +49,9 @@ repos:
           - id: conventional-pre-commit
             stages: [commit-msg]
             args: []
+
+    - repo: https://github.com/PyCQA/bandit
+      rev: '1.7.4'
+      hooks:
+      - id: bandit
+        args: ['--exclude', 'tests/*,venv,.venv']
