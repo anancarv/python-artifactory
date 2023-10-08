@@ -119,7 +119,7 @@ max-complexity = 10
 [tool.ruff]
 fix = true
 line-length = 120
-ignore = [ "N815", "S101", "UP", "S106", "A003" ]
+ignore = [ "N815", "S101", "UP", "A003" ]
 extend-select = [
     "E",   # pycodestyle error
     "W",   # pycodestyle warning
