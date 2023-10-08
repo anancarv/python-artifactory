@@ -33,33 +33,23 @@ classifiers = [
 python = "^3.8"
 requests = "^2.31"
 typing_extensions = "^4.7.1"
-pydantic = {extras = ["email"], version = "^2.3.0"}
+pydantic = {extras = ["email"], version = "^2.4.0"}
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.289"
 pytest = "^7.4.2"
-black = "*"
+black = "^23.3.0"
 pre-commit = "^2.9.2"
 responses = "^0.23.3"
 pytest-mock = "^2.0.0"
 detect-secrets = "^1.2.0"
 pytest-cov = "^4.1.0"
-pylint = "^2.17.5"
 mypy = "^1.5.1"
 typed-ast = "^1.5.5"
 types-urllib3 = "^1.26.25.14"
 types-requests = "^2.31.0.2"
 pytest-md = "^0.2.0"
 pytest-emoji = "^0.2.0"
-
-
-[tool.pylint.master]
-extension-pkg-whitelist = """
-pydantic
-"""
-ignore = """
-tests
-"""
 
 [build-system]
 requires = ["poetry>=0.12"]
@@ -101,56 +91,6 @@ addopts = [
 ]
 log_cli = true
 log_cli_level = "INFO"
-
-[tool.pylint.basic]
-good-names = """
-logger,i,j,k,ex,Run,_
-"""
-
-[tool.pylint.messages_control]
-disable = [
-    "abstract-method",
-    "arguments-differ",
-    "attribute-defined-outside-init",
-    "bad-continuation",
-    "blacklisted-name",
-    "chained-comparison",
-    "duplicate-code",
-    "eval-used",
-    "exec-used",
-    "expression-not-assigned",
-    "fixme",
-    "global-statement",
-    "import-error",
-    "import-error",
-    "invalid-name",
-    "invalid-name",
-    "logging-fstring-interpolation",
-    "missing-docstring",
-    "no-member",
-    "no-name-in-module",
-    "protected-access",
-    "raise-missing-from",
-    "redefined-argument-from-local",
-    "redefined-outer-name",
-    "reimported",
-    "stop-iteration-return",
-    "too-few-public-methods",
-    "too-few-public-methods",
-    "too-many-ancestors",
-    "too-many-arguments",
-    "too-many-arguments",
-    "too-many-branches",
-    "too-many-instance-attributes",
-    "too-many-instance-attributes",
-    "too-many-lines",
-    "too-many-lines",
-    "too-many-locals",
-    "too-many-return-statements",
-    "too-many-statements",
-    "unexpected-special-method-signature",
-    "unspecified-encoding"
-]
 
 [tool.mypy]
 plugins = [
