@@ -1,17 +1,20 @@
 """
 Definition of all user related models.
 """
+from __future__ import annotations
 
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, SecretStr, HttpUrl
+
+from pydantic import BaseModel, EmailStr, SecretStr
 
 
 class SimpleUser(BaseModel):
     """Models a simple user."""
 
     name: str
-    uri: HttpUrl
+    uri: str
+    status: str
     realm: Optional[str] = None
 
 

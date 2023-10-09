@@ -1,9 +1,10 @@
 """
 Definition of all repository models.
 """
+from __future__ import annotations
+
 from enum import Enum
-from typing import Optional, List
-from typing_extensions import Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, SecretStr
 
@@ -11,37 +12,37 @@ from pydantic import BaseModel, SecretStr
 class PackageTypeEnum(str, Enum):
     """Enumerates package types."""
 
-    maven = "maven"
-    gradle = "gradle"
-    ivy = "ivy"
-    sbt = "sbt"
-    helm = "helm"
-    cocoapods = "cocoapods"
-    opkg = "opkg"
-    rpm = "rpm"
-    nuget = "nuget"
-    cran = "cran"
-    gems = "gems"
-    npm = "npm"
-    bower = "bower"
-    debian = "debian"
-    pypi = "pypi"
-    docker = "docker"
-    yum = "yum"
-    vcs = "vcs"
-    composer = "composer"
-    go = "go"
-    p2 = "p2"
-    chef = "chef"
-    puppet = "puppet"
-    generic = "generic"
-    conan = "conan"
     alpine = "alpine"
-    gitlfs = "gitlfs"
-    vagrant = "vagrant"
-    conda = "conda"
+    bower = "bower"
     cargo = "cargo"
+    chef = "chef"
+    cocoapods = "cocoapods"
+    composer = "composer"
+    conan = "conan"
+    conda = "conda"
+    cran = "cran"
+    debian = "debian"
+    docker = "docker"
+    gems = "gems"
+    generic = "generic"
+    gitlfs = "gitlfs"
+    go = "go"
+    gradle = "gradle"
+    helm = "helm"
+    ivy = "ivy"
+    maven = "maven"
+    npm = "npm"
+    nuget = "nuget"
+    opkg = "opkg"
+    p2 = "p2"
+    puppet = "puppet"
+    pypi = "pypi"
+    rpm = "rpm"
+    sbt = "sbt"
     terraform = "terraform"
+    vagrant = "vagrant"
+    vcs = "vcs"
+    yum = "yum"
 
 
 class RClassEnum(str, Enum):
@@ -117,7 +118,7 @@ class SimpleRepository(BaseModel):
     """Models a simple repository."""
 
     key: str
-    type: str
+    type_: str
     description: Optional[str] = None
     url: str
     packageType: str
@@ -147,9 +148,7 @@ class LocalRepository(BaseRepositoryModel):
     maxUniqueSnapshots: int = 0
     maxUniqueTags: int = 0
     debianTrivialLayout: bool = False
-    snapshotVersionBehavior: SnapshotVersionBehavior = (
-        SnapshotVersionBehavior.non_unique
-    )
+    snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
     suppressPomConsistencyChecks: bool = False
     blackedOut: bool = False
     xrayIndex: bool = False
@@ -197,9 +196,7 @@ class VirtualRepository(BaseRepositoryModel):
     artifactoryRequestsCanRetrieveRemoteArtifacts: bool = False
     debianTrivialLayout: bool = False
     keyPair: Optional[str] = None
-    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = (
-        PomRepoRefCleanupPolicy.discard_active_reference
-    )
+    pomRepositoryReferencesCleanupPolicy: PomRepoRefCleanupPolicy = PomRepoRefCleanupPolicy.discard_active_reference
     defaultDeploymentRepo: Optional[str] = None
     forceMavenAuthentication: bool = False
     externalDependenciesEnabled: bool = False

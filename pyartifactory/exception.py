@@ -1,55 +1,56 @@
 """
 Definition of all exceptions.
 """
+from __future__ import annotations
 
 
-class ArtifactoryException(Exception):
+class ArtifactoryError(Exception):
     """Generic artifactory exception."""
 
 
-class UserAlreadyExistsException(ArtifactoryException):
+class UserAlreadyExistsError(ArtifactoryError):
     """User already exists."""
 
 
-class GroupAlreadyExistsException(ArtifactoryException):
+class GroupAlreadyExistsError(ArtifactoryError):
     """Group already exists."""
 
 
-class RepositoryAlreadyExistsException(ArtifactoryException):
+class RepositoryAlreadyExistsError(ArtifactoryError):
     """Repository already exists."""
 
 
-class PermissionAlreadyExistsException(ArtifactoryException):
+class PermissionAlreadyExistsError(ArtifactoryError):
     """Permission already exists."""
 
 
-class UserNotFoundException(ArtifactoryException):
+class UserNotFoundError(ArtifactoryError):
     """The user was not found."""
 
 
-class GroupNotFoundException(ArtifactoryException):
+class GroupNotFoundError(ArtifactoryError):
     """The group was not found."""
 
 
-class RepositoryNotFoundException(ArtifactoryException):
+class RepositoryNotFoundError(ArtifactoryError):
     """The repository was not found."""
 
 
-class PermissionNotFoundException(ArtifactoryException):
+class PermissionNotFoundError(ArtifactoryError):
     """A permission object was not found."""
 
 
-class ArtifactNotFoundException(ArtifactoryException):
+class ArtifactNotFoundError(ArtifactoryError):
     """An artifact was not found"""
 
 
-class BadPropertiesException(ArtifactoryException):
+class BadPropertiesError(ArtifactoryError):
     """Property value includes invalid characters"""
 
 
-class PropertyNotFoundException(ArtifactoryException):
+class PropertyNotFoundError(ArtifactoryError):
     """All requested properties were not found"""
 
 
-class InvalidTokenDataException(ArtifactoryException):
+class InvalidTokenDataError(ArtifactoryError):
     """The token contains invalid data."""

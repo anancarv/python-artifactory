@@ -9,43 +9,42 @@
 
 `pyartifactory` is a Python library to access the [Artifactory REST API](https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API).
 
-This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.6+ type hints.
+This library enables you to manage Artifactory resources such as users, groups, permissions, repositories, artifacts and access tokens in your applications. Based on Python 3.8+ type hints.
 
 <!-- toc -->
 
-- [PyArtifactory](#pyartifactory)
-  - [Requirements](#requirements)
-  - [Install](#install)
-  - [Usage](#usage)
-    - [Authentication](#authentication)
-    - [SSL Cert Verification Options](#ssl-cert-verification-options)
-    - [Admin objects](#admin-objects)
-      - [User](#user)
-      - [Group](#group)
-      - [Security](#security)
-      - [Repository](#repository)
-      - [Permission](#permission)
-        - [Artifactory lower than 6.6.0](#artifactory-lower-than-660)
-        - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
-    - [Artifacts](#artifacts)
-      - [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
-      - [Deploy an artifact](#deploy-an-artifact)
-      - [Download an artifact](#download-an-artifact)
-      - [Retrieve artifact list](#retrieve-artifact-list)
-      - [Retrieve artifact properties](#retrieve-artifact-properties)
-      - [Set artifact properties](#set-artifact-properties)
-      - [Update artifact properties](#update-artifact-properties)
-      - [Retrieve artifact stats](#retrieve-artifact-stats)
-      - [Copy artifact to a new location](#copy-artifact-to-a-new-location)
-      - [Move artifact to a new location](#move-artifact-to-a-new-location)
-      - [Delete an artifact](#delete-an-artifact)
-    - [Contributing](#contributing)
+- [Requirements](#requirements)
+- [Install](#install)
+- [Usage](#usage)
+  * [Authentication](#authentication)
+  * [SSL Cert Verification Options](#ssl-cert-verification-options)
+  * [Admin objects](#admin-objects)
+    + [User](#user)
+    + [Group](#group)
+    + [Security](#security)
+    + [Repository](#repository)
+    + [Permission](#permission)
+      - [Artifactory lower than 6.6.0](#artifactory-lower-than-660)
+      - [Artifactory 6.6.0 or higher](#artifactory-660-or-higher)
+  * [Artifacts](#artifacts)
+    + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
+    + [Deploy an artifact](#deploy-an-artifact)
+    + [Download an artifact](#download-an-artifact)
+    + [Retrieve artifact list](#retrieve-artifact-list)
+    + [Retrieve artifact properties](#retrieve-artifact-properties)
+    + [Set artifact properties](#set-artifact-properties)
+    + [Update artifact properties](#update-artifact-properties)
+    + [Retrieve artifact stats](#retrieve-artifact-stats)
+    + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
+    + [Move artifact to a new location](#move-artifact-to-a-new-location)
+    + [Delete an artifact](#delete-an-artifact)
+  * [Contributing](#contributing)
 
 <!-- tocstop -->
 
 ## Requirements
 
-- Python 3.6+
+- Python 3.8+
 
 ## Install
 
@@ -205,6 +204,7 @@ art.security.revoke_access_token(token.access_token)
 #### Repository
 
 Get the list of repositories:
+
 ```python
 repositories = art.repositories.list()
 ```
@@ -244,6 +244,7 @@ art.repositories.delete("test_local_repo")
 
 #### Permission
 Get the list of permissions:
+
 ```python
 permissions = art.permissions.list()
 ```
