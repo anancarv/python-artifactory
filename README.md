@@ -380,9 +380,9 @@ artifact = art.artifacts.download("<ARTIFACT_PATH_IN_ARTIFACTORY>", "<LOCAL_DIRE
 #### Retrieve artifact list
 ```python
 artifacts = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>")
-# files_only = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
-# non_recursive = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
-# max_depth = art.artifacts.file_list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
+# files_only = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", list_folders=False)
+# non_recursive = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", recursive=False)
+# max_depth = art.artifacts.list("<ARTIFACT_PATH_IN_ARTIFACTORY>", depth=3)
 ```
 
 #### Retrieve artifact properties
