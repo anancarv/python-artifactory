@@ -1,6 +1,8 @@
 """
 Definition of artifactory base object.
 """
+from __future__ import annotations
+
 import requests
 from requests import Response
 
@@ -62,7 +64,11 @@ class ArtifactoryObject:
         return self._generic_http_method_request("patch", route, **kwargs)
 
     def _generic_http_method_request(
-        self, method: str, route: str, raise_for_status: bool = True, **kwargs
+        self,
+        method: str,
+        route: str,
+        raise_for_status: bool = True,
+        **kwargs,
     ) -> Response:
         """
         :param method: HTTP method to use
