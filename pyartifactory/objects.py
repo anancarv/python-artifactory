@@ -73,7 +73,7 @@ class Artifactory:
         self,
         url: str,
         auth: Tuple[str, str],
-        verify: bool = True,
+        verify: Union[bool, str] = True,
         cert: str = None,
         api_version: int = 1,
     ):
