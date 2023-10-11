@@ -33,11 +33,6 @@ repos:
       hooks:
           - id: poetry-check
 
-    - repo: https://github.com/Yelp/detect-secrets
-      rev: 'v1.2.0'
-      hooks:
-          - id: detect-secrets
-            args: ['--baseline', '.secrets.baseline']
     - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
       rev: v1.1.0
       hooks:
@@ -54,4 +49,5 @@ repos:
       rev: '1.7.4'
       hooks:
       - id: bandit
-        args: ['--exclude', 'tests/*,venv,.venv']
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]

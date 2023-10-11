@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyArtifactory"
-version = "2.0.0"
+version = "2.1.0"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = [
     "Ananias CARVALHO <carvalhoananias@hotmail.com>",
@@ -93,6 +93,9 @@ log_cli = true
 log_cli_level = "INFO"
 
 [tool.mypy]
+files = [
+    "pyartifactory"
+]
 plugins = [
     "pydantic.mypy"
 ]
@@ -102,10 +105,13 @@ strict_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 disallow_any_generics = true
+warn_return_any = true
+warn_unused_configs = true
 check_untyped_defs = true
 no_implicit_reexport = true
 disallow_untyped_defs = false
 ignore_missing_imports = false
+pretty = true
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -170,3 +176,6 @@ ban-relative-imports = "all"
 
 [tool.ruff.isort]
 required-imports = ["from __future__ import annotations"]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
