@@ -44,8 +44,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
 
 ## Requirements
 
-* Python 3.8+
-
+- Python 3.8+
 
 ## Install
 
@@ -65,19 +64,31 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY')
 ```
 
 ### SSL Cert Verification Options
+
 Specify a local cert to use as client side certificate
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), cert="/path_to_file/server.pem",api_version=1)
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), cert="/path_to_file/server.pem", api_version=1)
 ```
+
+Specify a local cert to use as custom CA certificate
+
+```python
+from pyartifactory import Artifactory
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), verify="/path_to_file/ca.pem", cert="/path_to_file/server.pem", api_version=1)
+```
+
+> `verify` and `cert` configure certificates for distinct purposes. `verify` determines SSL/TLS certificate validation for the server, while `cert` supplies a client certificate for mutual authentication, as required by the server. You can use either one or both parameters as needed.
 
 Disable host cert verification
 
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'), verify=False, api_version=1)
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), verify=False, api_version=1)
 ```
+
+> `verify` can be also set as a boolean to enable/disable SSL host verification.
 
 ### Admin objects
 
@@ -86,7 +97,7 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'),
 First, you need to create a new Artifactory object.
 ```python
 from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSORD_OR_API_KEY'))
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'))
 ```
 
 Get the list of users:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from pydantic import SecretStr
 
@@ -20,7 +20,7 @@ class Artifactory:
         self,
         url: str,
         auth: Tuple[str, SecretStr],
-        verify: bool = True,
+        verify: Union[bool, str] = True,
         cert: Optional[str] = None,
         api_version: int = 1,
     ):

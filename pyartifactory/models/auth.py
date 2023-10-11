@@ -3,7 +3,7 @@ Definition of all auth models.
 """
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from pydantic import BaseModel, SecretStr
 
@@ -13,7 +13,7 @@ class AuthModel(BaseModel):
 
     url: str
     auth: Tuple[str, SecretStr]
-    verify: bool = True
+    verify: Union[bool, str] = True
     cert: Optional[str] = None
     api_version: int = 1
 
