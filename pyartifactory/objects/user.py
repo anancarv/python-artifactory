@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from typing import List
+from typing import List, Union
 
 import requests
+from requests import Response
 
 from pyartifactory.exception import ArtifactoryError, UserAlreadyExistsError, UserNotFoundError
 from pyartifactory.models.user import NewUser, SimpleUser, User, UserResponse
@@ -46,7 +47,8 @@ class ArtifactoryUser(ArtifactoryObject):
             logger.debug("User %s found", name)
             return UserResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code in (404, 400):
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code in (404, 400):
                 logger.error("User %s does not exist", name)
                 raise UserNotFoundError(f"{name} does not exist")
             raise ArtifactoryError from error

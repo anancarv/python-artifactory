@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 
 import requests
 from pydantic import ValidationError
+from requests import Response
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
 from pyartifactory.models.artifact import (
@@ -65,7 +66,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 artifact_info = ArtifactFileInfoResponse.model_validate(response.json())
             return artifact_info
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
@@ -174,7 +176,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
             artifact_list: ArtifactListResponse = ArtifactListResponse.model_validate(response.json())
             return artifact_list
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
@@ -196,7 +199,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
             logger.debug("Artifact Properties successfully retrieved")
             return ArtifactPropertiesResponse(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 404:
                 raise PropertyNotFoundError(f"Properties {properties} were not found on artifact {artifact_path}")
             raise ArtifactoryError from error
 
@@ -230,10 +234,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
             logger.debug("Artifact Properties successfully set")
             return self.properties(artifact_path)
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 404:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 404:
                 logger.error("Artifact %s does not exist", artifact_path)
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
-            if error.response.status_code == 400:
+            if isinstance(http_response, Response) and http_response.status_code == 400:
                 logger.error("A property value includes forbidden special characters")
                 raise BadPropertiesError("A property value includes forbidden special characters")
             raise ArtifactoryError from error
@@ -263,7 +268,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
             logger.debug("Artifact Properties successfully updated")
             return self.properties(artifact_path)
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code == 400:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 400:
                 logger.error("Error updating artifact properties")
                 raise ArtifactoryError("Error updating artifact properties")
             raise ArtifactoryError from error
