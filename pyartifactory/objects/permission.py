@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from typing import List, overload
+from typing import List, Union, overload
 
 import requests
+from requests import Response
 
 from pyartifactory.exception import ArtifactoryError, PermissionAlreadyExistsError, PermissionNotFoundError
 from pyartifactory.models import AnyPermission
@@ -70,7 +71,8 @@ class ArtifactoryPermission(ArtifactoryObject):
                 Permission(**response.json()) if self._artifactory.api_version == 1 else PermissionV2(**response.json())
             )
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code in (404, 400):
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code in (404, 400):
                 logger.error("Permission %s does not exist", permission_name)
                 raise PermissionNotFoundError(f"Permission {permission_name} does not exist")
             raise ArtifactoryError from error
