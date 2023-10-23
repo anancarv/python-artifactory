@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from typing import List
+from typing import List, Union
 
 import requests
+from requests import Response
 
 from pyartifactory.exception import ArtifactoryError, GroupAlreadyExistsError, GroupNotFoundError
 from pyartifactory.models.group import Group
@@ -44,7 +45,8 @@ class ArtifactoryGroup(ArtifactoryObject):
             logger.debug("Group %s found", name)
             return Group(**response.json())
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code in (404, 400):
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code in (404, 400):
                 logger.error("Group %s does not exist", name)
                 raise GroupNotFoundError(f"Group {name} does not exist")
             raise ArtifactoryError from error

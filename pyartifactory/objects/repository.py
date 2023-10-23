@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import List, overload
+from typing import List, Union, overload
 
 import requests
 from pydantic import ValidationError
+from requests import Response
 
 from pyartifactory.exception import ArtifactoryError, RepositoryAlreadyExistsError, RepositoryNotFoundError
 from pyartifactory.models import AnyRepository, AnyRepositoryResponse
@@ -47,13 +48,14 @@ class ArtifactoryRepository(ArtifactoryObject):
                     artifact_info = RemoteRepositoryResponse.model_validate(response.json())
             return artifact_info
         except requests.exceptions.HTTPError as error:
-            if error.response.status_code in (404, 400):
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code in (404, 400):
                 logger.error("Repository %s does not exist", repo_name)
                 raise RepositoryNotFoundError(f" Repository {repo_name} does not exist")
             raise ArtifactoryError from error
 
     @overload
-    def create_repo(self, repo: LocalRepositoryResponse) -> LocalRepositoryResponse:
+    def create_repo(self, repo: LocalRepository) -> LocalRepositoryResponse:
         ...
 
     @overload
