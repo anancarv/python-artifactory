@@ -118,7 +118,7 @@ class SimpleRepository(BaseModel):
     """Models a simple repository."""
 
     key: str
-    type_: str
+    type: str
     description: Optional[str] = None
     url: str
     packageType: str
