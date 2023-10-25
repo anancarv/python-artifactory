@@ -20,7 +20,7 @@ from pyartifactory.models import (
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 
-SIMPLE_REPOSITORY = SimpleRepository(key="test_repository", type_="local", url="some-url", packageType="docker")
+SIMPLE_REPOSITORY = SimpleRepository(key="test_repository", type="local", url="some-url", packageType="docker")
 LOCAL_REPOSITORY = LocalRepository(key="test_local_repository")
 LOCAL_REPOSITORY_RESPONSE = LocalRepositoryResponse(key="test_local_repository")
 UPDATED_LOCAL_REPOSITORY = LocalRepository(key="test_local_repository", description="updated")
