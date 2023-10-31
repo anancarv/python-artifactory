@@ -157,14 +157,14 @@ class LocalRepository(BaseRepositoryModel):
     archiveBrowsingEnabled: bool = False
     calculateYumMetadata: bool = False
     yumRootDepth: int = 0
-    enableFileListsIndexing: str = "false"
+    enableFileListsIndexing: bool = False
     optionalIndexCompressionFormats: Optional[List[str]] = None
-    downloadRedirect: str = "false"
-    cdnRedirect: str = "false"
-    blockPushingSchema1: str = "false"
+    downloadRedirect: bool = False
+    cdnRedirect: bool = False
+    blockPushingSchema1: bool = False
     primaryKeyPairRef: Optional[str] = None
     secondaryKeyPairRef: Optional[str] = None
-    priorityResolution: str = "false"
+    priorityResolution: bool = False
     cargoInternalIndex: bool = False
 
 
@@ -274,7 +274,7 @@ class RemoteRepository(BaseRepositoryModel):
     externalDependenciesEnabled: bool = False
     externalDependenciesPatterns: List[str] = ["**/*microsoft*/**", "**/*github*/**"]
     downloadRedirect: bool = False
-    cdnRedirect: str = "false"
+    cdnRedirect: bool = False
     contentSynchronisation: ContentSynchronisation = ContentSynchronisation()
     feedContextPath: str = "api/v2"
     downloadContextPath: str = "api/v2/package"
