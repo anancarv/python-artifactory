@@ -187,7 +187,7 @@ def test_download_artifact_success(tmp_path):
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
     artifact = artifactory.download(ARTIFACT_PATH, str(tmp_path.resolve()))
 
-    assert artifact.as_posix() == f"{tmp_path.resolve()}/{artifact_name}"
+    assert artifact.as_posix() == f"{tmp_path.as_posix()}/{artifact_name}"
     assert artifact.is_file()
 
 
