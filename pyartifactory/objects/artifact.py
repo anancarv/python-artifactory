@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import urllib
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -59,7 +60,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
             artifact_path = Path(artifact_path.lstrip("/"))
 
         try:
-            response = self._get(f"api/storage/{artifact_path.as_posix()}")
+            artifact_as_posix = artifact_path.as_posix()
+            artifact_as_url = urllib.parse.quote(artifact_as_posix)
+            response = self._get(f"api/storage/{artifact_as_url}")
             try:
                 artifact_info: ArtifactInfoResponse = ArtifactFolderInfoResponse.model_validate(response.json())
             except ValidationError:
@@ -120,7 +123,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             local_file_full_path = Path(local_filename)
 
-        with self._get(f"{artifact_path}", stream=True) as response, local_file_full_path.open("wb") as file:
+        artifact_path_url = urllib.parse.quote(artifact_path)
+        with self._get(f"{artifact_path_url}", stream=True) as response, local_file_full_path.open("wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:  # filter out keep-alive new chunks
                     file.write(chunk)
