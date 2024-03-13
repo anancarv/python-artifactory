@@ -16,6 +16,8 @@ from .auth import AccessTokenModel, ApiKeyModel, AuthModel, PasswordModel
 from .group import Group, SimpleGroup
 from .permission import Permission, PermissionV2, SimplePermission
 from .repository import (
+    FederatedRepository,
+    FederatedRepositoryResponse,
     LocalRepository,
     LocalRepositoryResponse,
     RemoteRepository,
@@ -26,9 +28,14 @@ from .repository import (
 )
 from .user import BaseUserModel, NewUser, SimpleUser, User, UserResponse
 
-AnyRepositoryResponse = Union[LocalRepositoryResponse, VirtualRepositoryResponse, RemoteRepositoryResponse]
+AnyRepositoryResponse = Union[
+    LocalRepositoryResponse,
+    VirtualRepositoryResponse,
+    RemoteRepositoryResponse,
+    FederatedRepositoryResponse,
+]
 
-AnyRepository = Union[LocalRepository, VirtualRepository, RemoteRepository]
+AnyRepository = Union[LocalRepository, VirtualRepository, RemoteRepository, FederatedRepository]
 AnyPermission = Union[Permission, PermissionV2]
 
 __all__ = [
@@ -50,6 +57,8 @@ __all__ = [
     "LocalRepositoryResponse",
     "RemoteRepository",
     "RemoteRepositoryResponse",
+    "FederatedRepository",
+    "FederatedRepositoryResponse",
     "SimpleRepository",
     "VirtualRepository",
     "VirtualRepositoryResponse",
