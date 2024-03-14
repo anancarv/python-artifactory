@@ -51,6 +51,7 @@ class RClassEnum(str, Enum):
     local = "local"
     virtual = "virtual"
     remote = "remote"
+    federated = "federated"
 
 
 class ChecksumPolicyType(str, Enum):
@@ -112,6 +113,11 @@ class ContentSynchronisation(BaseModel):
     statistics: Statistics = Statistics()
     properties: Properties = Properties()
     source: Source = Source()
+
+
+class FederatedMembers(BaseModel):
+    url: str = ""
+    enabled: bool = False
 
 
 class SimpleRepository(BaseModel):
@@ -291,6 +297,57 @@ class RemoteRepositoryResponse(RemoteRepository):
 
     dockerApiVersion: str = "V2"
     debianTrivialLayout: bool = False
+    enableComposerSupport: bool = False
+    enableNuGetSupport: bool = False
+    enableGemsSupport: bool = False
+    enableNpmSupport: bool = False
+    enableBowerSupport: bool = False
+    enableCocoaPodsSupport: bool = False
+    enableConanSupport: bool = False
+    enableDebianSupport: bool = False
+    enablePypiSupport: bool = False
+    enablePuppetSupport: bool = False
+    enableDockerSupport: bool = False
+    forceNugetAuthentication: bool = False
+    enableVagrantSupport: bool = False
+    enableGitLfsSupport: bool = False
+    enableDistRepoSupport: bool = False
+
+
+class FederatedRepository(BaseRepositoryModel):
+    """Models a federated repository."""
+
+    rclass: Literal[RClassEnum.federated] = RClassEnum.federated
+    members: List[FederatedMembers] = []
+    checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
+    handleReleases: bool = True
+    handleSnapshots: bool = True
+    maxUniqueSnapshots: int = 0
+    maxUniqueTags: int = 0
+    debianTrivialLayout: bool = False
+    snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
+    suppressPomConsistencyChecks: bool = False
+    blackedOut: bool = False
+    xrayIndex: bool = False
+    propertySets: Optional[List[str]] = None
+    dockerApiVersion: str = "V2"
+    archiveBrowsingEnabled: bool = False
+    calculateYumMetadata: bool = False
+    yumRootDepth: int = 0
+    enableFileListsIndexing: bool = False
+    optionalIndexCompressionFormats: Optional[List[str]] = None
+    downloadRedirect: bool = False
+    cdnRedirect: bool = False
+    blockPushingSchema1: bool = False
+    primaryKeyPairRef: Optional[str] = None
+    secondaryKeyPairRef: Optional[str] = None
+    priorityResolution: bool = False
+    cargoInternalIndex: bool = False
+
+
+class FederatedRepositoryResponse(FederatedRepository):
+    """Models a federated repository response."""
+
     enableComposerSupport: bool = False
     enableNuGetSupport: bool = False
     enableGemsSupport: bool = False
