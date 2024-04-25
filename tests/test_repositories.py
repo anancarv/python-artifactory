@@ -47,24 +47,24 @@ UPDATED_REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
 FEDERATED_REPOSITORY = FederatedRepository(
     key="test_federated_repository",
     url="http://test-url.com",
-    members=[{"url": "member1.domain.com", "enabled": True}],
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
 )
 FEDERATED_REPOSITORY_RESPONSE = FederatedRepositoryResponse(
     key="test_federated_repository",
     url="http://test-url.com",
-    members=[{"url": "member1.domain.com", "enabled": True}],
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
 )
 UPDATED_FEDERATED_REPOSITORY = FederatedRepository(
     key="test_federated_repository",
     url="http://test-url.com",
     description="updated",
-    members=[{"url": "member1.domain.com", "enabled": True}],
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
 )
 UPDATED_FEDERATED_REPOSITORY_RESPONSE = FederatedRepositoryResponse(
     key="test_federated_repository",
     url="http://test-url.com",
     description="updated",
-    members=[{"url": "member1.domain.com", "enabled": True}],
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
 )
 
 
