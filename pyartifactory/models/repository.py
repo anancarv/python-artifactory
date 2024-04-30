@@ -51,6 +51,7 @@ class RClassEnum(str, Enum):
     local = "local"
     virtual = "virtual"
     remote = "remote"
+    federated = "federated"
 
 
 class ChecksumPolicyType(str, Enum):
@@ -112,6 +113,18 @@ class ContentSynchronisation(BaseModel):
     statistics: Statistics = Statistics()
     properties: Properties = Properties()
     source: Source = Source()
+
+
+class FederatedMembers(BaseModel):
+    url: str = ""
+    enabled: Literal["true", "false"] = "true"
+
+
+class FederatedMembersResponse(BaseModel):
+    """Models a federated member response."""
+
+    url: str = ""
+    enabled: bool = True
 
 
 class SimpleRepository(BaseModel):
@@ -291,6 +304,66 @@ class RemoteRepositoryResponse(RemoteRepository):
 
     dockerApiVersion: str = "V2"
     debianTrivialLayout: bool = False
+    enableComposerSupport: bool = False
+    enableNuGetSupport: bool = False
+    enableGemsSupport: bool = False
+    enableNpmSupport: bool = False
+    enableBowerSupport: bool = False
+    enableCocoaPodsSupport: bool = False
+    enableConanSupport: bool = False
+    enableDebianSupport: bool = False
+    enablePypiSupport: bool = False
+    enablePuppetSupport: bool = False
+    enableDockerSupport: bool = False
+    forceNugetAuthentication: bool = False
+    enableVagrantSupport: bool = False
+    enableGitLfsSupport: bool = False
+    enableDistRepoSupport: bool = False
+
+
+class FederatedBaseRepostoryModel(BaseRepositoryModel):
+    """
+    Models a basic federated repo without members as they can't be overwritten
+    and differ in response and request
+    """
+
+    rclass: Literal[RClassEnum.federated] = RClassEnum.federated
+    checksumPolicyType: ChecksumPolicyType = ChecksumPolicyType.client_checksums
+    handleReleases: bool = True
+    handleSnapshots: bool = True
+    maxUniqueSnapshots: int = 0
+    maxUniqueTags: int = 0
+    debianTrivialLayout: bool = False
+    snapshotVersionBehavior: SnapshotVersionBehavior = SnapshotVersionBehavior.non_unique
+    suppressPomConsistencyChecks: bool = False
+    blackedOut: bool = False
+    xrayIndex: bool = False
+    propertySets: Optional[List[str]] = None
+    dockerApiVersion: str = "V2"
+    archiveBrowsingEnabled: bool = False
+    calculateYumMetadata: bool = False
+    yumRootDepth: int = 0
+    enableFileListsIndexing: bool = False
+    optionalIndexCompressionFormats: Optional[List[str]] = None
+    downloadRedirect: bool = False
+    cdnRedirect: bool = False
+    blockPushingSchema1: bool = False
+    primaryKeyPairRef: Optional[str] = None
+    secondaryKeyPairRef: Optional[str] = None
+    priorityResolution: bool = False
+    cargoInternalIndex: bool = False
+
+
+class FederatedRepository(FederatedBaseRepostoryModel):
+    """Models a federated Repository (member model differs from reponse)."""
+
+    members: List[FederatedMembers] = []
+
+
+class FederatedRepositoryResponse(FederatedBaseRepostoryModel):
+    """Models a federated repository response (member model differs from request)."""
+
+    members: List[FederatedMembersResponse] = []
     enableComposerSupport: bool = False
     enableNuGetSupport: bool = False
     enableGemsSupport: bool = False

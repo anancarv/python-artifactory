@@ -217,7 +217,12 @@ repo = art.repositories.get_repo("repo_name")
 
 Create/Update a repository:
 ```python
-from pyartifactory.models import LocalRepository, VirtualRepository, RemoteRepository
+from pyartifactory.models import (
+    LocalRepository,
+    VirtualRepository,
+    RemoteRepository,
+    FederatedRepository
+)
 
 # Create local repo
 local_repo = LocalRepository(key="test_local_repo")
@@ -230,6 +235,10 @@ new_virtual_repo = art.repositories.create_repo(virtual_repo)
 # Create remote repo
 remote_repo = RemoteRepository(key="test_remote_repo")
 new_remote_repo = art.repositories.create_repo(remote_repo)
+
+# Create federated repo
+remote_repo = FederatedRepository(key="test_remote_repo")
+new_federated_repo = art.repositories.create_repo(remote_repo)
 
 # Update a repository
 local_repo = art.repositories.get_repo("test_local_repo")

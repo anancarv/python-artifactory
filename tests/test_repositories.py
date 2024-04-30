@@ -8,6 +8,8 @@ from pyartifactory import ArtifactoryRepository
 from pyartifactory.exception import RepositoryAlreadyExistsError, RepositoryNotFoundError
 from pyartifactory.models import (
     AuthModel,
+    FederatedRepository,
+    FederatedRepositoryResponse,
     LocalRepository,
     LocalRepositoryResponse,
     RemoteRepository,
@@ -40,6 +42,29 @@ UPDATED_REMOTE_REPOSITORY_RESPONSE = RemoteRepositoryResponse(
     key="test_remote_repository",
     url="http://test-url.com",
     description="updated",
+)
+
+FEDERATED_REPOSITORY = FederatedRepository(
+    key="test_federated_repository",
+    url="http://test-url.com",
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
+)
+FEDERATED_REPOSITORY_RESPONSE = FederatedRepositoryResponse(
+    key="test_federated_repository",
+    url="http://test-url.com",
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
+)
+UPDATED_FEDERATED_REPOSITORY = FederatedRepository(
+    key="test_federated_repository",
+    url="http://test-url.com",
+    description="updated",
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
+)
+UPDATED_FEDERATED_REPOSITORY_RESPONSE = FederatedRepositoryResponse(
+    key="test_federated_repository",
+    url="http://test-url.com",
+    description="updated",
+    members=[{"url": "member1.domain.com", "enabled": "true"}],
 )
 
 
@@ -98,6 +123,25 @@ def test_create_remote_repository_fail_if_repository_already_exists(
         artifactory_repo.create_repo(REMOTE_REPOSITORY)
 
     artifactory_repo.get_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
+
+
+@responses.activate
+def test_create_federated_repository_fail_if_repository_already_exists(
+    mocker,
+):
+    responses.add(
+        responses.GET,
+        f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}",
+        json=FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=200,
+    )
+
+    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_repo, "get_repo")
+    with pytest.raises(RepositoryAlreadyExistsError):
+        artifactory_repo.create_repo(FEDERATED_REPOSITORY)
+
+    artifactory_repo.get_repo.assert_called_once_with(FEDERATED_REPOSITORY.key)
 
 
 @responses.activate
@@ -171,6 +215,29 @@ def test_create_remote_repository_success(mocker):
 
 
 @responses.activate
+def test_create_federated_repository_success(mocker):
+    responses.add(responses.GET, f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}", status=404)
+    responses.add(
+        responses.PUT,
+        f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}",
+        json=FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=201,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}",
+        json=FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=200,
+    )
+
+    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_repo, "get_repo")
+    federated_repo = artifactory_repo.create_repo(FEDERATED_REPOSITORY)
+
+    assert federated_repo == FEDERATED_REPOSITORY_RESPONSE
+
+
+@responses.activate
 def test_get_local_repository_error_not_found(mocker):
     responses.add(responses.GET, f"{URL}/api/repositories/{LOCAL_REPOSITORY.key}", status=404)
 
@@ -226,6 +293,21 @@ def test_get_remote_repository_success():
 
 
 @responses.activate
+def test_get_federated_repository_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}",
+        json=FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=200,
+    )
+
+    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
+    remote_repo = artifactory_repo.get_repo(FEDERATED_REPOSITORY.key)
+
+    assert remote_repo == FEDERATED_REPOSITORY_RESPONSE
+
+
+@responses.activate
 def test_list_repositories_success(mocker):
     responses.add(
         responses.GET,
@@ -274,6 +356,18 @@ def test_update_remote_repository_fail_if_repo_not_found(mocker):
         artifactory_repo.update_repo(REMOTE_REPOSITORY)
 
     artifactory_repo.get_repo.assert_called_once_with(REMOTE_REPOSITORY.key)
+
+
+@responses.activate
+def test_update_federated_repository_fail_if_repo_not_found(mocker):
+    responses.add(responses.GET, f"{URL}/api/repositories/{FEDERATED_REPOSITORY.key}", status=404)
+
+    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_repo, "get_repo")
+    with pytest.raises(RepositoryNotFoundError):
+        artifactory_repo.update_repo(FEDERATED_REPOSITORY)
+
+    artifactory_repo.get_repo.assert_called_once_with(FEDERATED_REPOSITORY.key)
 
 
 @responses.activate
@@ -352,6 +446,31 @@ def test_update_remote_repository_success():
     artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
     updated_repo = artifactory_repo.update_repo(UPDATED_REMOTE_REPOSITORY)
     assert updated_repo == UPDATED_REMOTE_REPOSITORY_RESPONSE
+
+
+@responses.activate
+def test_update_federated_repository_success():
+    responses.add(
+        responses.GET,
+        f"{URL}/api/repositories/{UPDATED_FEDERATED_REPOSITORY.key}",
+        json=UPDATED_FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=200,
+    )
+
+    responses.add(
+        responses.POST,
+        f"{URL}/api/repositories/{UPDATED_FEDERATED_REPOSITORY.key}",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/repositories/{UPDATED_FEDERATED_REPOSITORY.key}",
+        json=UPDATED_FEDERATED_REPOSITORY_RESPONSE.model_dump(),
+        status=200,
+    )
+    artifactory_repo = ArtifactoryRepository(AuthModel(url=URL, auth=AUTH))
+    updated_repo = artifactory_repo.update_repo(UPDATED_FEDERATED_REPOSITORY)
+    assert updated_repo == UPDATED_FEDERATED_REPOSITORY_RESPONSE
 
 
 @responses.activate
