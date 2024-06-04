@@ -29,6 +29,7 @@ class PackageTypeEnum(str, Enum):
     go = "go"
     gradle = "gradle"
     helm = "helm"
+    helmoci = "helmoci"
     ivy = "ivy"
     maven = "maven"
     npm = "npm"
@@ -40,6 +41,7 @@ class PackageTypeEnum(str, Enum):
     rpm = "rpm"
     sbt = "sbt"
     terraform = "terraform"
+    terraformbackend = "terraformbackend"
     vagrant = "vagrant"
     vcs = "vcs"
     yum = "yum"
@@ -179,6 +181,7 @@ class LocalRepository(BaseRepositoryModel):
     secondaryKeyPairRef: Optional[str] = None
     priorityResolution: bool = False
     cargoInternalIndex: bool = False
+    terraformType: Literal["MODULE", "PROVIDER"] = "MODULE"
 
 
 class LocalRepositoryResponse(LocalRepository):
@@ -352,6 +355,7 @@ class FederatedBaseRepostoryModel(BaseRepositoryModel):
     secondaryKeyPairRef: Optional[str] = None
     priorityResolution: bool = False
     cargoInternalIndex: bool = False
+    terraformType: Literal["MODULE", "PROVIDER"] = "MODULE"
 
 
 class FederatedRepository(FederatedBaseRepostoryModel):
