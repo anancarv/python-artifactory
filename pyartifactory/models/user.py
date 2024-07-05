@@ -14,7 +14,6 @@ class SimpleUser(BaseModel):
 
     name: str
     uri: str
-    status: str
     realm: Optional[str] = None
 
 
