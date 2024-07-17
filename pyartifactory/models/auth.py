@@ -16,6 +16,7 @@ class AuthModel(BaseModel):
     verify: Union[bool, str] = True
     cert: Optional[str] = None
     api_version: int = 1
+    timeout: Optional[int] = None
 
 
 class ApiKeyModel(BaseModel):

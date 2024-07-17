@@ -21,6 +21,7 @@ class ArtifactoryObject:
         self._api_version = self._artifactory.api_version
         self._verify = self._artifactory.verify
         self._cert = self._artifactory.cert
+        self._timeout = self._artifactory.timeout
         self.session = requests.Session()
 
     def _get(self, route: str, **kwargs) -> Response:
@@ -84,6 +85,7 @@ class ArtifactoryObject:
             **kwargs,
             verify=self._verify,
             cert=self._cert,
+            timeout=self._timeout,
         )
         if raise_for_status:
             response.raise_for_status()

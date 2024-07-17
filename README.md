@@ -18,6 +18,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
 - [Usage](#usage)
   * [Authentication](#authentication)
   * [SSL Cert Verification Options](#ssl-cert-verification-options)
+  * [Timeout option](#timeout-option)
   * [Admin objects](#admin-objects)
     + [User](#user)
     + [Group](#group)
@@ -89,6 +90,17 @@ art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY')
 ```
 
 > `verify` can be also set as a boolean to enable/disable SSL host verification.
+
+### Timeout option
+
+Use timeout option to limit connect and read timeout in case the artifactory server is not responding in a timely manner.
+
+```python
+from pyartifactory import Artifactory
+art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), api_version=1, timeout=60)
+```
+
+> `timeout` is None by default.
 
 ### Admin objects
 
