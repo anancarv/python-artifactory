@@ -15,4 +15,4 @@ def test_get_artifact_folder_info_timeout(mocker):
     mocker.patch("pyartifactory.models.artifact.ArtifactFolderInfoResponse.model_validate")
     artifactory.session.return_value = mocker.MagicMock()
     artifactory.info("ARTIFACT_REPO")
-    artifactory.session.get.call_args_list[0][1]["timeout"] == 1
+    assert artifactory.session.get.call_args_list[0][1]["timeout"] == 1
