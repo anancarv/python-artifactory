@@ -247,6 +247,26 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise BadPropertiesError("A property value includes forbidden special characters")
             raise ArtifactoryError from error
 
+    def delete_properties(
+        self,
+        artifact_path: str,
+    ) -> ArtifactPropertiesResponse:
+        """
+        Deletes ALL properties of an artifact
+        :param artifact_path: Path to file or folder in Artifactory
+        :return: None
+        """
+        artifact_path = artifact_path.lstrip("/")
+        try:
+            self._delete(f"api/metadata/{artifact_path}")
+            logger.debug("Artifact Properties successfully deleted")
+            return ArtifactPropertiesResponse(uri=artifact_path, properties={})
+        except requests.exceptions.HTTPError as error:
+            http_response: Union[Response, None] = error.response
+            if isinstance(http_response, Response) and http_response.status_code == 404:
+                raise PropertyNotFoundError(f"No properties could be found on artifact {artifact_path}")
+            raise ArtifactoryError from error
+
     def update_properties(
         self,
         artifact_path: str,
