@@ -457,7 +457,7 @@ def test_set_property_fail_bad_value():
 def test_update_property_success():
     responses.add(
         responses.PATCH,
-        f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
+        f"{URL}/api/metadata/{ARTIFACT_PATH}?recursiveProperties=1",
         match=[responses.matchers.json_params_matcher({"props": ARTIFACT_MULTIPLE_PROPERTIES.properties})],
         status=200,
     )
@@ -476,7 +476,7 @@ def test_update_property_success():
 def test_update_property_fail_artifact_not_found():
     responses.add(
         responses.PATCH,
-        f"{URL}/api/metadata/{NX_ARTIFACT_PATH}?recursive=1",
+        f"{URL}/api/metadata/{NX_ARTIFACT_PATH}?recursiveProperties=1",
         match=[responses.matchers.json_params_matcher({"props": ARTIFACT_ONE_PROPERTY.properties})],
         status=400,
     )
@@ -490,7 +490,7 @@ def test_update_property_fail_artifact_not_found():
 def test_update_property_fail_bad_value():
     responses.add(
         responses.PATCH,
-        f"{URL}/api/metadata/{ARTIFACT_PATH}?recursive=1",
+        f"{URL}/api/metadata/{ARTIFACT_PATH}?recursiveProperties=1",
         match=[responses.matchers.json_params_matcher({"props": {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]}})],
         status=400,
     )
