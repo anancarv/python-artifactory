@@ -265,7 +265,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         try:
             self._patch(
                 f"api/metadata/{artifact_path}",
-                params={"recursive": int(recursive)},
+                params={"recursiveProperties": int(recursive)},
                 headers={"Content-Type": "application/json"},
                 json={"props": properties},
             )
