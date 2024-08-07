@@ -501,3 +501,36 @@ def test_update_property_fail_bad_value():
             {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]},
         )
         assert update_properties_response is None
+
+
+@responses.activate
+def test_delete_property_success():
+    properties_param_str = ""
+    for k, v in ARTIFACT_MULTIPLE_PROPERTIES.properties.items():
+        values_str = ",".join(v)
+        properties_param_str += urllib.parse.quote_plus(f"{k}={values_str};")
+    responses.add(
+        responses.PUT,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
+        status=200,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    set_properties_response = artifactory.set_properties(ARTIFACT_PATH, ARTIFACT_MULTIPLE_PROPERTIES.properties)
+    assert set_properties_response == ARTIFACT_MULTIPLE_PROPERTIES
+
+    ARTIFACT_MULTIPLE_PROPERTIES.properties = {}
+
+    responses.add(
+        responses.DELETE,
+        f"{URL}/api/metadata/{ARTIFACT_PATH}",
+        status=204,
+    )
+
+    delete_props_response = artifactory.delete_properties(ARTIFACT_PATH).properties
+    assert delete_props_response == {}

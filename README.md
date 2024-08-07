@@ -35,6 +35,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Retrieve artifact properties](#retrieve-artifact-properties)
     + [Set artifact properties](#set-artifact-properties)
     + [Update artifact properties](#update-artifact-properties)
+    + [Delete all artifact properties](#delete-all-artifact-properties)
     + [Retrieve artifact stats](#retrieve-artifact-stats)
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)
@@ -435,6 +436,11 @@ artifact_properties = art.artifacts.set_properties("<ARTIFACT_PATH_IN_ARTIFACTOR
 ```python
 artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"})  # recursive mode is enabled by default
 artifact_properties = art.artifacts.update_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>", {"prop1": ["value"], "prop2": ["value1", "value2", "etc"}, False) # disable recursive mode
+```
+
+#### Delete all artifact properties
+```python
+artifact_properties = art.artifacts.delete_properties("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
 
 #### Retrieve artifact stats
