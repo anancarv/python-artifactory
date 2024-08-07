@@ -23,8 +23,16 @@ class Artifactory:
         verify: Union[bool, str] = True,
         cert: Optional[str] = None,
         api_version: int = 1,
+        timeout: Optional[int] = None,
     ):
-        self.artifactory = AuthModel(url=url, auth=auth, verify=verify, cert=cert, api_version=api_version)
+        self.artifactory = AuthModel(
+            url=url,
+            auth=auth,
+            verify=verify,
+            cert=cert,
+            api_version=api_version,
+            timeout=timeout,
+        )
         self.users = ArtifactoryUser(self.artifactory)
         self.groups = ArtifactoryGroup(self.artifactory)
         self.security = ArtifactorySecurity(self.artifactory)
