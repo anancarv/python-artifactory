@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import urllib
@@ -8,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import requests
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from requests import Response
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
@@ -23,6 +24,33 @@ from pyartifactory.models.artifact import (
 from pyartifactory.objects.object import ArtifactoryObject
 
 logger = logging.getLogger("pyartifactory")
+
+
+class ArtifactCheckSums(BaseModel):
+    md5: str
+    sha1: str
+    sha256: str
+    block_size = 65536
+
+    map = {
+        "md5": hashlib.md5,
+        "sha1": hashlib.sha1,
+        "sha256": hashlib.sha256
+    }
+
+    @classmethod
+    def generate(cls, file_: Path) -> ArtifactCheckSums:
+        results = {}
+        with file_.open("rb") as fd:
+            for algorithm, hasher in cls.map.items():
+                hasher = hasher()
+                buf = fd.read(cls.block_size)
+                while len(buf) > 0:
+                    hasher.update(buf)
+                    buf = fd.read(cls.block_size)
+                results[algorithm] = hasher.hexdigest()
+
+        return cls(**results)
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
@@ -90,9 +118,26 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
-            with local_file.open(mode="rb") as streamfile:
-                self._put(route=artifact_folder.as_posix(), data=streamfile)
-                logger.debug("Artifact %s successfully deployed", artifact_folder.name)
+            # based on https://github.com/thenewnano/python-artifactory/commit/3c095f88f5e4153d1feffbf3769d038eb16b4016
+            artifact_check_sums = ArtifactCheckSums.generate(local_file)
+            headers = {
+                "X-Checksum-Deploy": "true",
+                "X-Checksum-Sha1": artifact_check_sums.sha1,
+                "X-Checksum-Sha256": artifact_check_sums.sha256,
+                "X-Checksum: checksum": artifact_check_sums.md5,
+            }
+            try:
+                self._put(f"{artifact_path}", headers=headers)
+            except requests.exceptions.HTTPError as error:
+                if error.response.status_code == 404:
+                    logger.info("Artifact is not on server, content upload is expected in order to deploy the artifact")
+                    headers["X-Checksum-Deploy"] = "false"
+                    with local_file.open("rb") as file:
+                        self._put(f"{artifact_path}", data=file, headers=headers)
+                        logger.debug("Artifact %s successfully deployed", local_file)
+                else:
+                    raise
+
         return self.info(artifact_folder)
 
     @staticmethod
@@ -104,7 +149,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
     @staticmethod
     def _remove_prefix(_str: str, prefix: str) -> str:
         if _str.startswith(prefix):
-            return _str[len(prefix) :]
+            return _str[len(prefix):]
         raise ValueError(f"Input string, '{_str}', doesn't have the prefix: '{prefix}'")
 
     def _download(self, artifact_path: str, local_directory_path: Optional[Path] = None) -> Path:
@@ -152,11 +197,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
         return Path(local_directory_path).joinpath(basename)
 
     def list(
-        self,
-        artifact_path: str,
-        recursive: bool = True,
-        depth: Optional[int] = None,
-        list_folders: bool = True,
+            self,
+            artifact_path: str,
+            recursive: bool = True,
+            depth: Optional[int] = None,
+            list_folders: bool = True,
     ) -> ArtifactListResponse:
         """
         Retrieve a list of files or a folders
@@ -209,10 +254,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryError from error
 
     def set_properties(
-        self,
-        artifact_path: str,
-        properties: Dict[str, List[str]],
-        recursive: bool = True,
+            self,
+            artifact_path: str,
+            properties: Dict[str, List[str]],
+            recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
@@ -248,10 +293,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryError from error
 
     def update_properties(
-        self,
-        artifact_path: str,
-        properties: Dict[str, List[str]],
-        recursive: bool = True,
+            self,
+            artifact_path: str,
+            properties: Dict[str, List[str]],
+            recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
