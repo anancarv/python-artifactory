@@ -30,20 +30,19 @@ class ArtifactCheckSums(BaseModel):
     md5: str
     sha1: str
     sha256: str
-    block_size: int = 65536
-
-    map: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
 
     @classmethod
     def generate(cls, file_: Path) -> ArtifactCheckSums:
+        block_size: int = 65536
+        mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
         with file_.open("rb") as fd:
-            for algorithm, hashing_function in cls.map.items():
+            for algorithm, hashing_function in mapping.items():
                 hasher = hashing_function()
-                buf = fd.read(cls.block_size)
+                buf = fd.read(block_size)
                 while len(buf) > 0:
                     hasher.update(buf)
-                    buf = fd.read(cls.block_size)
+                    buf = fd.read(block_size)
                 results[algorithm] = hasher.hexdigest()
 
         return cls(**results)
