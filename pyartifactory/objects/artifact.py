@@ -36,7 +36,7 @@ class ArtifactCheckSums(BaseModel):
         block_size: int = 65536
         mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
-        with file_.open("rb") as fd:
+        with file_.absolute().open("rb") as fd:
             for algorithm, hashing_function in mapping.items():
                 hasher = hashing_function()
                 buf = fd.read(block_size)
@@ -119,7 +119,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 "X-Checksum-Deploy": "true",
                 "X-Checksum-Sha1": artifact_check_sums.sha1,
                 "X-Checksum-Sha256": artifact_check_sums.sha256,
-                "X-Checksum: checksum": artifact_check_sums.md5,
+                "X-Checksum": artifact_check_sums.md5,
             }
             try:
                 self._put(f"{artifact_path}", headers=headers)

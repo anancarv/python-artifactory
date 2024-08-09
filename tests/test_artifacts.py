@@ -26,7 +26,7 @@ ARTIFACT_PATH = f"{ARTIFACT_REPO}/file.txt"
 ARTIFACT_NEW_PATH = "my-second-repository/file.txt"
 ARTIFACT_SHORT_PATH = "/file.txt"
 NX_ARTIFACT_PATH = f"{ARTIFACT_REPO}/nx_file.txt"
-LOCAL_FILE_LOCATION = "tests/test_artifacts.py"
+LOCAL_FILE_LOCATION = "test_artifacts.py"
 ARTIFACT_ONE_PROPERTY = ArtifactPropertiesResponse(
     uri=f"{URL}/api/storage/{ARTIFACT_PATH}",
     properties={"prop1": ["value"]},
@@ -518,7 +518,7 @@ def test_update_property_fail_bad_value():
         ),
     ],
 )
-def test_checksum_generate(tmp_path, size: int, expected: dict):
+def test_checksum_generated_file(tmp_path, size: int, expected: dict):
     local_file = tmp_path / "dummy"
     with local_file.open("wb") as f:
         f.write(urandom(size))
