@@ -6,10 +6,10 @@ import os
 import urllib
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import requests
-from pydantic import ValidationError, BaseModel
+from pydantic import BaseModel, ValidationError
 from requests import Response
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
@@ -30,20 +30,16 @@ class ArtifactCheckSums(BaseModel):
     md5: str
     sha1: str
     sha256: str
-    block_size = 65536
+    block_size: int = 65536
 
-    map = {
-        "md5": hashlib.md5,
-        "sha1": hashlib.sha1,
-        "sha256": hashlib.sha256
-    }
+    map: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
 
     @classmethod
     def generate(cls, file_: Path) -> ArtifactCheckSums:
         results = {}
         with file_.open("rb") as fd:
-            for algorithm, hasher in cls.map.items():
-                hasher = hasher()
+            for algorithm, hashing_function in cls.map.items():
+                hasher = hashing_function()
                 buf = fd.read(cls.block_size)
                 while len(buf) > 0:
                     hasher.update(buf)
@@ -132,8 +128,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 if error.response.status_code == 404:
                     logger.info("Artifact is not on server, content upload is expected in order to deploy the artifact")
                     headers["X-Checksum-Deploy"] = "false"
-                    with local_file.open("rb") as file:
-                        self._put(f"{artifact_path}", data=file, headers=headers)
+                    with local_file.open("rb") as stream:
+                        self._put(f"{artifact_path}", data=stream, headers=headers)
                         logger.debug("Artifact %s successfully deployed", local_file)
                 else:
                     raise
@@ -149,7 +145,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
     @staticmethod
     def _remove_prefix(_str: str, prefix: str) -> str:
         if _str.startswith(prefix):
-            return _str[len(prefix):]
+            return _str[len(prefix) :]
         raise ValueError(f"Input string, '{_str}', doesn't have the prefix: '{prefix}'")
 
     def _download(self, artifact_path: str, local_directory_path: Optional[Path] = None) -> Path:
@@ -197,11 +193,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
         return Path(local_directory_path).joinpath(basename)
 
     def list(
-            self,
-            artifact_path: str,
-            recursive: bool = True,
-            depth: Optional[int] = None,
-            list_folders: bool = True,
+        self,
+        artifact_path: str,
+        recursive: bool = True,
+        depth: Optional[int] = None,
+        list_folders: bool = True,
     ) -> ArtifactListResponse:
         """
         Retrieve a list of files or a folders
@@ -254,10 +250,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryError from error
 
     def set_properties(
-            self,
-            artifact_path: str,
-            properties: Dict[str, List[str]],
-            recursive: bool = True,
+        self,
+        artifact_path: str,
+        properties: Dict[str, List[str]],
+        recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
@@ -293,10 +289,10 @@ class ArtifactoryArtifact(ArtifactoryObject):
             raise ArtifactoryError from error
 
     def update_properties(
-            self,
-            artifact_path: str,
-            properties: Dict[str, List[str]],
-            recursive: bool = True,
+        self,
+        artifact_path: str,
+        properties: Dict[str, List[str]],
+        recursive: bool = True,
     ) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file or folder in Artifactory
