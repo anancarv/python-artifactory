@@ -16,8 +16,8 @@ from pyartifactory.models.artifact import (
     ArtifactListFileResponse,
     ArtifactListFolderResponse,
     ArtifactListResponse,
+    Checksums,
 )
-from pyartifactory.objects.artifact import ArtifactCheckSums
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
@@ -523,5 +523,5 @@ def test_checksum_generated_file(tmp_path, size: int, expected: dict):
     with local_file.open("wb") as f:
         f.write(urandom(size))
 
-    result = ArtifactCheckSums.generate(local_file)
+    result = Checksums.generate(local_file)
     assert result.model_dump() == expected

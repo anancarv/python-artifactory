@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 import os
 import urllib
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import requests
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from requests import Response
 
 from pyartifactory.exception import ArtifactNotFoundError, ArtifactoryError, BadPropertiesError, PropertyNotFoundError
@@ -20,32 +19,11 @@ from pyartifactory.models.artifact import (
     ArtifactListResponse,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
+    Checksums,
 )
 from pyartifactory.objects.object import ArtifactoryObject
 
 logger = logging.getLogger("pyartifactory")
-
-
-class ArtifactCheckSums(BaseModel):
-    md5: str
-    sha1: str
-    sha256: str
-
-    @classmethod
-    def generate(cls, file_: Path) -> ArtifactCheckSums:
-        block_size: int = 65536
-        mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
-        results = {}
-        with file_.absolute().open("rb") as fd:
-            for algorithm, hashing_function in mapping.items():
-                hasher = hashing_function()
-                buf = fd.read(block_size)
-                while len(buf) > 0:
-                    hasher.update(buf)
-                    buf = fd.read(block_size)
-                results[algorithm] = hasher.hexdigest()
-
-        return cls(**results)
 
 
 class ArtifactoryArtifact(ArtifactoryObject):
@@ -114,7 +92,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
             # based on https://github.com/thenewnano/python-artifactory/commit/3c095f88f5e4153d1feffbf3769d038eb16b4016
-            artifact_check_sums = ArtifactCheckSums.generate(local_file)
+            artifact_check_sums = Checksums.generate(local_file)
             headers = {
                 "X-Checksum-Deploy": "true",
                 "X-Checksum-Sha1": artifact_check_sums.sha1,
