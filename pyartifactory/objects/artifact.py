@@ -76,7 +76,12 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
 
-    def deploy(self, local_file_location: Union[Path, str], artifact_path: Union[Path, str]) -> ArtifactInfoResponse:
+    def deploy(
+        self,
+        local_file_location: Union[Path, str],
+        artifact_path: Union[Path, str],
+        checksums: bool = False,
+    ) -> ArtifactInfoResponse:
         """
         Deploy a file or directory.
         :param artifact_path: Path to artifactory in Artifactory
@@ -91,18 +96,21 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
-            # based on https://github.com/thenewnano/python-artifactory/commit/3c095f88f5e4153d1feffbf3769d038eb16b4016
-            artifact_check_sums = Checksums.generate(local_file)
-            headers = {
-                "X-Checksum-Deploy": "true",
-                "X-Checksum-Sha1": artifact_check_sums.sha1,
-                "X-Checksum-Sha256": artifact_check_sums.sha256,
-                "X-Checksum": artifact_check_sums.md5,
-            }
+            if checksums:
+                # based on https://github.com/thenewnano/python-artifactory/commit/3c095f88f5e4153d1feffbf3769d038eb16b4016
+                artifact_check_sums = Checksums.generate(local_file)
+                headers = {
+                    "X-Checksum-Deploy": "true",
+                    "X-Checksum-Sha1": artifact_check_sums.sha1,
+                    "X-Checksum-Sha256": artifact_check_sums.sha256,
+                    "X-Checksum": artifact_check_sums.md5,
+                }
+            else:
+                headers = {}
             try:
                 self._put(f"{artifact_path}", headers=headers)
             except requests.exceptions.HTTPError as error:
-                if error.response.status_code == 404:
+                if error.response.status_code == 404 and not checksums:
                     logger.info("Artifact is not on server, content upload is expected in order to deploy the artifact")
                     headers["X-Checksum-Deploy"] = "false"
                     with local_file.open("rb") as stream:
