@@ -525,3 +525,39 @@ def test_checksum_generated_file(tmp_path, size: int, expected: dict):
 
     result = Checksums.generate(local_file)
     assert result.model_dump() == expected
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_success(mocker):
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=200)
+
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
+        status=200,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory, "info")
+    artifact = artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)
+
+    artifactory.info.assert_called_once_with(Path(ARTIFACT_PATH))
+    assert artifact.model_dump() == FILE_INFO.model_dump()
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_error_404():
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=404)
+
+    with pytest.raises(ArtifactNotFoundError):
+        artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+        artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_error_but_other_than_404():
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=500)
+
+    with pytest.raises(ArtifactoryError):
+        artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+        artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)

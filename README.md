@@ -397,14 +397,16 @@ artifact_info = art.artifacts.info("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 ```
 
 #### Deploy an artifact
+
 ```python
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>")
 # artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt")
 ```
 
 #### Deploy an artifact with checksums
+
 ```python
-artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", checksums=True)
+artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", checksum_enabled=True)
 # artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt", checksums=True)
 ```
 Note: the performance might suffer when deploying artifacts with checksums enabled.
