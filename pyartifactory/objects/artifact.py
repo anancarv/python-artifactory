@@ -101,7 +101,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 artifact_check_sums = Checksums.generate(local_file)
                 try:
                     self._put(
-                        f"{artifact_path}",
+                        route=artifact_folder.as_posix(),
                         headers={
                             "X-Checksum-Deploy": "true",
                             "X-Checksum-Sha1": artifact_check_sums.sha1,
@@ -120,7 +120,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     raise ArtifactoryError from error
             else:
                 with local_file.open("rb") as stream:
-                    self._put(f"{artifact_path}", data=stream)
+                    self._put(route=artifact_folder.as_posix(), data=stream)
 
             logger.debug("Artifact %s successfully deployed", local_file)
         return self.info(artifact_folder)
