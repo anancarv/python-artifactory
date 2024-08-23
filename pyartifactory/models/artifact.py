@@ -3,8 +3,10 @@ Definition of all artifact models.
 """
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime
-from typing import Dict, List, Literal, Optional, Union
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -15,6 +17,22 @@ class Checksums(BaseModel):
     sha1: str
     md5: str
     sha256: str
+
+    @classmethod
+    def generate(cls, file_: Path) -> Checksums:
+        block_size: int = 65536
+        mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
+        results = {}
+        with file_.absolute().open("rb") as fd:
+            for algorithm, hashing_function in mapping.items():
+                hasher = hashing_function()
+                buf = fd.read(block_size)
+                while len(buf) > 0:
+                    hasher.update(buf)
+                    buf = fd.read(block_size)
+                results[algorithm] = hasher.hexdigest()
+
+        return cls(**results)
 
 
 class OriginalChecksums(BaseModel):

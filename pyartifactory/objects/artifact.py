@@ -19,6 +19,7 @@ from pyartifactory.models.artifact import (
     ArtifactListResponse,
     ArtifactPropertiesResponse,
     ArtifactStatsResponse,
+    Checksums,
 )
 from pyartifactory.objects.object import ArtifactoryObject
 
@@ -75,11 +76,17 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
 
-    def deploy(self, local_file_location: Union[Path, str], artifact_path: Union[Path, str]) -> ArtifactInfoResponse:
+    def deploy(
+        self,
+        local_file_location: Union[Path, str],
+        artifact_path: Union[Path, str],
+        checksum_enabled: bool = False,
+    ) -> ArtifactInfoResponse:
         """
         Deploy a file or directory.
         :param artifact_path: Path to artifactory in Artifactory
         :param local_file_location: Location of the file or folder to deploy
+        :param checksum_enabled: Enable checksum generation and use it for validation of the deployment
         """
         local_file = Path(local_file_location)
         artifact_folder = Path(artifact_path)
@@ -90,9 +97,32 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
         else:
-            with local_file.open(mode="rb") as streamfile:
-                self._put(route=artifact_folder.as_posix(), data=streamfile)
-                logger.debug("Artifact %s successfully deployed", artifact_folder.name)
+            if checksum_enabled:
+                artifact_check_sums = Checksums.generate(local_file)
+                try:
+                    self._put(
+                        route=artifact_folder.as_posix(),
+                        headers={
+                            "X-Checksum-Deploy": "true",
+                            "X-Checksum-Sha1": artifact_check_sums.sha1,
+                            "X-Checksum-Sha256": artifact_check_sums.sha256,
+                            "X-Checksum": artifact_check_sums.md5,
+                        },
+                    )
+                except requests.exceptions.HTTPError as error:
+                    if error.response.status_code == 404:
+                        message = (
+                            f"Artifact {artifact_path} does not exist in Artifactory,"
+                            f" content is expected to deploy by checksum"
+                        )
+                        logger.error(message)
+                        raise ArtifactNotFoundError(message)
+                    raise ArtifactoryError from error
+            else:
+                with local_file.open("rb") as stream:
+                    self._put(route=artifact_folder.as_posix(), data=stream)
+
+            logger.debug("Artifact %s successfully deployed", local_file)
         return self.info(artifact_folder)
 
     @staticmethod

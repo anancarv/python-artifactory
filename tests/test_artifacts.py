@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import urllib.parse
+from os import urandom
 from pathlib import Path
 
 import pytest
@@ -15,6 +16,7 @@ from pyartifactory.models.artifact import (
     ArtifactListFileResponse,
     ArtifactListFolderResponse,
     ArtifactListResponse,
+    Checksums,
 )
 
 URL = "http://localhost:8080/artifactory"
@@ -58,7 +60,6 @@ CHILD1_FOLDER_INFO_RESPONSE["children"] = [
     {"uri": "/grandchild", "folder": "false"},
 ]
 CHILD1_FOLDER_INFO = ArtifactFolderInfoResponse(**CHILD1_FOLDER_INFO_RESPONSE)
-
 
 FILE_INFO_RESPONSE = {
     "repo": ARTIFACT_REPO,
@@ -501,3 +502,62 @@ def test_update_property_fail_bad_value():
             {BAD_PROPERTY_NAME: [BAD_PROPERTY_VALUE]},
         )
         assert update_properties_response is None
+
+
+@pytest.mark.parametrize(
+    "size,expected",
+    [
+        pytest.param(
+            0,
+            {
+                "md5": "d41d8cd98f00b204e9800998ecf8427e",
+                "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            },
+            id="empty file",
+        ),
+    ],
+)
+def test_checksum_generated_file(tmp_path, size: int, expected: dict):
+    local_file = tmp_path / "dummy"
+    with local_file.open("wb") as f:
+        f.write(urandom(size))
+
+    result = Checksums.generate(local_file)
+    assert result.model_dump() == expected
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_success(mocker):
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=200)
+
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
+        status=200,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory, "info")
+    artifact = artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)
+
+    artifactory.info.assert_called_once_with(Path(ARTIFACT_PATH))
+    assert artifact.model_dump() == FILE_INFO.model_dump()
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_error_404():
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=404)
+
+    with pytest.raises(ArtifactNotFoundError):
+        artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+        artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)
+
+
+@responses.activate
+def test_deploy_artifact_with_checksum_error_but_other_than_404():
+    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=500)
+
+    with pytest.raises(ArtifactoryError):
+        artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+        artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), checksum_enabled=True)
