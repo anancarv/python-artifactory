@@ -102,7 +102,7 @@ class ArtifactoryRepository(ArtifactoryObject):
             logger.error("Repository %s already exists", repo_name)
             raise RepositoryAlreadyExistsError(f"Repository {repo_name} already exists")
         except RepositoryNotFoundError:
-            data = json.dumps(repo, default=custom_encoder)
+            data = json.dumps(repo.model_dump(), default=custom_encoder)
             self._put(
                 f"api/{self._uri}/{repo_name}",
                 headers={"Content-Type": "application/json"},
