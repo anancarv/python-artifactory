@@ -246,7 +246,7 @@ virtual_repo = VirtualRepository(key="test_virtual_repo")
 new_virtual_repo = art.repositories.create_repo(virtual_repo)
 
 # Create remote repo
-remote_repo = RemoteRepository(key="test_remote_repo")
+remote_repo = RemoteRepository(key="test_remote_repo", url="http://test-url.com")
 new_remote_repo = art.repositories.create_repo(remote_repo)
 
 # Create federated repo
