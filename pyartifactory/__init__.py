@@ -9,6 +9,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pyartifactory.models.auth import AccessTokenModel
 from pyartifactory.objects.artifact import ArtifactoryArtifact
 from pyartifactory.objects.artifactory import Artifactory
+from pyartifactory.objects.build import ArtifactoryBuild
 from pyartifactory.objects.group import ArtifactoryGroup
 from pyartifactory.objects.permission import ArtifactoryPermission
 from pyartifactory.objects.repository import ArtifactoryRepository
@@ -24,6 +25,7 @@ __all__ = [
     "ArtifactoryRepository",
     "ArtifactorySecurity",
     "ArtifactoryUser",
+    "ArtifactoryBuild",
 ]
 
 with contextlib.suppress(PackageNotFoundError):

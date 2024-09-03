@@ -13,6 +13,23 @@ from .artifact import (
     ArtifactStatsResponse,
 )
 from .auth import AccessTokenModel, ApiKeyModel, AuthModel, PasswordModel
+from .build import (
+    BuildAgent,
+    BuildArtifact,
+    BuildCreateRequest,
+    BuildDeleteRequest,
+    BuildDiffResponse,
+    BuildDiffResponseDetail,
+    BuildInfo,
+    BuildInfoDetail,
+    BuildListResponse,
+    BuildModules,
+    BuildPromotionRequest,
+    BuildPromotionResult,
+    BuildRun,
+    Run,
+    SimpleBuild,
+)
 from .group import Group, SimpleGroup
 from .permission import Permission, PermissionV2, SimplePermission
 from .repository import (
@@ -70,4 +87,19 @@ __all__ = [
     "AnyRepositoryResponse",
     "AnyRepository",
     "AnyPermission",
+    "SimpleBuild",
+    "BuildListResponse",
+    "Run",
+    "BuildRun",
+    "BuildArtifact",
+    "BuildModules",
+    "BuildAgent",
+    "BuildInfoDetail",
+    "BuildInfo",
+    "BuildPromotionResult",
+    "BuildPromotionRequest",
+    "BuildDeleteRequest",
+    "BuildDiffResponseDetail",
+    "BuildDiffResponse",
+    "BuildCreateRequest",
 ]

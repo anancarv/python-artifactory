@@ -54,3 +54,18 @@ class PropertyNotFoundError(ArtifactoryError):
 
 class InvalidTokenDataError(ArtifactoryError):
     """The token contains invalid data."""
+
+
+class BuildNotFoundError(ArtifactoryError):
+    """Requested build were not found"""
+
+
+class ArtifactoryBuildError(ArtifactoryError):
+    """Artifactory Build Error."""
+
+    status: int
+    message: str
+
+    def __init__(self, status: int, message: str):
+        self.status = status
+        self.message = message
