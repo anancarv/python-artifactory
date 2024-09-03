@@ -409,7 +409,14 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", checksum_enabled=True)
 # artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt", checksums=True)
 ```
-Note: the performance might suffer when deploying artifacts with checksums enabled.
+Deploy an artifact to the specified destination by checking if the artifact content already exists in Artifactory.
+
+If Artifactory already contains a user-readable artifact with the same checksum the artifact content is copied over
+to the new location and returns a response without requiring content transfer.
+
+Otherwise, a 404 error is returned to indicate that content upload is expected in order to deploy the artifact.
+
+**Note**: The performance might suffer when deploying artifacts with checksums enabled.
 
 #### Download an artifact
 ```python

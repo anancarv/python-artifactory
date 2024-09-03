@@ -24,9 +24,9 @@ class Checksums(BaseModel):
         mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
 
-        for algorithm, hashing_function in mapping.items():
-            hasher = hashing_function()
-            with file_.absolute().open("rb") as fd:
+        with file_.absolute().open("rb") as fd:
+            for algorithm, hashing_function in mapping.items():
+                hasher = hashing_function()
                 buf = fd.read(block_size)
                 while len(buf) > 0:
                     hasher.update(buf)
