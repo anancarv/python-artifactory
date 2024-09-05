@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import urllib.parse
-from os import urandom
 from pathlib import Path
 
 import pytest
@@ -127,6 +126,8 @@ ARTIFACT_STATS = ArtifactStatsResponse(
     remoteDownloadCount=0,
     remoteLastDownloaded=0,
 )
+
+CURRENT_FOLDER = Path(__file__).parent
 
 
 @responses.activate
@@ -505,26 +506,39 @@ def test_update_property_fail_bad_value():
 
 
 @pytest.mark.parametrize(
-    "size,expected",
+    "file_path,expected_sha1,expected_md5,expected_sha256",
     [
         pytest.param(
-            0,
-            {
-                "md5": "d41d8cd98f00b204e9800998ecf8427e",
-                "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
-                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            },
-            id="empty file",
+            CURRENT_FOLDER / "./resources/used_for_integration_tests.txt",
+            "6eadcc38199835325cad99d2049749aa3b2ab5d1",
+            "df3929d7b575b92fef7a97d2a7827c36",
+            "f1d3f5f25ae31e46d13ce7b3e224158da45de2d0db388a693b08ec5cf0302227",
+            id="used_for_integration_tests.txt",
+        ),
+        pytest.param(
+            CURRENT_FOLDER / "./resources/empty_file.txt",
+            "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+            "d41d8cd98f00b204e9800998ecf8427e",
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            id="empty_file.txt",
+        ),
+        pytest.param(
+            CURRENT_FOLDER / "./resources/picture-dog.jpg",
+            "c3e7b4a20b35a87762f1844c7b961de668b58749",
+            "1c9703e4a52b48892346a65b0356069b",
+            "b7e8ca95bd76cedc161cb54bca1711a1fe495e1799e060acf10b7f5a7cfe6b29",
+            id="picture-dog",
         ),
     ],
 )
-def test_checksum_generated_file(tmp_path, size: int, expected: dict):
-    local_file = tmp_path / "dummy"
-    with local_file.open("wb") as f:
-        f.write(urandom(size))
-
-    result = Checksums.generate(local_file)
-    assert result.model_dump() == expected
+def test_checksum_defined_file(file_path: Path, expected_sha1: str, expected_md5: str, expected_sha256: str):
+    result = Checksums.generate(file_path)
+    expected = Checksums(
+        sha1=expected_sha1,
+        md5=expected_md5,
+        sha256=expected_sha256,
+    )
+    assert result == expected
 
 
 @responses.activate
