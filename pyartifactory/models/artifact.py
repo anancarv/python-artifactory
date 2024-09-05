@@ -23,7 +23,7 @@ class Checksums(BaseModel):
         block_size: int = 65536
         mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
-        
+
         for algorithm, hashing_function in mapping.items():
             hasher = hashing_function()
             with file_.absolute().open("rb") as fd:
