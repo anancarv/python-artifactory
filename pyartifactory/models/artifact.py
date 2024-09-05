@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -21,22 +21,19 @@ class Checksums(BaseModel):
     @classmethod
     def generate(cls, file_: Path) -> Checksums:
         block_size: int = 65536
+        mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
+        results = {}
 
-        sha1 = hashlib.sha1()  # nosec  # noqa: S324
-        sha256 = hashlib.sha256()
-        md5 = hashlib.md5()  # nosec  # noqa: S324
+        for algorithm, hashing_function in mapping.items():
+            hasher = hashing_function()
+            with file_.absolute().open("rb") as fd:
+                buf = fd.read(block_size)
+                while len(buf) > 0:
+                    hasher.update(buf)
+                    buf = fd.read(block_size)
+            results[algorithm] = hasher.hexdigest()
 
-        with file_.absolute().open("rb") as fd:
-            while chunk := fd.read(block_size):
-                sha1.update(chunk)
-                sha256.update(chunk)
-                md5.update(chunk)
-
-        return cls(
-            sha1=sha1.hexdigest(),
-            md5=md5.hexdigest(),
-            sha256=sha256.hexdigest(),
-        )
+        return cls(**results)
 
 
 class OriginalChecksums(BaseModel):
