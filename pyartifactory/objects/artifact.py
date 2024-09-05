@@ -95,7 +95,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             for root, _, files in os.walk(local_file.as_posix()):
                 new_root = f"{artifact_folder}/{root[len(local_file.as_posix()):]}"
                 for file in files:
-                    self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"))
+                    self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"), checksum_enabled)
         else:
             if checksum_enabled:
                 artifact_check_sums = Checksums.generate(local_file)
