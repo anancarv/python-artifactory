@@ -40,6 +40,14 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Copy artifact to a new location](#copy-artifact-to-a-new-location)
     + [Move artifact to a new location](#move-artifact-to-a-new-location)
     + [Delete an artifact](#delete-an-artifact)
+  * [Builds](#builds)
+    + [Get a list of all builds](#get-a-list-of-all-builds)
+    + [Get the information about a build](#get-the-information-about-a-build)
+    + [Create build](#create-build)
+    + [Promote a build](#promote-a-build)
+    + [Delete one or more builds](#delete-one-or-more-builds)
+    + [Rename a build](#rename-a-build)
+    + [Get differences between two builds](#get-differences-between-two-builds)
   * [Contributing](#contributing)
 
 <!-- tocstop -->
@@ -473,6 +481,53 @@ artifact = art.artifacts.move("<CURRENT_ARTIFACT_PATH_IN_ARTIFACTORY>","<NEW_ART
 #### Delete an artifact
 ```python
 art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
+```
+
+
+
+### Builds
+
+#### Get a list of all builds
+```python
+build_list: BuildListResponse = art.builds.list()
+```
+
+#### Get the information about a build
+
+```python
+build_info: BuildInfo = art.builds.get_build_info("<build_name>", "<build_number>")
+```
+
+Note: optional BuildProperties can be used to query the correct build info of interest.
+
+#### Create build
+
+```python
+_build_create_request = BuildCreateRequest(name="<build_name>", number="<build_number>", started="<Build start time in the format of yyyy-MM-dd'T'HH:mm:ss.SSSZ>")
+_create_build = art.builds.create_build(_build_create_request)
+```
+
+
+#### Promote a build
+```python
+_build_promote_request = BuildPromotionRequest(sourceRepo="<source-jfrog-repo>", targetRepo="<target-jfrog-repo>")
+_promote_build: BuildPromotionResult = art.builds.promote_build("<build_name>", "<build_number>", _build_promote_request)
+```
+
+#### Delete one or more builds
+```python
+_build_delete_request = BuildDeleteRequest(buildName="<build_name>", buildNumbers=["<build_number>", "<another_build_number>", ...])
+art.builds.delete(_build_delete_request)
+```
+
+#### Rename a build
+```python
+art.builds.build_rename("<build_name>", "<new_build_name>")
+```
+
+#### Get differences between two builds
+```python
+_build_diffs: BuildDiffResponse = art.builds.build_diff("<build_name>", "<build_number>", "<older_build_number>")
 ```
 
 

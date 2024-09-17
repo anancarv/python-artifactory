@@ -54,7 +54,7 @@ class ArtifactoryBuild(ArtifactoryObject):
 
         return BuildInfo(**response.json())
 
-    def create_build(self, create_build_request: BuildCreateRequest):
+    def create_build(self, create_build_request: BuildCreateRequest) -> None:
         try:
             self.get_build_info(create_build_request.name, create_build_request.number)
         except BuildNotFoundError:
