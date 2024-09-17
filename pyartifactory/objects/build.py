@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Union
+from typing import Union
 
 import pydantic_core
 import requests
@@ -17,6 +17,7 @@ from pyartifactory.models.build import (
     BuildListResponse,
     BuildPromotionRequest,
     BuildPromotionResult,
+    BuildProperties,
 )
 from pyartifactory.objects.object import ArtifactoryObject
 
@@ -28,23 +29,25 @@ class ArtifactoryBuild(ArtifactoryObject):
 
     _uri = "build"
 
-    def get_build_info(self, build_name: str, build_number: str, properties: Optional[List[str]] = None) -> BuildInfo:
+    def get_build_info(
+        self,
+        build_name: str,
+        build_number: str,
+        properties: BuildProperties = BuildProperties(),
+    ) -> BuildInfo:
         """
         :param build_name: Build name to be retrieved
         :param build_number: Build number to be retrieved
-        :param properties: List of strings like ["started=...", "diff=..."] , for admitted values
+        :param properties: Build properties model, for admitted values
                            see https://jfrog.com/help/r/jfrog-rest-apis/build-info
         :return: BuildInfo model object containing server response
         """
-        build_name = build_name.lstrip("/")
-        build_number = build_number.lstrip("/")
-        _query_string = ""
-        if properties:
-            _query_string = "?" + "&".join(properties)
+        build_name = build_name.strip("/")
+        build_number = build_number.strip("/")
 
         try:
             response = self._get(
-                f"api/{self._uri}/{build_name}/{build_number}{_query_string}",
+                f"api/{self._uri}/{build_name}/{build_number}{properties.to_query_string()}",
             )
             self._response_checker(response)
             logger.debug("Build Info successfully retrieved")
@@ -61,7 +64,7 @@ class ArtifactoryBuild(ArtifactoryObject):
 
     def create_build(self, create_build_request: BuildCreateRequest):
         try:
-            _existing_build_info = self.get_build_info(create_build_request.name, create_build_request.number)
+            self.get_build_info(create_build_request.name, create_build_request.number)
         except BuildNotFoundError:
             _resp = self._put(f"api/{self._uri}", json=create_build_request.model_dump())
             if _resp.status_code != 204:
@@ -173,11 +176,9 @@ class ArtifactoryBuild(ArtifactoryObject):
         :param older_build_number: Starting build to be compared
         :return: BuildDiffResponse model object containing server response
         """
-        build_name = build_name.lstrip("/")
-        build_number = build_number.lstrip("/")
-        older_build_number = older_build_number.lstrip("/")
-        # self._check_build_number_value(build_number)
-        # self._check_build_number_value(older_build_number)
+        build_name = build_name.strip("/")
+        build_number = build_number.strip("/")
+        older_build_number = older_build_number.strip("/")
 
         try:
             response = self._get(

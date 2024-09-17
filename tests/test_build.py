@@ -15,6 +15,7 @@ from pyartifactory.models import (
     BuildListResponse,
     BuildPromotionRequest,
     BuildPromotionResult,
+    BuildProperties,
 )
 
 URL = "http://localhost:8080/artifactory"
@@ -28,7 +29,7 @@ BUILD_PROMOTION_REQUEST = BuildPromotionRequest(sourceRepo="repo-abc", targetRep
 BUILD_PROMOTION_RESULT = BuildPromotionResult()
 BUILD_DELETE_REQUEST = BuildDeleteRequest(buildName="build", buildNumbers=["abc", "123"])
 BUILD_DELETE_ERROR = BuildError(errors=[{"status": 404, "message": "Not found"}])
-BUILD_CREATE_REQUEST = BuildCreateRequest(name="a-build", number="build-xx")
+BUILD_CREATE_REQUEST = BuildCreateRequest(name="a-build", number="build-xx", started="2014-09-30T12:00:19.893+0300")
 
 
 @responses.activate
@@ -51,11 +52,11 @@ def test_get_build_info_success(mocker):
 @pytest.mark.parametrize(
     "build_num,properties_input,expected_query,raised_exc",
     [
-        ("11", [], "", BuildNotFoundError),
-        ("11", ["diff=43"], "?diff=43", BuildNotFoundError),
-        ("11", ["diff=43", "started=2024-08"], "?diff=43&started=2024-08", BuildNotFoundError),
-        ("11", ["diff=abc"], "?diff=abc", ArtifactoryError),
-        ("def", ["diff=22"], "?diff=22", ArtifactoryError),
+        ("11", BuildProperties(), "", BuildNotFoundError),
+        ("11", BuildProperties(diff="43"), "?diff=43", BuildNotFoundError),
+        ("11", BuildProperties(diff="43", started="2024-08"), "?diff=43&started=2024-08", BuildNotFoundError),
+        ("11", BuildProperties(diff="abc"), "?diff=abc", ArtifactoryError),
+        ("def", BuildProperties(diff="22"), "?diff=22", ArtifactoryError),
     ],
 )
 def test_get_build_info_errors(mocker, build_num, properties_input, expected_query, raised_exc):
