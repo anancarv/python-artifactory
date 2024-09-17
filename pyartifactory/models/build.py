@@ -153,6 +153,10 @@ class BuildErrorDetail(BaseModel):
 class BuildError(BaseModel):
     errors: List[BuildErrorDetail]
 
+    # Method to extract error message
+    def to_error_message(self) -> str:
+        return "\n".join([f"Error status: {_error.status} - {_error.message}" for _error in self.errors])
+
 
 class LicenseControl(BaseModel):
     """Build's license."""
