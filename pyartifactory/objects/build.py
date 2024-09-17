@@ -3,11 +3,10 @@ from __future__ import annotations
 import logging
 from typing import Union
 
-import pydantic_core
 import requests
 from requests import Response
 
-from pyartifactory.exception import ArtifactoryBuildError, ArtifactoryError, BuildNotFoundError
+from pyartifactory.exception import ArtifactoryError, BuildNotFoundError
 from pyartifactory.models.build import (
     BuildCreateRequest,
     BuildDeleteRequest,
@@ -49,30 +48,32 @@ class ArtifactoryBuild(ArtifactoryObject):
             response = self._get(
                 f"api/{self._uri}/{build_name}/{build_number}{properties.to_query_string()}",
             )
-            self._response_checker(response)
             logger.debug("Build Info successfully retrieved")
-            return BuildInfo(**response.json())
         except requests.exceptions.HTTPError as error:
-            http_response: Union[Response, None] = error.response
-            if isinstance(http_response, Response) and http_response.status_code == 404:
-                raise BuildNotFoundError(f"Build {build_number} were not found on {build_name}")
-            raise ArtifactoryError from error
-        except ArtifactoryBuildError as error:
-            if error.status == 404:
-                raise BuildNotFoundError(error.message)
-            raise ArtifactoryError from error
+            self._raise_exception(error)
+
+        return BuildInfo(**response.json())
 
     def create_build(self, create_build_request: BuildCreateRequest):
         try:
             self.get_build_info(create_build_request.name, create_build_request.number)
         except BuildNotFoundError:
-            _resp = self._put(f"api/{self._uri}", json=create_build_request.model_dump())
-            if _resp.status_code != 204:
-                logger.error("Build %s in %s not created", create_build_request.number, create_build_request.name)
-                raise ArtifactoryError(
-                    f"Build {create_build_request.number} in {create_build_request.name} not created",
+            # other exception from get_build_info are forwarded to caller.
+            try:
+                # build does not exist, can be created here
+                _resp = self._put(f"api/{self._uri}", json=create_build_request.model_dump())
+                if _resp.status_code != 204:
+                    logger.error("Build %s in %s not created", create_build_request.number, create_build_request.name)
+                    raise ArtifactoryError(
+                        f"Build {create_build_request.number} in {create_build_request.name} not created",
+                    )
+                logging.debug(
+                    "Build %s in %s successfully created",
+                    create_build_request.number,
+                    create_build_request.name,
                 )
-            logging.debug("Build %s in %s successfully created", create_build_request.number, create_build_request.name)
+            except requests.exceptions.HTTPError as error:
+                self._raise_exception(error)
         else:
             logger.error("Build %s in %s already exists", create_build_request.number, create_build_request.name)
             raise ArtifactoryError(f"Build {create_build_request.number} in {create_build_request.name} already exists")
@@ -90,26 +91,28 @@ class ArtifactoryBuild(ArtifactoryObject):
         :return: BuildPromotionResponse containing server response
         """
         try:
-            response = self._get(
+            self._get(
                 f"api/{self._uri}/{build_name}/{build_number}",
             )
-            self._response_checker(response)
         except requests.exceptions.HTTPError as error:
-            http_response: Union[Response, None] = error.response
-            if isinstance(http_response, Response) and http_response.status_code == 404:
-                raise BuildNotFoundError(f"Build {build_number} were not found on {build_name}")
-            raise ArtifactoryError from error
-        except ArtifactoryBuildError as error:
-            if error.status == 404:
-                raise BuildNotFoundError(error.message)
-            raise ArtifactoryError from error
+            self._raise_exception(error)
         else:
-            response = self._post(
-                f"api/{self._uri}/promote/{build_name}/{build_number}",
-                json=promotion_request.model_dump(),
-            )
-            promotion_result = BuildPromotionResult(**response.json())
-            return promotion_result
+            try:
+                response = self._post(
+                    f"api/{self._uri}/promote/{build_name}/{build_number}",
+                    json=promotion_request.model_dump(),
+                )
+                logging.debug(
+                    "Build %s in %s promoted from %s to %s",
+                    build_number,
+                    build_name,
+                    promotion_request.sourceRepo,
+                    promotion_request.targetRepo,
+                )
+            except requests.exceptions.HTTPError as error:
+                self._raise_exception(error)
+
+        return BuildPromotionResult(**response.json())
 
     def list(self) -> BuildListResponse:
         """
@@ -127,25 +130,15 @@ class ArtifactoryBuild(ArtifactoryObject):
         """
         try:
             for _build_number in delete_build.buildNumbers:
-                response = self._get(
+                self._get(
                     f"api/{self._uri}/{delete_build.buildName}/{_build_number}",
                 )
-                self._response_checker(response)
         except requests.exceptions.HTTPError as error:
-            http_response: Union[Response, None] = error.response
-            if isinstance(http_response, Response) and http_response.status_code == 404:
-                _http_error = BuildError(**http_response.json())
-                raise BuildNotFoundError("\n".join([_error.message for _error in _http_error.errors]))
-            raise ArtifactoryError from error
-        except ArtifactoryBuildError as error:
-            if error.status == 404:
-                raise BuildNotFoundError(error.message)
-            # at least one build number does not exist
-            raise ArtifactoryError from error
+            self._raise_exception(error)
         else:
             # all build numbers exist
             _del = self._post(f"api/{self._uri}/delete", json=delete_build.model_dump())
-            logger.debug(_del.text)
+            logger.debug("Builds %s deleted from %s", ",".join(delete_build.buildNumbers), delete_build.buildName)
 
     def build_rename(self, build_name: str, new_build_name: str) -> None:
         """
@@ -154,20 +147,17 @@ class ArtifactoryBuild(ArtifactoryObject):
         :return: None
         """
         try:
-            response = self._get(
+            self._get(
                 f"api/{self._uri}/{build_name}",
             )
-            self._response_checker(response)
         except requests.exceptions.HTTPError as error:
-            http_response: Union[Response, None] = error.response
-            if isinstance(http_response, Response) and http_response.status_code == 404:
-                raise BuildNotFoundError(f"Build {build_name} were not found")
-            raise ArtifactoryError from error
-        except ArtifactoryBuildError as error:
-            raise ArtifactoryError from error
+            self._raise_exception(error)
         else:
-            self._post(f"api/{self._uri}/rename/{build_name}?to={new_build_name}")
-            logger.debug("Build %s successfully renamed to %s", build_name, new_build_name)
+            try:
+                self._post(f"api/{self._uri}/rename/{build_name}?to={new_build_name}")
+                logger.debug("Build %s successfully renamed to %s", build_name, new_build_name)
+            except requests.exceptions.HTTPError as error:
+                self._raise_exception(error)
 
     def build_diff(self, build_name: str, build_number: str, older_build_number: str) -> BuildDiffResponse:
         """
@@ -184,24 +174,18 @@ class ArtifactoryBuild(ArtifactoryObject):
             response = self._get(
                 f"api/{self._uri}/{build_name}/{build_number}?diff={older_build_number}",
             )
-            self._response_checker(response)
-            logger.debug("Build Diff successfully retrieved")
-            return BuildDiffResponse(**response.json())
+            logger.debug("Build Diff successfully retrieved between %s and %s", build_number, older_build_number)
         except requests.exceptions.HTTPError as error:
-            http_response: Union[Response, None] = error.response
-            if isinstance(http_response, Response) and http_response.status_code == 404:
-                raise BuildNotFoundError(
-                    f"Build diff {build_number} or {older_build_number} were not found on {build_name}",
-                )
-            raise ArtifactoryError from error
-        except ArtifactoryBuildError as error:
-            raise ArtifactoryError from error
+            self._raise_exception(error)
 
-    def _response_checker(self, response):
-        try:
-            _error = BuildError(**response.json())
-        except pydantic_core.ValidationError:
-            # response does not fit with error model
-            return
+        return BuildDiffResponse(**response.json())
+
+    def _raise_exception(self, error: requests.exceptions.HTTPError):
+        http_response: Union[Response, None] = error.response
+        if isinstance(http_response, Response):
+            _http_error = BuildError(**http_response.json())
+            if http_response.status_code == 404:
+                raise BuildNotFoundError(_http_error.to_error_message()) from error
+            raise ArtifactoryError(_http_error.to_error_message()) from error
         else:
-            raise ArtifactoryBuildError(_error.errors[0].status, _error.errors[0].message)
+            raise ArtifactoryError from error
