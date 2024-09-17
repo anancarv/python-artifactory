@@ -8,6 +8,19 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
+class BuildProperties(BaseModel):
+    started: Optional[str] = None
+    diff: Optional[str] = None
+    project: Optional[str] = None
+
+    # Method to convert model to query string
+    def to_query_string(self) -> str:
+        # Create a list of key=value pairs for all non-None fields
+        properties = [f"{key}={value}" for key, value in self.model_dump(exclude_none=True).items()]
+
+        return "?" + "&".join(properties) if properties else ""
+
+
 class SimpleBuild(BaseModel):
     """Models an artifactory single build."""
 
@@ -61,6 +74,13 @@ class BuildAgent(BaseModel):
     version: str = ""
 
 
+class Vcs(BaseModel):
+    revision: Optional[str] = None
+    message: Optional[str] = None
+    branch: Optional[str] = None
+    url: Optional[str] = None
+
+
 class BuildInfoDetail(BaseModel):
     """Models artifactory buildInfo dict."""
 
@@ -73,7 +93,7 @@ class BuildInfoDetail(BaseModel):
     started: str = ""
     durationMillis: int = 0
     artifactoryPrincipal: str = ""
-    vcs: Optional[List[Dict[str, str]]] = None
+    vcs: Optional[List[Vcs]] = None
     modules: List[BuildModules] = []
 
 
@@ -134,12 +154,95 @@ class BuildError(BaseModel):
     errors: List[BuildErrorDetail]
 
 
+class LicenseControl(BaseModel):
+    """Build's license."""
+
+    runChecks: Optional[bool] = None
+    includePublishedArtifacts: Optional[bool] = None
+    autoDiscover: Optional[bool] = None
+    scopesList: Optional[str] = None
+    licenseViolationsRecipientsList: Optional[str] = None
+
+
+class BuildRetention(BaseModel):
+    """Build's retention."""
+
+    deleteBuildArtifacts: Optional[bool] = None
+    count: Optional[int] = None
+    minimumBuildDate: Optional[int] = None
+    buildNumbersNotToBeDiscarded: Optional[List[str]] = None
+
+
+class Artifacts(BaseModel):
+    """Build's artifacts."""
+
+    type: Optional[str] = None
+    sha1: Optional[str] = None
+    md5: Optional[str] = None
+    name: Optional[str] = None
+
+
+class Dependencies(BaseModel):
+    """Build's dependency."""
+
+    type: Optional[str] = None
+    sha1: Optional[str] = None
+    md5: Optional[str] = None
+    id: Optional[str] = None
+    scopes: Optional[List[str]] = None
+
+
+class BuildSingleModule(BaseModel):
+    """Build's module model."""
+
+    properties: Optional[Dict[str, str]] = None
+    id: Optional[str] = None
+    artifacts: Optional[List[Artifacts]] = None
+    dependencies: Optional[List[Dependencies]] = None
+
+
+class Tracker(BaseModel):
+    """Build's issue tracker."""
+
+    name: Optional[str] = None
+    version: Optional[str] = None
+
+
+class AffectedIssue(BaseModel):
+    """Build's affected issue."""
+
+    key: Optional[str] = None
+    url: Optional[str] = None
+    summary: Optional[str] = None
+    aggregated: Optional[bool] = None
+
+
+class Issue(BaseModel):
+    """Build's issue."""
+
+    tracker: Optional[Tracker] = None
+    aggregateBuildIssues: Optional[bool] = None
+    aggregationBuildStatus: Optional[str] = None
+    affectedIssues: Optional[List[AffectedIssue]] = None
+
+
 class BuildCreateRequest(BaseModel):
+    """Models artifactory build creation data."""
+
+    properties: Dict[str, str] = {}
+    version: str = "1.0.1"
     name: str
     number: str
-    agent: BuildAgent = BuildAgent()
-    buildAgent: BuildAgent = BuildAgent()
-    started: str = ""
-    properties: Dict[str, str] = {}
-    artifactoryPrincipal: str = ""
-    vcs: List[Dict[str, str]] = []
+    type: Optional[str] = None
+    buildAgent: Optional[BuildAgent] = None
+    agent: Optional[BuildAgent] = None
+    started: str
+    artifactoryPluginVersion: Optional[str] = None
+    durationMillis: Optional[int] = None
+    artifactoryPrincipal: Optional[str] = None
+    url: Optional[str] = None
+    vcs: Optional[List[Vcs]] = None
+    licenseControl: Optional[LicenseControl] = None
+    buildRetention: Optional[BuildRetention] = None
+    modules: Optional[List[BuildSingleModule]] = None
+    issues: Optional[Issue] = None
