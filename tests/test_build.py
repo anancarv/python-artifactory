@@ -261,19 +261,3 @@ def test_create_build_error_already_exist(mocker):
     mocker.spy(artifactory_build, "create_build")
     with pytest.raises(ArtifactoryError):
         artifactory_build.create_build(BUILD_CREATE_REQUEST)
-
-
-@responses.activate
-def test_create_build_error_not_created(mocker):
-    responses.add(
-        responses.GET,
-        f"{URL}/api/build/{BUILD_CREATE_REQUEST.name}/{BUILD_CREATE_REQUEST.number}",
-        json=BUILD_NOT_FOUND_ERROR.model_dump(),
-        status=404,
-    )
-    responses.add(responses.PUT, f"{URL}/api/build", json=BUILD_CREATE_REQUEST.model_dump(), status=200)
-
-    artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
-    mocker.spy(artifactory_build, "create_build")
-    with pytest.raises(ArtifactoryError):
-        artifactory_build.create_build(BUILD_CREATE_REQUEST)

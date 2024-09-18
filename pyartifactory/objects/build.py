@@ -58,12 +58,7 @@ class ArtifactoryBuild(ArtifactoryObject):
             # other exception from get_build_info are forwarded to caller.
             try:
                 # build does not exist, can be created here
-                _resp = self._put(f"api/{self._uri}", json=create_build_request.model_dump())
-                if _resp.status_code != 204:
-                    logger.error("Build %s in %s not created", create_build_request.number, create_build_request.name)
-                    raise ArtifactoryError(
-                        f"Build {create_build_request.number} in {create_build_request.name} not created",
-                    )
+                self._put(f"api/{self._uri}", json=create_build_request.model_dump())
                 logging.debug(
                     "Build %s in %s successfully created",
                     create_build_request.number,
