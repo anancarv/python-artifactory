@@ -448,8 +448,13 @@ def test_deploy_artifact_with_properties_success():
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), properties=ARTIFACT_ONE_PROPERTY.properties, checksum_enabled=False)
-    artifact_properties = artifactory.properties(ARTIFACT_PATH,["prop1"])
+    artifactory.deploy(
+        Path(LOCAL_FILE_LOCATION),
+        Path(ARTIFACT_PATH),
+        properties=ARTIFACT_ONE_PROPERTY.properties,
+        checksum_enabled=False,
+    )
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1"])
     assert artifact_properties.model_dump() == ARTIFACT_ONE_PROPERTY.model_dump()
 
 
@@ -457,8 +462,8 @@ def test_deploy_artifact_with_properties_success():
 def test_deploy_artifact_with_multiple_properties_success():
     properties_param_str = ""
     for k, v in ARTIFACT_MULTIPLE_PROPERTIES.properties.items():
-        values_str = f",".join(list(map(urllib.parse.quote, v)))
-        properties_param_str +=f"{k}={values_str};"
+        values_str = ",".join(list(map(urllib.parse.quote, v)))
+        properties_param_str += f"{k}={values_str};"
     responses.add(
         responses.PUT,
         f"{URL}/{ARTIFACT_PATH};{properties_param_str}",
@@ -477,9 +482,15 @@ def test_deploy_artifact_with_multiple_properties_success():
         status=200,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifactory.deploy(Path(LOCAL_FILE_LOCATION), Path(ARTIFACT_PATH), properties=ARTIFACT_MULTIPLE_PROPERTIES.properties, checksum_enabled=False)
-    artifact_properties = artifactory.properties(ARTIFACT_PATH,["prop1", "prop2"])
+    artifactory.deploy(
+        Path(LOCAL_FILE_LOCATION),
+        Path(ARTIFACT_PATH),
+        properties=ARTIFACT_MULTIPLE_PROPERTIES.properties,
+        checksum_enabled=False,
+    )
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2"])
     assert artifact_properties.model_dump() == ARTIFACT_MULTIPLE_PROPERTIES.model_dump()
+
 
 @responses.activate
 def test_set_property_fail_artifact_not_found():

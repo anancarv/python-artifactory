@@ -121,9 +121,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     raise ArtifactoryError from error
             else:
                 with local_file.open("rb") as stream:
-                    if properties is None:
-                        properties = {}
-                    properties_param_str = self._format_properties(properties)
+                    properties_param_str = ""
+                    if properties is not None:
+                        properties_param_str = self._format_properties(properties)
                     route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
                     self._put(route, data=stream)
 
@@ -220,8 +220,8 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 logger.error("Artifact %s does not exist", artifact_path)
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
-        
-    def _format_properties(self, properties: Optional[List[str]] = None):
+
+    def _format_properties(self, properties: Dict[str, List[str]]):
         properties_param_str = ""
         for k, v in properties.items():
             values_str = ",".join(v)
