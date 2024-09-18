@@ -39,7 +39,7 @@ class Run(BaseModel):
     """Models an artifactory single build run."""
 
     uri: str
-    buildsNumbers: str
+    started: str
 
 
 class BuildRun(BaseModel):

@@ -500,24 +500,37 @@ build_info: BuildInfo = art.builds.get_build_info("<build_name>", "<build_number
 
 Note: optional BuildProperties can be used to query the correct build info of interest.
 
+```python
+build_properties = BuildProperties(diff="<older_build>")
+build_info: BuildInfo = art.builds.get_build_info("<build_name>", "<build_number>", properties=build_properties)
+# build_info contains diff between <build_number> and <older_build>
+```
+
+
+```python
+# started is the earliest build time to return
+build_properties = BuildProperties(started="<yyyy-MM-dd'T'HH:mm:ss.SSSZ>")
+build_info: BuildInfo = art.builds.get_build_info("<build_name>", "<build_number>", properties=build_properties)
+```
+
 #### Create build
 
 ```python
-_build_create_request = BuildCreateRequest(name="<build_name>", number="<build_number>", started="<Build start time in the format of yyyy-MM-dd'T'HH:mm:ss.SSSZ>")
-_create_build = art.builds.create_build(_build_create_request)
+build_create_request = BuildCreateRequest(name="<build_name>", number="<build_number>", started="<Build start time in the format of yyyy-MM-dd'T'HH:mm:ss.SSSZ>")
+create_build = art.builds.create_build(build_create_request)
 ```
 
 
 #### Promote a build
 ```python
-_build_promote_request = BuildPromotionRequest(sourceRepo="<source-jfrog-repo>", targetRepo="<target-jfrog-repo>")
-_promote_build: BuildPromotionResult = art.builds.promote_build("<build_name>", "<build_number>", _build_promote_request)
+build_promote_request = BuildPromotionRequest(sourceRepo="<source-jfrog-repo>", targetRepo="<target-jfrog-repo>")
+promote_build: BuildPromotionResult = art.builds.promote_build("<build_name>", "<build_number>", build_promote_request)
 ```
 
 #### Delete one or more builds
 ```python
-_build_delete_request = BuildDeleteRequest(buildName="<build_name>", buildNumbers=["<build_number>", "<another_build_number>", ...])
-art.builds.delete(_build_delete_request)
+build_delete_request = BuildDeleteRequest(buildName="<build_name>", buildNumbers=["<build_number>", "<another_build_number>", ...])
+art.builds.delete(build_delete_request)
 ```
 
 #### Rename a build
@@ -527,7 +540,7 @@ art.builds.build_rename("<build_name>", "<new_build_name>")
 
 #### Get differences between two builds
 ```python
-_build_diffs: BuildDiffResponse = art.builds.build_diff("<build_name>", "<build_number>", "<older_build_number>")
+build_diffs: BuildDiffResponse = art.builds.build_diff("<build_name>", "<build_number>", "<older_build_number>")
 ```
 
 

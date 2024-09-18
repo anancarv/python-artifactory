@@ -41,9 +41,6 @@ class ArtifactoryBuild(ArtifactoryObject):
                            see https://jfrog.com/help/r/jfrog-rest-apis/build-info
         :return: BuildInfo model object containing server response
         """
-        build_name = build_name.strip("/")
-        build_number = build_number.strip("/")
-
         try:
             response = self._get(
                 f"api/{self._uri}/{build_name}/{build_number}{properties.to_query_string()}",
@@ -120,8 +117,7 @@ class ArtifactoryBuild(ArtifactoryObject):
         """
         response = self._get(f"api/{self._uri}")
         logger.debug("List all builds successful")
-        build_list: BuildListResponse = BuildListResponse.model_validate(response.json())
-        return build_list
+        return BuildListResponse.model_validate(response.json())
 
     def delete(self, delete_build: BuildDeleteRequest) -> None:
         """
@@ -133,12 +129,11 @@ class ArtifactoryBuild(ArtifactoryObject):
                 self._get(
                     f"api/{self._uri}/{delete_build.buildName}/{_build_number}",
                 )
-        except requests.exceptions.HTTPError as error:
-            self._raise_exception(error)
-        else:
             # all build numbers exist
             _del = self._post(f"api/{self._uri}/delete", json=delete_build.model_dump())
             logger.debug("Builds %s deleted from %s", ",".join(delete_build.buildNumbers), delete_build.buildName)
+        except requests.exceptions.HTTPError as error:
+            self._raise_exception(error)
 
     def build_rename(self, build_name: str, new_build_name: str) -> None:
         """
