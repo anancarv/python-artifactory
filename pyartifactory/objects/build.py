@@ -130,7 +130,7 @@ class ArtifactoryBuild(ArtifactoryObject):
                     f"api/{self._uri}/{delete_build.buildName}/{_build_number}",
                 )
             # all build numbers exist
-            _del = self._post(f"api/{self._uri}/delete", json=delete_build.model_dump())
+            self._post(f"api/{self._uri}/delete", json=delete_build.model_dump())
             logger.debug("Builds %s deleted from %s", ",".join(delete_build.buildNumbers), delete_build.buildName)
         except requests.exceptions.HTTPError as error:
             self._raise_exception(error)
@@ -161,10 +161,6 @@ class ArtifactoryBuild(ArtifactoryObject):
         :param older_build_number: Starting build to be compared
         :return: BuildDiffResponse model object containing server response
         """
-        build_name = build_name.strip("/")
-        build_number = build_number.strip("/")
-        older_build_number = older_build_number.strip("/")
-
         try:
             response = self._get(
                 f"api/{self._uri}/{build_name}/{build_number}?diff={older_build_number}",
