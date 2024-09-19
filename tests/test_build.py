@@ -29,7 +29,7 @@ BUILD_NOT_FOUND_ERROR = BuildError(errors=[{"status": 404, "message": "Not found
 BUILD_GENERIC_ERROR = BuildError(errors=[{"status": 500, "message": "Generic error"}])
 BUILD_DIFF = BuildDiffResponse()
 BUILD_PROMOTION_REQUEST = BuildPromotionRequest(sourceRepo="repo-abc", targetRepo="repo-def")
-BUILD_PROMOTION_RESULT = BuildPromotionResult()
+BUILD_PROMOTION_RESPONSE = BuildPromotionResult()
 BUILD_DELETE_REQUEST = BuildDeleteRequest(buildName="build", buildNumbers=["abc", "123"])
 BUILD_DELETE_ERROR = BuildError(errors=[{"status": 404, "message": "Not found"}])
 BUILD_CREATE_REQUEST = BuildCreateRequest(name="a-build", number="build-xx", started="2014-09-30T12:00:19.893+0300")
@@ -58,6 +58,7 @@ def test_get_build_info_success(mocker):
     get_build = artifactory_build.get_build_info("build_name", "abc")
 
     assert isinstance(get_build, BuildInfo)
+    assert get_build == BUILD_INFO
 
 
 @responses.activate
@@ -123,6 +124,7 @@ def test_promote_build_success(mocker):
     build_promotion = artifactory_build.promote_build("build_proj", "build_number", BUILD_PROMOTION_REQUEST)
 
     assert isinstance(build_promotion, BuildPromotionResult)
+    assert build_promotion == BUILD_PROMOTION_RESPONSE
 
 
 @responses.activate
@@ -164,6 +166,7 @@ def test_list_build(mocker):
     build_list = artifactory_build.list()
 
     assert isinstance(build_list, BuildListResponse)
+    assert build_list == BUILD_LIST_RESPONSE
 
 
 @responses.activate
