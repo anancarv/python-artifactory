@@ -226,7 +226,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         for k, v in properties.items():
             values_str = ",".join(v)
             properties_param_str += f"{k}={values_str};"
-        return properties_param_str
+        return properties_param_str.rstrip(";")
 
     def properties(self, artifact_path: str, properties: Optional[List[str]] = None) -> ArtifactPropertiesResponse:
         """
