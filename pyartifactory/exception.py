@@ -54,3 +54,7 @@ class PropertyNotFoundError(ArtifactoryError):
 
 class InvalidTokenDataError(ArtifactoryError):
     """The token contains invalid data."""
+
+
+class BuildNotFoundError(ArtifactoryError):
+    """Requested build were not found"""
