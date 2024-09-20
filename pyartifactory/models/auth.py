@@ -14,6 +14,7 @@ class AuthModel(BaseModel):
     url: str
     auth: Tuple[str, SecretStr]
     access_token: Optional[str] = None
+    anonymous_auth: bool = False
     verify: Union[bool, str] = True
     cert: Optional[str] = None
     api_version: int = 1
