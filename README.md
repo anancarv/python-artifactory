@@ -19,7 +19,6 @@ This library enables you to manage Artifactory resources such as users, groups, 
   * [Authentication](#authentication)
     + [Basic authentication](#basic-authentication)
     + [Authentication with access token](#authentication-with-access-token)
-    + [Anonymous authentication](#anonymous-authentication)
   * [SSL Cert Verification Options](#ssl-cert-verification-options)
   * [Timeout option](#timeout-option)
   * [Admin objects](#admin-objects)
@@ -84,11 +83,9 @@ from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", access_token="your-access-token")
 ```
 
-#### Anonymous authentication
-```python
-from pyartifactory import Artifactory
-art = Artifactory(url="ARTIFACTORY_URL", anonymous_auth=True)
-```
+Note:
+* If you set both `access_token` and `auth`, the access_token authentication will be chosen
+* If you do not set any authentication method, API calls will be done without authentication (anonymous)
 
 ### SSL Cert Verification Options
 
