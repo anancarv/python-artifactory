@@ -205,17 +205,9 @@ art.security.create_api_key(          art.security.get_encrypted_password(  art.
 art.security.get_api_key(             art.security.regenerate_api_key(      art.security.revoke_user_api_key(
 ```
 
-Create an access token (for a transient user):
+Create an access token:
 ```python
-token = art.security.create_access_token(user_name='transient_artifactory_user',
-                                         groups=['g1', 'g2'],
-                                         refreshable=True)
-```
-
-Create an access token for an existing user (groups are implied from the existing user):
-```python
-token = art.security.create_access_token(user_name='existing_artifactory_user',
-                                         refreshable=True)
+token = art.security.create_access_token(user_name='artifactory_user', refreshable=True, scope="applied-permissions/user")
 ```
 
 Revoke an existing revocable token:

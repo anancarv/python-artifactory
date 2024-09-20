@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import pytest
 import responses
 
 from pyartifactory import ArtifactorySecurity
-from pyartifactory.exception import InvalidTokenDataError
 from pyartifactory.models import ApiKeyModel, AuthModel, PasswordModel
 
 URL = "http://localhost:8080/artifactory"
@@ -77,29 +75,24 @@ def test_revoke_user_api_key():
 def test_create_access_token():
     responses.add(
         responses.POST,
-        f"{URL}/api/security/token",
+        f"{URL}/access/api/v1/tokens",
         status=200,
         json={
             "access_token": "<the access token>",
             "expires_in": 3600,
-            "scope": "api:* member-of-groups:g1, g2",
-            "token_type": "Bearer",
+            "scope": "applied-permissions/user",
+            "token_type": "access_token",
         },
     )
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    access_token = artifactory_security.create_access_token(
-        user_name="my-username",
-        expires_in=3600,
-        refreshable=False,
-        groups=["g1", "g2"],
-    )
-    assert access_token.scope == "api:* member-of-groups:g1, g2"
+    access_token = artifactory_security.create_access_token(user_name="my-username", expires_in=3600, refreshable=False)
+    assert access_token.scope == "applied-permissions/user"
 
 
 @responses.activate
 def test_revoke_access_token_success():
-    responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=200)
+    responses.add(responses.DELETE, f"{URL}/access/api/v1/tokens/revoke", status=200)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
     result = artifactory_security.revoke_access_token(token="my-token")  # noqa: S106
@@ -108,8 +101,8 @@ def test_revoke_access_token_success():
 
 @responses.activate
 def test_revoke_access_token_fail_no_token_provided():
-    responses.add(responses.POST, f"{URL}/api/security/token/revoke", status=400)
+    responses.add(responses.DELETE, f"{URL}/access/api/v1/tokens/revoke", status=400)
 
     artifactory_security = ArtifactorySecurity(AuthModel(url=URL, auth=AUTH))
-    with pytest.raises(InvalidTokenDataError):
-        artifactory_security.revoke_access_token()
+    result = artifactory_security.revoke_access_token(token="my-token")  # noqa: S106
+    assert result is False
