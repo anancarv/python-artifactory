@@ -80,6 +80,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         self,
         local_file_location: Union[Path, str],
         artifact_path: Union[Path, str],
+        properties: Optional[Dict[str, List[str]]] = None,
         checksum_enabled: bool = False,
     ) -> ArtifactInfoResponse:
         """
@@ -95,7 +96,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
             for root, _, files in os.walk(local_file.as_posix()):
                 new_root = f"{artifact_folder}/{root[len(local_file.as_posix()):]}"
                 for file in files:
-                    self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"), checksum_enabled)
+                    self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"), properties, checksum_enabled)
         else:
             if checksum_enabled:
                 artifact_check_sums = Checksums.generate(local_file)
@@ -120,7 +121,11 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     raise ArtifactoryError from error
             else:
                 with local_file.open("rb") as stream:
-                    self._put(route=artifact_folder.as_posix(), data=stream)
+                    properties_param_str = ""
+                    if properties is not None:
+                        properties_param_str = self._format_properties(properties)
+                    route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
+                    self._put(route, data=stream)
 
             logger.debug("Artifact %s successfully deployed", local_file)
         return self.info(artifact_folder)
@@ -216,6 +221,13 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 raise ArtifactNotFoundError(f"Artifact {artifact_path} does not exist")
             raise ArtifactoryError from error
 
+    def _format_properties(self, properties: Dict[str, List[str]]):
+        properties_param_str = ""
+        for k, v in properties.items():
+            values_str = ",".join(v)
+            properties_param_str += f"{k}={values_str};"
+        return properties_param_str.rstrip(";")
+
     def properties(self, artifact_path: str, properties: Optional[List[str]] = None) -> ArtifactPropertiesResponse:
         """
         :param artifact_path: Path to file in Artifactory
@@ -253,10 +265,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         if properties is None:
             properties = {}
         artifact_path = artifact_path.lstrip("/")
-        properties_param_str = ""
-        for k, v in properties.items():
-            values_str = ",".join(v)
-            properties_param_str += f"{k}={values_str};"
+        properties_param_str = self._format_properties(properties)
         try:
             self._put(
                 f"api/storage/{artifact_path}",

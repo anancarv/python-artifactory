@@ -410,7 +410,7 @@ def test_set_property_success():
         properties_param_str += urllib.parse.quote_plus(f"{k}={values_str};")
     responses.add(
         responses.PUT,
-        f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
+        f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str.rstrip('%3B')}",
         status=200,
     )
     responses.add(
@@ -425,6 +425,74 @@ def test_set_property_success():
 
 
 @responses.activate
+def test_deploy_artifact_with_properties_success():
+    properties_param_str = ""
+    for k, v in ARTIFACT_ONE_PROPERTY.properties.items():
+        values_str = ",".join(v)
+        properties_param_str += f"{k}={values_str};"
+    responses.add(
+        responses.PUT,
+        f"{URL}/{ARTIFACT_PATH};{properties_param_str.rstrip(';')}",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1",
+        json=ARTIFACT_ONE_PROPERTY.model_dump(),
+        status=200,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifactory.deploy(
+        Path(LOCAL_FILE_LOCATION),
+        Path(ARTIFACT_PATH),
+        properties=ARTIFACT_ONE_PROPERTY.properties,
+        checksum_enabled=False,
+    )
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1"])
+    assert artifact_properties.model_dump() == ARTIFACT_ONE_PROPERTY.model_dump()
+
+
+@responses.activate
+def test_deploy_artifact_with_multiple_properties_success():
+    properties_param_str = ""
+    for k, v in ARTIFACT_MULTIPLE_PROPERTIES.properties.items():
+        values_str = ",".join(list(map(urllib.parse.quote, v)))
+        properties_param_str += f"{k}={values_str};"
+    responses.add(
+        responses.PUT,
+        f"{URL}/{ARTIFACT_PATH};{properties_param_str.rstrip(';')}",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        json=FILE_INFO_RESPONSE,
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}?properties=prop1,prop2",
+        json=ARTIFACT_MULTIPLE_PROPERTIES.model_dump(),
+        status=200,
+    )
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifactory.deploy(
+        Path(LOCAL_FILE_LOCATION),
+        Path(ARTIFACT_PATH),
+        properties=ARTIFACT_MULTIPLE_PROPERTIES.properties,
+        checksum_enabled=False,
+    )
+    artifact_properties = artifactory.properties(ARTIFACT_PATH, ["prop1", "prop2"])
+    assert artifact_properties.model_dump() == ARTIFACT_MULTIPLE_PROPERTIES.model_dump()
+
+
+@responses.activate
 def test_set_property_fail_artifact_not_found():
     properties_param_str = ""
     for k, v in ARTIFACT_ONE_PROPERTY.properties.items():
@@ -432,7 +500,7 @@ def test_set_property_fail_artifact_not_found():
         properties_param_str += urllib.parse.quote_plus(f"{k}={values_str};")
     responses.add(
         responses.PUT,
-        f"{URL}/api/storage/{NX_ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
+        f"{URL}/api/storage/{NX_ARTIFACT_PATH}?recursive=1&properties={properties_param_str.rstrip('%3B')}",
         status=404,
     )
     artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
@@ -443,7 +511,7 @@ def test_set_property_fail_artifact_not_found():
 
 @responses.activate
 def test_set_property_fail_bad_value():
-    properties_param_str = urllib.parse.quote_plus(f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE};")
+    properties_param_str = urllib.parse.quote_plus(f"{BAD_PROPERTY_NAME}={BAD_PROPERTY_VALUE}")
     responses.add(
         responses.PUT,
         f"{URL}/api/storage/{ARTIFACT_PATH}?recursive=1&properties={properties_param_str}",
