@@ -20,7 +20,8 @@ class Artifactory:
     def __init__(
         self,
         url: str,
-        auth: Tuple[str, SecretStr],
+        auth: Optional[Tuple[str, SecretStr]] = None,
+        access_token: Optional[str] = None,
         verify: Union[bool, str] = True,
         cert: Optional[str] = None,
         api_version: int = 1,
@@ -29,6 +30,7 @@ class Artifactory:
         self.artifactory = AuthModel(
             url=url,
             auth=auth,
+            access_token=access_token,
             verify=verify,
             cert=cert,
             api_version=api_version,

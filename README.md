@@ -17,6 +17,8 @@ This library enables you to manage Artifactory resources such as users, groups, 
 - [Install](#install)
 - [Usage](#usage)
   * [Authentication](#authentication)
+    + [Basic authentication](#basic-authentication)
+    + [Authentication with access token](#authentication-with-access-token)
   * [SSL Cert Verification Options](#ssl-cert-verification-options)
   * [Timeout option](#timeout-option)
   * [Admin objects](#admin-objects)
@@ -69,10 +71,21 @@ pip install pyartifactory
 
 Since Artifactory 6.6.0 there is version 2 of the REST API for permission management, in case you have that version or higher, you need to pass api_version=2 to the constructor when you instantiate the class.
 
+#### Basic authentication
 ```python
 from pyartifactory import Artifactory
 art = Artifactory(url="ARTIFACTORY_URL", auth=('USERNAME','PASSWORD_OR_API_KEY'), api_version=1)
 ```
+
+#### Authentication with access token
+```python
+from pyartifactory import Artifactory
+art = Artifactory(url="ARTIFACTORY_URL", access_token="your-access-token")
+```
+
+Note:
+* If you set both `access_token` and `auth`, the access_token authentication will be chosen
+* If you do not set any authentication method, API calls will be done without authentication (anonymous)
 
 ### SSL Cert Verification Options
 
