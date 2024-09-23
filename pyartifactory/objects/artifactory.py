@@ -21,11 +21,11 @@ class Artifactory:
         self,
         url: str,
         auth: Optional[Tuple[str, SecretStr]] = None,
-        access_token: Optional[str] = None,
         verify: Union[bool, str] = True,
         cert: Optional[str] = None,
         api_version: int = 1,
         timeout: Optional[int] = None,
+        access_token: Optional[str] = None,
     ):
         self.artifactory = AuthModel(
             url=url,
