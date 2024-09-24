@@ -10,28 +10,33 @@ from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
+from pyartifactory.exception import InvalidAlgorithmError
+
 
 class Checksums(BaseModel):
     """Models a checksum."""
 
-    sha1: str
-    md5: str
-    sha256: str
+    sha1: Optional[str] = None
+    md5: Optional[str] = None
+    sha256: Optional[str] = None
 
     @classmethod
-    def generate(cls, file_: Path) -> Checksums:
+    def generate(cls, file_: Path, algorithms: List[str] = ["sha1", "sha256", "md5"]) -> Checksums:
         block_size: int = 65536
         mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
 
-        for algorithm, hashing_function in mapping.items():
-            hasher = hashing_function()
-            with file_.absolute().open("rb") as fd:
-                buf = fd.read(block_size)
-                while len(buf) > 0:
-                    hasher.update(buf)
+        for algorithm in algorithms:
+            if algorithm in mapping:
+                hasher = mapping[algorithm]()
+                with file_.absolute().open("rb") as fd:
                     buf = fd.read(block_size)
-            results[algorithm] = hasher.hexdigest()
+                    while len(buf) > 0:
+                        hasher.update(buf)
+                        buf = fd.read(block_size)
+                results[algorithm] = hasher.hexdigest()
+            else:
+                raise InvalidAlgorithmError(f"'{algorithm}' is not a supported checksum algorithm")
 
         return cls(**results)
 
@@ -40,6 +45,8 @@ class OriginalChecksums(BaseModel):
     """Models original checksums."""
 
     sha256: str
+    sha1: Optional[str] = None
+    md5: Optional[str] = None
 
 
 class Child(BaseModel):
