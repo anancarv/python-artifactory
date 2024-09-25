@@ -58,3 +58,7 @@ class InvalidTokenDataError(ArtifactoryError):
 
 class BuildNotFoundError(ArtifactoryError):
     """Requested build were not found"""
+
+
+class InvalidAlgorithmError(ArtifactoryError):
+    """The Algoritnm is not supported by Artifactory."""

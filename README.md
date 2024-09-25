@@ -34,6 +34,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Deploy an artifact](#deploy-an-artifact)
     + [Deploy an artifact with properties](#deploy-an-artifact-with-properties)
     + [Deploy an artifact with checksums](#deploy-an-artifact-with-checksums)
+    + [Deploy an artifact by checksums](#deploy-an-artifact-by-checksums)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact list](#retrieve-artifact-list)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
@@ -425,6 +426,16 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 ```
 
 #### Deploy an artifact with checksums
+
+```python
+artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", "<CHECKSUM_ALGORITHMS>")
+# artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt", checksum_algorithms=["md5", "sha1", "sha256"] )
+```
+
+Provides locally calculated checksums for files during deployment so that Artifactory can verify the authenticity of artifacts.
+
+
+#### Deploy an artifact by checksums
 
 ```python
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", checksum_enabled=True)
