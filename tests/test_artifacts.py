@@ -601,7 +601,7 @@ def test_update_property_fail_bad_value():
     ],
 )
 def test_checksum_defined_file(file_path: Path, expected_sha1: str, expected_md5: str, expected_sha256: str):
-    result = Checksums.generate(file_path)
+    result = Checksums.generate(file_path, ["sha1", "sha256", "md5"])
     expected = Checksums(
         sha1=expected_sha1,
         md5=expected_md5,

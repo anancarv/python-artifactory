@@ -21,7 +21,7 @@ class Checksums(BaseModel):
     sha256: Optional[str] = None
 
     @classmethod
-    def generate(cls, file_: Path, algorithms: List[str] = ["sha1", "sha256", "md5"]) -> Checksums:
+    def generate(cls, file_: Path, algorithms: List[str]) -> Checksums:
         block_size: int = 65536
         mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
         results = {}
