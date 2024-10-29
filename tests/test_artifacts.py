@@ -601,7 +601,7 @@ def test_update_property_fail_bad_value():
     ],
 )
 def test_checksum_defined_file(file_path: Path, expected_sha1: str, expected_md5: str, expected_sha256: str):
-    result = Checksums.generate(file_path, ["sha1", "sha256", "md5"])
+    result = Checksums.generate(file_path)
     expected = Checksums(
         sha1=expected_sha1,
         md5=expected_md5,
@@ -681,40 +681,8 @@ def test_deploy_artifact_with_checksum_algorithms_success(file_info: dict, expec
     artifact = artifactory.deploy(
         Path(LOCAL_FILE_LOCATION),
         Path(ARTIFACT_PATH),
-        checksum_algorithms=file_info["originalChecksums"].keys(),
     )
     assert expected == artifact.originalChecksums
-
-
-@pytest.mark.parametrize(
-    "file_info",
-    [
-        pytest.param(
-            {
-                **FILE_INFO_RESPONSE.copy(),
-                "originalChecksums": {"sha224": "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f"},
-            },
-            id="sha224",
-        ),
-    ],
-)
-@responses.activate
-def test_deploy_artifact_with_checksum_algorithms_error(file_info: dict):
-    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=409)
-
-    responses.add(
-        responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}",
-        json=file_info,
-        status=200,
-    )
-    with pytest.raises(Exception):
-        artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-        artifactory.deploy(
-            Path(LOCAL_FILE_LOCATION),
-            Path(ARTIFACT_PATH),
-            checksum_algorithms=file_info["originalChecksums"].keys(),
-        )
 
 
 @responses.activate

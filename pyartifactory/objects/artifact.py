@@ -82,7 +82,6 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_path: Union[Path, str],
         properties: Optional[Dict[str, List[str]]] = None,
         checksum_enabled: bool = False,
-        checksum_algorithms: Optional[List[str]] = None,
     ) -> ArtifactInfoResponse:
         """
         Deploy a file or directory.
@@ -99,30 +98,22 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"), properties, checksum_enabled)
         else:
-            checksum_headers: Dict[str, str] = {}
-
+            properties_param_str = ""
+            if properties is not None:
+                properties_param_str = self._format_properties(properties)
+            route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
+            artifact_check_sums = Checksums.generate(local_file)
+            headers = {
+                "X-Checksum-Sha1": artifact_check_sums.sha1,
+                "X-Checksum-Sha256": artifact_check_sums.sha256,
+                "X-Checksum": artifact_check_sums.md5,
+            }
             if checksum_enabled:
-                checksum_headers["X-Checksum-Deploy"] = "true"
-                checksum_algorithms = ["sha1", "sha256", "md5"]
-
-            if checksum_algorithms is not None:
-                artifact_check_sums = Checksums.generate(local_file, checksum_algorithms)
-                if artifact_check_sums.md5:
-                    checksum_headers["X-Checksum"] = artifact_check_sums.md5
-                if artifact_check_sums.sha1:
-                    checksum_headers["X-Checksum-Sha1"] = artifact_check_sums.sha1
-                if artifact_check_sums.sha256:
-                    checksum_headers["X-Checksum-Sha256"] = artifact_check_sums.sha256
-
-            if checksum_enabled:
+                headers["X-Checksum-Deploy"] = "true"
                 try:
-                    properties_param_str = ""
-                    if properties is not None:
-                        properties_param_str = self._format_properties(properties)
-                    route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
                     self._put(
                         route=route,
-                        headers=checksum_headers,
+                        headers=headers,
                     )
                 except requests.exceptions.HTTPError as error:
                     if error.response.status_code == 404:
@@ -135,11 +126,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                     raise ArtifactoryError from error
             else:
                 with local_file.open("rb") as stream:
-                    properties_param_str = ""
-                    if properties is not None:
-                        properties_param_str = self._format_properties(properties)
-                    route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
-                    self._put(route=route, headers=checksum_headers, data=stream)
+                    self._put(route=route, headers=headers, data=stream)
 
             logger.debug("Artifact %s successfully deployed", local_file)
         return self.info(artifact_folder)
