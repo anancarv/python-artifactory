@@ -100,7 +100,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             properties_param_str = ""
             if properties is not None:
-                properties_param_str = self._format_properties(properties)
+                properties_param_str = ";".join(f"{k}={value}" for k, values in properties.items() for value in values)
             route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
             artifact_check_sums = Checksums.generate(local_file)
             headers = {

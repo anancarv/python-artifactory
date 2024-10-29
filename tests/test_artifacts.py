@@ -464,10 +464,9 @@ def test_deploy_artifact_with_properties_success():
 
 @responses.activate
 def test_deploy_artifact_with_multiple_properties_success():
-    properties_param_str = ""
-    for k, v in ARTIFACT_MULTIPLE_PROPERTIES.properties.items():
-        values_str = ",".join(list(map(urllib.parse.quote, v)))
-        properties_param_str += f"{k}={values_str};"
+    properties_param_str = ";".join(
+        f"{k}={value}" for k, values in ARTIFACT_MULTIPLE_PROPERTIES.properties.items() for value in values
+    )
     responses.add(
         responses.PUT,
         f"{URL}/{ARTIFACT_PATH};{properties_param_str.rstrip(';')}",
