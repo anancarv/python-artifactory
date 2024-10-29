@@ -16,7 +16,6 @@ from pyartifactory.models.artifact import (
     ArtifactListFolderResponse,
     ArtifactListResponse,
     Checksums,
-    OriginalChecksums,
 )
 
 URL = "http://localhost:8080/artifactory"
@@ -77,7 +76,11 @@ FILE_INFO_RESPONSE = {
         "md5": "4cf609e0fe1267df8815bc650f5851e9",
         "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
     },
-    "originalChecksums": {"sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"},
+    "originalChecksums": {
+        "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
+        "md5": "4cf609e0fe1267df8815bc650f5851e9",
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
+    },
     "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
 }
 FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
@@ -608,81 +611,6 @@ def test_checksum_defined_file(file_path: Path, expected_sha1: str, expected_md5
         sha256=expected_sha256,
     )
     assert result == expected
-
-
-@pytest.mark.parametrize(
-    "file_info,expected_checksums",
-    [
-        pytest.param(
-            {
-                **FILE_INFO_RESPONSE.copy(),
-                "originalChecksums": {
-                    "md5": "4cf609e0fe1267df8815bc650f5851e9",
-                    "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-                },
-            },
-            {
-                "md5": "4cf609e0fe1267df8815bc650f5851e9",
-                "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-            },
-            id="md5",
-        ),
-        pytest.param(
-            {
-                **FILE_INFO_RESPONSE.copy(),
-                "originalChecksums": {
-                    "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
-                    "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-                },
-            },
-            {
-                "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
-                "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-            },
-            id="sha1",
-        ),
-        pytest.param(
-            {
-                **FILE_INFO_RESPONSE.copy(),
-                "originalChecksums": {"sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"},
-            },
-            {"sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"},
-            id="sha256",
-        ),
-        pytest.param(
-            {
-                **FILE_INFO_RESPONSE.copy(),
-                "originalChecksums": {
-                    "md5": "4cf609e0fe1267df8815bc650f5851e9",
-                    "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
-                    "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-                },
-            },
-            {
-                "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
-                "md5": "4cf609e0fe1267df8815bc650f5851e9",
-                "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
-            },
-            id="md5&sha1",
-        ),
-    ],
-)
-@responses.activate
-def test_deploy_artifact_with_checksum_algorithms_success(file_info: dict, expected_checksums: dict):
-    responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=200)
-    responses.add(
-        responses.GET,
-        f"{URL}/api/storage/{ARTIFACT_PATH}",
-        json=file_info,
-        status=200,
-    )
-    expected = OriginalChecksums(**expected_checksums)
-    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
-    artifact = artifactory.deploy(
-        Path(LOCAL_FILE_LOCATION),
-        Path(ARTIFACT_PATH),
-    )
-    assert expected == artifact.originalChecksums
 
 
 @responses.activate

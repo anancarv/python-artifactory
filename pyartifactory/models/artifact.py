@@ -40,8 +40,8 @@ class OriginalChecksums(BaseModel):
     """Models original checksums."""
 
     sha256: str
-    sha1: Optional[str] = None
-    md5: Optional[str] = None
+    sha1: str
+    md5: str
 
 
 class Child(BaseModel):
