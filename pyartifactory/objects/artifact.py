@@ -125,6 +125,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
                         raise ArtifactNotFoundError(message)
                     raise ArtifactoryError from error
             else:
+                headers["X-Checksum-Deploy"] = "false"
                 with local_file.open("rb") as stream:
                     self._put(route=route, headers=headers, data=stream)
 
