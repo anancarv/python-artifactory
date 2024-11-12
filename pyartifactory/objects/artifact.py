@@ -98,17 +98,22 @@ class ArtifactoryArtifact(ArtifactoryObject):
                 for file in files:
                     self.deploy(Path(f"{root}/{file}"), Path(f"{new_root}/{file}"), properties, checksum_enabled)
         else:
+            properties_param_str = ""
+            if properties is not None:
+                properties_param_str = ";".join(f"{k}={value}" for k, values in properties.items() for value in values)
+            route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
+            artifact_check_sums = Checksums.generate(local_file)
+            headers = {
+                "X-Checksum-Sha1": artifact_check_sums.sha1,
+                "X-Checksum-Sha256": artifact_check_sums.sha256,
+                "X-Checksum": artifact_check_sums.md5,
+            }
             if checksum_enabled:
-                artifact_check_sums = Checksums.generate(local_file)
+                headers["X-Checksum-Deploy"] = "true"
                 try:
                     self._put(
-                        route=artifact_folder.as_posix(),
-                        headers={
-                            "X-Checksum-Deploy": "true",
-                            "X-Checksum-Sha1": artifact_check_sums.sha1,
-                            "X-Checksum-Sha256": artifact_check_sums.sha256,
-                            "X-Checksum": artifact_check_sums.md5,
-                        },
+                        route=route,
+                        headers=headers,
                     )
                 except requests.exceptions.HTTPError as error:
                     if error.response.status_code == 404:
@@ -120,12 +125,9 @@ class ArtifactoryArtifact(ArtifactoryObject):
                         raise ArtifactNotFoundError(message)
                     raise ArtifactoryError from error
             else:
+                headers["X-Checksum-Deploy"] = "false"
                 with local_file.open("rb") as stream:
-                    properties_param_str = ""
-                    if properties is not None:
-                        properties_param_str = self._format_properties(properties)
-                    route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
-                    self._put(route, data=stream)
+                    self._put(route=route, headers=headers, data=stream)
 
             logger.debug("Artifact %s successfully deployed", local_file)
         return self.info(artifact_folder)

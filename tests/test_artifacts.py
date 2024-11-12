@@ -76,7 +76,11 @@ FILE_INFO_RESPONSE = {
         "md5": "4cf609e0fe1267df8815bc650f5851e9",
         "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
     },
-    "originalChecksums": {"sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858"},
+    "originalChecksums": {
+        "sha1": "962c287c760e03b03c17eb920f5358d05f44dd3b",
+        "md5": "4cf609e0fe1267df8815bc650f5851e9",
+        "sha256": "396cf16e8ce000342c95ffc7feb2a15701d0994b70c1b13fea7112f85ac8e858",
+    },
     "uri": f"{URL}/api/storage/{ARTIFACT_PATH}",
 }
 FILE_INFO = ArtifactFileInfoResponse(**FILE_INFO_RESPONSE)
@@ -460,10 +464,9 @@ def test_deploy_artifact_with_properties_success():
 
 @responses.activate
 def test_deploy_artifact_with_multiple_properties_success():
-    properties_param_str = ""
-    for k, v in ARTIFACT_MULTIPLE_PROPERTIES.properties.items():
-        values_str = ",".join(list(map(urllib.parse.quote, v)))
-        properties_param_str += f"{k}={values_str};"
+    properties_param_str = ";".join(
+        f"{k}={value}" for k, values in ARTIFACT_MULTIPLE_PROPERTIES.properties.items() for value in values
+    )
     responses.add(
         responses.PUT,
         f"{URL}/{ARTIFACT_PATH};{properties_param_str.rstrip(';')}",

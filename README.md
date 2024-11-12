@@ -33,7 +33,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Get the information about a file or folder](#get-the-information-about-a-file-or-folder)
     + [Deploy an artifact](#deploy-an-artifact)
     + [Deploy an artifact with properties](#deploy-an-artifact-with-properties)
-    + [Deploy an artifact with checksums](#deploy-an-artifact-with-checksums)
+    + [Deploy an artifact by checksums](#deploy-an-artifact-by-checksums)
     + [Download an artifact](#download-an-artifact)
     + [Retrieve artifact list](#retrieve-artifact-list)
     + [Retrieve artifact properties](#retrieve-artifact-properties)
@@ -424,7 +424,7 @@ artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTI
 # artifact = art.artifacts.deploy("Desktop/myNewFile.txt", "my-repository/my/new/artifact/directory/file.txt", {"retention": ["30"]})
 ```
 
-#### Deploy an artifact with checksums
+#### Deploy an artifact by checksums
 
 ```python
 artifact = art.artifacts.deploy("<LOCAL_FILE_LOCATION>", "<ARTIFACT_PATH_IN_ARTIFACTORY>", checksum_enabled=True)
