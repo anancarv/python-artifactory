@@ -8,6 +8,8 @@ from typing import Optional, Tuple
 import requests
 from requests import Response
 
+import jwt
+
 from pyartifactory.models import AuthModel
 
 
@@ -90,7 +92,10 @@ class ArtifactoryObject:
             headers["Authorization"] = f"Bearer {self._access_token}"
             kwargs["headers"] = headers
 
-            auth = None
+            decoded_token = jwt.decode(self._access_token, options={"verify_signature": False})
+            sub_value = decoded_token.get("sub")
+            username = sub_value.split('/')[-1] if sub_value else None
+            auth = (username, self._access_token)
         else:
             auth = self._auth
 
