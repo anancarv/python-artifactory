@@ -63,8 +63,8 @@ class BuildArtifact(BaseModel):
 class BuildModules(BaseModel):
     """Models artifactory's build modules."""
 
-    properties: Dict[str, str]
-    type: str
+    properties: Optional[Dict[str, str]] = None
+    type: Optional[str] = None
     id: str
     artifacts: List[BuildArtifact]
 
