@@ -30,7 +30,7 @@ BUILD_GENERIC_ERROR = BuildError(errors=[{"status": 500, "message": "Generic err
 BUILD_DIFF = BuildDiffResponse()
 BUILD_PROMOTION_REQUEST = BuildPromotionRequest(sourceRepo="repo-abc", targetRepo="repo-def")
 BUILD_PROMOTION_RESPONSE = BuildPromotionResult()
-BUILD_DELETE_REQUEST = BuildDeleteRequest(buildName="build", buildNumbers=["abc", "123"])
+BUILD_DELETE_BUILDNUMBERS_REQUEST = BuildDeleteRequest(buildName="build", buildNumbers=["abc", "123"])
 BUILD_DELETE_ERROR = BuildError(errors=[{"status": 404, "message": "Not found"}])
 BUILD_CREATE_REQUEST = BuildCreateRequest(name="a-build", number="build-xx", started="2014-09-30T12:00:19.893+0300")
 
@@ -170,33 +170,50 @@ def test_list_build(mocker):
 
 
 @responses.activate
-def test_delete_build_success(mocker):
-    for _build_number in BUILD_DELETE_REQUEST.buildNumbers:
+def test_delete_buildnumbers_success(mocker):
+    for _build_number in BUILD_DELETE_BUILDNUMBERS_REQUEST.buildNumbers:
         responses.add(
             responses.GET,
-            f"{URL}/api/build/{BUILD_DELETE_REQUEST.buildName}/{_build_number}",
+            f"{URL}/api/build/{BUILD_DELETE_BUILDNUMBERS_REQUEST.buildName}/{_build_number}",
             json=BUILD_INFO.model_dump(),
             status=200,
         )
 
-    responses.add(responses.POST, f"{URL}/api/build/delete", json=BUILD_DELETE_REQUEST.model_dump(), status=200)
+    responses.add(
+        responses.POST,
+        f"{URL}/api/build/delete",
+        json=BUILD_DELETE_BUILDNUMBERS_REQUEST.model_dump(),
+        status=200,
+    )
 
     artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_build, "delete")
-    artifactory_build.delete(BUILD_DELETE_REQUEST)
+    artifactory_build.delete(BUILD_DELETE_BUILDNUMBERS_REQUEST)
+
+
+@responses.activate
+def test_delete_all_success(mocker):
+    delete_all_request = BuildDeleteRequest(buildName="build", deleteAll=True)
+    assert "buildNumbers" not in delete_all_request.model_dump()
+
+    responses.add(responses.POST, f"{URL}/api/build/delete", json=delete_all_request.model_dump(), status=200)
+
+    artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_build, "delete")
+    artifactory_build.delete(delete_all_request)
 
 
 @responses.activate
 def test_delete_build_error_not_exist(mocker):
     responses.add(
         responses.GET,
-        f"{URL}/api/build/{BUILD_DELETE_REQUEST.buildName}/{BUILD_DELETE_REQUEST.buildNumbers[0]}",
+        f"{URL}/api/build/{BUILD_DELETE_BUILDNUMBERS_REQUEST.buildName}/{BUILD_DELETE_BUILDNUMBERS_REQUEST.buildNumbers[0]}",
         json=BUILD_INFO.model_dump(),
         status=200,
     )
     responses.add(
         responses.GET,
-        f"{URL}/api/build/{BUILD_DELETE_REQUEST.buildName}/{BUILD_DELETE_REQUEST.buildNumbers[-1]}",
+        f"{URL}/api/build/{BUILD_DELETE_BUILDNUMBERS_REQUEST.buildName}/{BUILD_DELETE_BUILDNUMBERS_REQUEST.buildNumbers[-1]}",
         body=NOT_FOUND_EXCEPTION_BODY,
         status=200,
     )
@@ -204,7 +221,7 @@ def test_delete_build_error_not_exist(mocker):
     artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
     mocker.spy(artifactory_build, "delete")
     with pytest.raises(ArtifactoryError):
-        artifactory_build.delete(BUILD_DELETE_REQUEST)
+        artifactory_build.delete(BUILD_DELETE_BUILDNUMBERS_REQUEST)
 
 
 @responses.activate

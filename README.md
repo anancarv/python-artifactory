@@ -49,6 +49,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Create build](#create-build)
     + [Promote a build](#promote-a-build)
     + [Delete one or more builds](#delete-one-or-more-builds)
+    + [Delete all build numbers of a build](#delete-all-build-numbers-of-a-build)
     + [Rename a build](#rename-a-build)
     + [Get differences between two builds](#get-differences-between-two-builds)
   * [Contributing](#contributing)
@@ -550,6 +551,12 @@ promote_build: BuildPromotionResult = art.builds.promote_build("<build_name>", "
 #### Delete one or more builds
 ```python
 build_delete_request = BuildDeleteRequest(buildName="<build_name>", buildNumbers=["<build_number>", "<another_build_number>", ...])
+art.builds.delete(build_delete_request)
+```
+
+#### Delete all build numbers of a build
+```python
+build_delete_request = BuildDeleteRequest(buildName="<build_name>", deleteAll=True)
 art.builds.delete(build_delete_request)
 ```
 
