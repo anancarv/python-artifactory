@@ -36,6 +36,7 @@ class PackageTypeEnum(str, Enum):
     maven = "maven"
     npm = "npm"
     nuget = "nuget"
+    oci = "oci"
     opkg = "opkg"
     p2 = "p2"
     pub = "pub"
