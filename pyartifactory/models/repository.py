@@ -142,6 +142,7 @@ class SimpleRepository(BaseModel):
     description: Optional[str] = None
     url: str
     packageType: str
+    environments: List[str] = ['DEV']
 
 
 class BaseRepositoryModel(BaseModel):
@@ -151,6 +152,7 @@ class BaseRepositoryModel(BaseModel):
     projectKey: Optional[str] = None
     rclass: RClassEnum
     packageType: PackageTypeEnum = PackageTypeEnum.generic
+    environments: List[str] = ['DEV']
     description: Optional[str] = None
     notes: Optional[str] = None
     includesPattern: str = "**/*"
