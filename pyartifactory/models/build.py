@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer, model_validator
+from pydantic_core import PydanticCustomError
+from typing_extensions import Self
 
 
 class BuildProperties(BaseModel):
@@ -127,9 +129,28 @@ class BuildPromotionRequest(BaseModel):
 class BuildDeleteRequest(BaseModel):
     project: str = ""
     buildName: str
-    buildNumbers: List[str]
+    buildNumbers: List[str] = []
     deleteArtifacts: bool = False
     deleteAll: bool = False
+
+    @model_validator(mode="after")
+    def check_numbers_or_delete_all(self) -> Self:
+        if self.buildNumbers or self.deleteAll:
+            return self
+        raise PydanticCustomError("request_schema_error", "Either buildNumbers or deleteAll must be specified", None)
+
+    @model_serializer()
+    def serialize_model(self):
+        d = {
+            "project": self.project,
+            "buildName": self.buildName,
+            "buildNumbers": self.buildNumbers,
+            "deleteArtifacts": self.deleteArtifacts,
+            "deleteAll": self.deleteAll,
+        }
+        if self.deleteAll:
+            d.pop("buildNumbers")
+        return d
 
 
 class BuildDiffResponseDetail(BaseModel):
