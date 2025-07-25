@@ -120,13 +120,19 @@ class ArtifactoryBuild(ArtifactoryObject):
         :return: None
         """
         try:
-            for _build_number in delete_build.buildNumbers:
-                self._get(
-                    f"api/{self._uri}/{delete_build.buildName}/{_build_number}",
-                )
-            # all build numbers exist
+            if delete_build.buildNumbers:
+                for _build_number in delete_build.buildNumbers:
+                    self._get(
+                        f"api/{self._uri}/{delete_build.buildName}/{_build_number}",
+                    )
+                # all build numbers exist
+
             self._post(f"api/{self._uri}/delete", json=delete_build.model_dump())
-            logger.debug("Builds %s deleted from %s", ",".join(delete_build.buildNumbers), delete_build.buildName)
+
+            if delete_build.buildNumbers:
+                logger.debug("Builds %s deleted from %s", ",".join(delete_build.buildNumbers), delete_build.buildName)
+            else:
+                logger.debug("Deleted all builds of %s", delete_build.buildName)
         except requests.exceptions.HTTPError as error:
             self._raise_exception(error)
 
