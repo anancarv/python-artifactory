@@ -1,16 +1,15 @@
-[tool.poetry]
+[project]
 name = "PyArtifactory"
 version = "2.10.0"
 description = "Typed interactions with the Jfrog Artifactory REST API"
 authors = [
-    "Ananias CARVALHO <carvalhoananias@hotmail.com>",
-    "Thomas GAUDIN <thomas.gaudin@centraliens-lille.org>",
-    "Helio Chissini de Castro <heliocastro@gmail.com"
+    { name = "Ananias CARVALHO", email = "carvalhoananias@hotmail.com" },
+    { name = "Thomas GAUDIN", email = "thomas.gaudin@centraliens-lille.org" },
+    { name = "Helio Chissini de Castro", email = "heliocastro@gmail.com" },
 ]
-license = "MIT"
+requires-python = "~=3.8"
 readme = "README.md"
-repository = "https://github.com/anancarv/python-artifactory"
-documentation = "https://github.com/anancarv/python-artifactory"
+license = "MIT"
 keywords = ["artifactory"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -23,33 +22,36 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Topic :: Software Development :: Libraries",
     "Topic :: System :: Filesystems",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests~=2.31",
+    "typing_extensions>=4.7.1,<5",
+    "pydantic[email]>=2.4.0,<3",
 ]
 
-[tool.poetry.urls]
+[project.urls]
+Repository = "https://github.com/anancarv/python-artifactory"
+Documentation = "https://github.com/anancarv/python-artifactory"
 "Bug Tracker" = "https://github.com/anancarv/python-artifactory/issues"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.31"
-typing_extensions = "^4.7.1"
-pydantic = {extras = ["email"], version = "^2.4.0"}
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.0.289"
-pytest = "^7.4.2"
-black = "^23.3.0"
-pre-commit = "^2.9.2"
-responses = "^0.23.3"
-pytest-mock = "^2.0.0"
-detect-secrets = "^1.2.0"
-pytest-cov = "^4.1.0"
-mypy = "^1.5.1"
-typed-ast = "^1.5.5"
-types-urllib3 = "^1.26.25.14"
-types-requests = "^2.31.0.2"
-pytest-md = "^0.2.0"
-pytest-emoji = "^0.2.0"
+[dependency-groups]
+dev = [
+    "ruff>=0.0.289,<0.0.290",
+    "pytest>=7.4.2,<8",
+    "black>=23.3.0,<24",
+    "pre-commit>=2.9.2,<3",
+    "responses>=0.23.3,<0.24",
+    "pytest-mock>=2.0.0,<3",
+    "detect-secrets>=1.2.0,<2",
+    "pytest-cov>=4.1.0,<5",
+    "mypy>=1.5.1,<2",
+    "typed-ast>=1.5.5,<2",
+    "types-urllib3>=1.26.25.14,<2",
+    "types-requests>=2.31.0.2,<3",
+    "pytest-md>=0.2.0,<0.3",
+    "pytest-emoji>=0.2.0,<0.3",
+]
 
 [build-system]
 requires = ["poetry>=0.12"]
