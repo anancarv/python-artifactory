@@ -197,6 +197,27 @@ def test_download_artifact_success(tmp_path):
     assert artifact.is_file()
 
 
+@responses.activate
+def test_stream_artifact_success():
+    artifact_name = ARTIFACT_PATH.split("/")[1]
+    responses.add(
+        responses.GET,
+        f"{URL}/api/storage/{ARTIFACT_PATH}",
+        status=200,
+        json=FILE_INFO_RESPONSE,
+    )
+    responses.add(responses.GET, f"{URL}/{ARTIFACT_PATH}", json=artifact_name, status=200)
+
+    artifactory = ArtifactoryArtifact(AuthModel(url=URL, auth=AUTH))
+    artifact_stream = artifactory.stream(ARTIFACT_PATH)
+
+    text = bytearray()
+    for chunk in artifact_stream:
+        text.extend(chunk)
+
+    assert len(text) == len(f'"{artifact_name}"'.encode('utf-8'))
+
+
 @pytest.mark.parametrize(
     "requested_path",
     [ARTIFACT_REPO, f"{ARTIFACT_REPO}/", f"/{ARTIFACT_REPO}", f"/{ARTIFACT_REPO}/"],
