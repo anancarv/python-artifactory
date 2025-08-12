@@ -151,7 +151,6 @@ class ArtifactoryArtifact(ArtifactoryObject):
         :param local_directory_path: Local path to where the artifact will be downloaded
         :return: File name
         """
-        artifact_path = artifact_path.lstrip("/")
         local_filename = artifact_path.split("/")[-1]
 
         if local_directory_path:
@@ -160,13 +159,24 @@ class ArtifactoryArtifact(ArtifactoryObject):
         else:
             local_file_full_path = Path(local_filename)
 
-        artifact_path_url = urllib.parse.quote(artifact_path)
-        with self._get(f"{artifact_path_url}", stream=True) as response, local_file_full_path.open("wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:  # filter out keep-alive new chunks
-                    file.write(chunk)
+        with local_file_full_path.open("wb") as file:
+            for chunk in self.stream(artifact_path):
+                file.write(chunk)
         logger.debug("Artifact %s successfully downloaded", local_filename)
         return local_file_full_path
+
+    def stream(self, artifact_path: str, chunk_size=8192: int) -> Iterator[bytes]:
+        """
+        Open an Iterator stream of an artifact (file).
+        :param artifact_path: Path to file in Artifactory
+        :param chunk_size: Size of bytes in a chunk
+        :return: Iterator of byte chunks 
+        """
+        artifact_path = artifact_path.lstrip("/")
+
+        artifact_path_url = urllib.parse.quote(artifact_path)
+        # Filter out keep-alive new chunks with a filter function
+        return filter(lambda chunk: chunk, self._get(f"{artifact_path_url}", stream=True).iter_content(chunk_size=chunk_size))
 
     def download(self, artifact_path: str, local_directory_path: str = ".") -> Path:
         """
