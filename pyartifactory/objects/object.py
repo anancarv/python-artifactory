@@ -31,50 +31,51 @@ class ArtifactoryObject:
         self._timeout = self._artifactory.timeout
         self.session = requests.Session()
 
-    def _get(self, route: str, **kwargs) -> Response:
+    def _get(self, route: str, art_service: str = "artifactory", **kwargs) -> Response:
         """
         :param route: API Route
         :param kwargs: Additional parameters to add the request
         :returns  An HTTP response
         """
-        return self._generic_http_method_request("get", route, **kwargs)
+        return self._generic_http_method_request("get", route, art_service, **kwargs)
 
-    def _post(self, route: str, **kwargs) -> Response:
+    def _post(self, route: str, art_service: str = "artifactory", **kwargs) -> Response:
         """
         :param route: API Route
         :param kwargs: Additional parameters to add the request
         :returns  An HTTP response
         """
-        return self._generic_http_method_request("post", route, **kwargs)
+        return self._generic_http_method_request("post", route, art_service, **kwargs)
 
-    def _put(self, route: str, **kwargs) -> Response:
+    def _put(self, route: str, art_service: str = "artifactory", **kwargs) -> Response:
         """
         :param route: API Route
         :param kwargs: Additional parameters to add the request
         :returns  An HTTP response
         """
-        return self._generic_http_method_request("put", route, **kwargs)
+        return self._generic_http_method_request("put", route, art_service, **kwargs)
 
-    def _delete(self, route: str, **kwargs) -> Response:
+    def _delete(self, route: str, art_service: str = "artifactory", **kwargs) -> Response:
         """
         :param route: API Route
         :param kwargs: Additional parameters to add the request
         :returns  An HTTP response
         """
-        return self._generic_http_method_request("delete", route, **kwargs)
+        return self._generic_http_method_request("delete", route, art_service, **kwargs)
 
-    def _patch(self, route: str, **kwargs) -> Response:
+    def _patch(self, route: str, art_service: str = "artifactory", **kwargs) -> Response:
         """
         :param route: API Route
         :param kwargs: Additional parameters to add the request
         :returns  An HTTP response
         """
-        return self._generic_http_method_request("patch", route, **kwargs)
+        return self._generic_http_method_request("patch", route, art_service, **kwargs)
 
     def _generic_http_method_request(
         self,
         method: str,
         route: str,
+        art_service: str = "artifactory",
         raise_for_status: bool = True,
         **kwargs,
     ) -> Response:
@@ -95,8 +96,11 @@ class ArtifactoryObject:
             auth = self._auth
 
         http_method = getattr(self.session, method)
+        uri = self._artifactory.url.removesuffix(
+            "/artifactory",
+        )  # to support base urls with or without /artifactory suffix
         response: Response = http_method(
-            f"{self._artifactory.url}/{route}",
+            f"{uri}/{art_service}/{route}",
             auth=auth,
             **kwargs,
             verify=self._verify,
