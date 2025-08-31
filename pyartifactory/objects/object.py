@@ -1,6 +1,7 @@
 """
 Definition of artifactory base object.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Tuple
@@ -9,6 +10,7 @@ import requests
 from requests import Response
 
 from pyartifactory.models import AuthModel
+from pyartifactory.utils import remove_suffix
 
 
 class ArtifactoryObject:
@@ -96,7 +98,8 @@ class ArtifactoryObject:
             auth = self._auth
 
         http_method = getattr(self.session, method)
-        uri = self._artifactory.url.removesuffix(
+        uri = remove_suffix(
+            self._artifactory.url,
             "/artifactory",
         )  # to support base urls with or without /artifactory suffix
         response: Response = http_method(
