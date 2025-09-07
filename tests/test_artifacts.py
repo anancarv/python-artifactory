@@ -215,7 +215,7 @@ def test_stream_artifact_success():
     for chunk in artifact_stream:
         text.extend(chunk)
 
-    assert len(text) == len(f'"{artifact_name}"'.encode('utf-8'))
+    assert len(text) == len(f'"{artifact_name}"'.encode("utf-8"))
 
 
 @pytest.mark.parametrize(
