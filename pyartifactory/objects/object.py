@@ -1,7 +1,6 @@
 """
 Definition of artifactory base object.
 """
-
 from __future__ import annotations
 
 from typing import Optional, Tuple

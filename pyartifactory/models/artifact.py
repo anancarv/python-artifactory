@@ -1,7 +1,6 @@
 """
 Definition of all artifact models.
 """
-
 from __future__ import annotations
 
 import hashlib

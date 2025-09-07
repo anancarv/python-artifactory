@@ -29,13 +29,15 @@ class ArtifactoryPermission(ArtifactoryObject):
     def create(
         self,
         permission: Permission,
-    ) -> Permission: ...
+    ) -> Permission:
+        ...
 
     @overload
     def create(
         self,
         permission: PermissionV2,
-    ) -> PermissionV2: ...
+    ) -> PermissionV2:
+        ...
 
     def create(self, permission: AnyPermission) -> AnyPermission:
         """
@@ -85,10 +87,12 @@ class ArtifactoryPermission(ArtifactoryObject):
         return [SimplePermission(**permission) for permission in response.json()]
 
     @overload
-    def update(self, permission: Permission) -> Permission: ...
+    def update(self, permission: Permission) -> Permission:
+        ...
 
     @overload
-    def update(self, permission: PermissionV2) -> PermissionV2: ...
+    def update(self, permission: PermissionV2) -> PermissionV2:
+        ...
 
     def update(self, permission: AnyPermission) -> AnyPermission:
         """

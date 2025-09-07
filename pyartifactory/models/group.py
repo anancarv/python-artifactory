@@ -1,7 +1,6 @@
 """
 Definition of all group models.
 """
-
 from __future__ import annotations
 
 from typing import List, Optional
