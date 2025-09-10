@@ -363,7 +363,6 @@ class ArtifactoryArtifact(ArtifactoryObject):
     def delete(self, artifact_path: str) -> None:
         """
         :param artifact_path: Path to file in Artifactory
-        :return: bool
         """
         artifact_path = artifact_path.lstrip("/")
         self._delete(f"{artifact_path}")
