@@ -44,7 +44,7 @@ class Run(BaseModel):
     started: str
 
 
-class BuildRun(BaseModel):
+class BuildRuns(BaseModel):
     """Models artifactory build runs."""
 
     uri: str
