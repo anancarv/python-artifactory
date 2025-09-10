@@ -18,11 +18,20 @@ from pyartifactory.models import (
     BuildPromotionRequest,
     BuildPromotionResult,
     BuildProperties,
+    BuildRuns,
+    Run,
 )
 
 URL = "http://localhost:8080/artifactory"
 AUTH = ("user", "password_or_apiKey")
 
+BUILD_RUNS = BuildRuns(
+    uri=f"{URL}/api/build/build_name",
+    buildsNumbers=[
+        Run(uri="/number", started="2025-09-05T19:55:09.593+0000"),
+        Run(uri="/other", started="2025-09-05T19:55:28.040+0000"),
+    ],
+)
 BUILD_INFO = BuildInfo(uri=f"{URL}/api/build/build_name/number")
 BUILD_LIST_RESPONSE = BuildListResponse(uri=f"{URL}/api/build")
 BUILD_NOT_FOUND_ERROR = BuildError(errors=[{"status": 404, "message": "Not found"}])
@@ -42,6 +51,37 @@ NOT_FOUND_HTTP_RESPONSE.encoding = "utf-8"
 NOT_FOUND_HTTP_RESPONSE.url = "http://jfrog-server..."
 
 NOT_FOUND_EXCEPTION_BODY = requests.exceptions.HTTPError(response=NOT_FOUND_HTTP_RESPONSE)
+
+
+@responses.activate
+def test_get_build_numbers_success(mocker):
+    responses.add(
+        responses.GET,
+        f"{URL}/api/build/build_name",
+        json=BUILD_RUNS.model_dump(),
+        status=200,
+    )
+
+    artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_build, "get_build_runs")
+    get_build_runs = artifactory_build.get_build_runs("build_name")
+
+    assert isinstance(get_build_runs, BuildRuns)
+    assert get_build_runs == BUILD_RUNS
+
+
+@responses.activate
+def test_get_build_numbers_error(mocker):
+    responses.add(
+        responses.GET,
+        f"{URL}/api/build/non_build",
+        body=NOT_FOUND_EXCEPTION_BODY,
+        status=404,
+    )
+    artifactory_build = ArtifactoryBuild(AuthModel(url=URL, auth=AUTH))
+    mocker.spy(artifactory_build, "get_build_runs")
+    with pytest.raises(BuildNotFoundError):
+        artifactory_build.get_build_runs("non_build")
 
 
 @responses.activate
