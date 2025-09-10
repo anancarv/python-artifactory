@@ -21,7 +21,11 @@ class Checksums(BaseModel):
     @classmethod
     def generate(cls, file_: Path) -> Checksums:
         block_size: int = 65536
-        mapping: dict[str, Callable[[], Any]] = {"md5": hashlib.md5, "sha1": hashlib.sha1, "sha256": hashlib.sha256}
+        mapping: dict[str, Callable[[], Any]] = {
+            "md5": lambda: hashlib.md5(usedforsecurity=False),
+            "sha1": lambda: hashlib.sha1(usedforsecurity=False),
+            "sha256": lambda: hashlib.sha256(usedforsecurity=False),
+        }
         results = {}
 
         for algorithm, hashing_function in mapping.items():
