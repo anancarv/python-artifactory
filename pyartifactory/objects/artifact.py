@@ -102,17 +102,14 @@ class ArtifactoryArtifact(ArtifactoryObject):
             if properties is not None:
                 properties_param_str = ";".join(f"{k}={value}" for k, values in properties.items() for value in values)
             route = ";".join(s for s in [artifact_folder.as_posix(), properties_param_str] if s)
-            headers: Dict[str, str] = {}
+            artifact_check_sums = Checksums.generate(local_file)
+            headers = {
+                "X-Checksum-Sha1": artifact_check_sums.sha1,
+                "X-Checksum-Sha256": artifact_check_sums.sha256,
+                "X-Checksum": artifact_check_sums.md5,
+            }
             if checksum_enabled:
-                artifact_check_sums = Checksums.generate(local_file)
-                headers.update(
-                    {
-                        "X-Checksum-Sha1": artifact_check_sums.sha1,
-                        "X-Checksum-Sha256": artifact_check_sums.sha256,
-                        "X-Checksum": artifact_check_sums.md5,
-                        "X-Checksum-Deploy": "true",
-                    },
-                )
+                headers["X-Checksum-Deploy"] = "true"
                 try:
                     self._put(
                         route=route,
