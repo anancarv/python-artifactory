@@ -17,6 +17,7 @@ from pyartifactory.models.build import (
     BuildPromotionRequest,
     BuildPromotionResult,
     BuildProperties,
+    BuildRuns,
 )
 from pyartifactory.objects.object import ArtifactoryObject
 
@@ -27,6 +28,22 @@ class ArtifactoryBuild(ArtifactoryObject):
     """Models an artifactory build."""
 
     _uri = "build"
+
+    def get_build_runs(self, build_name: str) -> BuildRuns:
+        """Provides information about the build runs for the given build name.
+
+        :param build_name: Build name to be retrieved
+        :return: BuildRuns model object containing server response
+        """
+        try:
+            response = self._get(
+                f"api/{self._uri}/{build_name}",
+            )
+            logger.debug("Build Runs successfully retrieved")
+        except requests.exceptions.HTTPError as error:
+            self._raise_exception(error)
+
+        return BuildRuns(**response.json())
 
     def get_build_info(
         self,

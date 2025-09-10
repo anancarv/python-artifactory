@@ -44,11 +44,11 @@ class Run(BaseModel):
     started: str
 
 
-class BuildRun(BaseModel):
+class BuildRuns(BaseModel):
     """Models artifactory build runs."""
 
     uri: str
-    buildsNumber: Optional[List[Run]] = None
+    buildsNumbers: Optional[List[Run]] = None
 
 
 class BuildArtifact(BaseModel):

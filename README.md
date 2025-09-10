@@ -45,6 +45,7 @@ This library enables you to manage Artifactory resources such as users, groups, 
     + [Delete an artifact](#delete-an-artifact)
   * [Builds](#builds)
     + [Get a list of all builds](#get-a-list-of-all-builds)
+    + [Get a list of build runs](#get-a-list-of-build-runs)
     + [Get the information about a build](#get-the-information-about-a-build)
     + [Create build](#create-build)
     + [Promote a build](#promote-a-build)
@@ -511,6 +512,12 @@ art.artifacts.delete("<ARTIFACT_PATH_IN_ARTIFACTORY>")
 #### Get a list of all builds
 ```python
 build_list: BuildListResponse = art.builds.list()
+```
+
+#### Get a list of build runs
+
+```python
+build_runs: BuildRuns = art.builds.get_build_runs("<build_name>")
 ```
 
 #### Get the information about a build

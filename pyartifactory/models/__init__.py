@@ -28,7 +28,7 @@ from .build import (
     BuildPromotionRequest,
     BuildPromotionResult,
     BuildProperties,
-    BuildRun,
+    BuildRuns,
     Run,
     SimpleBuild,
 )
@@ -92,7 +92,7 @@ __all__ = [
     "SimpleBuild",
     "BuildListResponse",
     "Run",
-    "BuildRun",
+    "BuildRuns",
     "BuildArtifact",
     "BuildModules",
     "BuildAgent",
