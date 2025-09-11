@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Literal, Optional, Union
+from typing import Callable, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -18,18 +18,28 @@ class Checksums(BaseModel):
     md5: str
     sha256: str
 
+    @staticmethod
+    def get_hasher(func: Callable[..., hashlib._Hash]) -> hashlib._Hash:
+        # In Python 3.9+, some hash algorithms (like md5, sha1, sha256) may be disabled in FIPS-compliant systems
+        # unless 'usedforsecurity=False' is specified. This flag allows the hash function to be used for non-security
+        # purposes such as checksums, even in FIPS environments.
+        try:
+            return func(usedforsecurity=False)
+        except TypeError:
+            return func()
+
     @classmethod
     def generate(cls, file_: Path) -> Checksums:
         block_size: int = 65536
-        mapping: dict[str, Callable[[], Any]] = {
-            "md5": lambda: hashlib.md5(usedforsecurity=False),
-            "sha1": lambda: hashlib.sha1(usedforsecurity=False),
-            "sha256": lambda: hashlib.sha256(usedforsecurity=False),
+        mapping = {
+            "md5": hashlib.md5,
+            "sha1": hashlib.sha1,
+            "sha256": hashlib.sha256,
         }
         results = {}
 
         for algorithm, hashing_function in mapping.items():
-            hasher = hashing_function()
+            hasher = cls.get_hasher(hashing_function)
             with file_.absolute().open("rb") as fd:
                 buf = fd.read(block_size)
                 while len(buf) > 0:
