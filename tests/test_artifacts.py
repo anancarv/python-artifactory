@@ -612,6 +612,54 @@ def test_checksum_defined_file(file_path: Path, expected_sha1: str, expected_md5
     assert result == expected
 
 
+def test_get_hasher_security_flag():
+    calls = {"kwargs": None}
+
+    class Dummy:
+        def __init__(self):
+            self._buf = b""
+
+        def update(self, b):
+            self._buf += b
+
+        def hexdigest(self):
+            return "ok"
+
+    def func(**kwargs):
+        calls["kwargs"] = kwargs
+        return Dummy()
+
+    hasher = Checksums.get_hasher(func)
+    assert isinstance(hasher, Dummy)
+    assert calls["kwargs"] == {"usedforsecurity": False}
+
+
+def test_get_hasher_type_error_thrown():
+    calls = {"with_kwargs": 0, "without_kwargs": 0}
+
+    class Dummy:
+        def __init__(self):
+            self._buf = b""
+
+        def update(self, b):
+            self._buf += b
+
+        def hexdigest(self):
+            return "ok"
+
+    def func(**kwargs):
+        if kwargs:
+            calls["with_kwargs"] += 1
+            raise TypeError("unexpected kwarg")
+        calls["without_kwargs"] += 1
+        return Dummy()
+
+    hasher = Checksums.get_hasher(func)
+    assert isinstance(hasher, Dummy)
+    assert calls["with_kwargs"] == 1
+    assert calls["without_kwargs"] == 1
+
+
 @responses.activate
 def test_deploy_artifact_with_checksum_success(mocker):
     responses.add(responses.PUT, f"{URL}/{ARTIFACT_PATH}", status=200)
