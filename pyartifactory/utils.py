@@ -18,3 +18,15 @@ def custom_encoder(obj: Any) -> Any:
     if isinstance(obj, SecretStr):
         return obj.get_secret_value()
     return to_jsonable_python(obj)
+
+
+def remove_suffix(text: str, suffix: str) -> str:
+    """
+    Remove a suffix from a string if it exists.
+    :param text: The original string
+    :param suffix: The suffix to remove
+    :return: The string without the suffix if it existed, otherwise the original string
+    """
+    if text.endswith(suffix):
+        return text[: -len(suffix)]
+    return text
