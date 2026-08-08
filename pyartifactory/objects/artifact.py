@@ -353,7 +353,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
         artifact_new_path = artifact_new_path.lstrip("/")
         dry = 1 if dryrun else 0
 
-        self._post(f"api/copy/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        self._post(f"api/copy/{artifact_current_path}?to={urllib.parse.quote(artifact_new_path, safe='')}&dry={dry}")
         logger.debug("Artifact %s successfully copied", artifact_current_path)
         return self.info(artifact_new_path)
 
@@ -369,7 +369,7 @@ class ArtifactoryArtifact(ArtifactoryObject):
 
         dry = 1 if dryrun else 0
 
-        self._post(f"api/move/{artifact_current_path}?to={artifact_new_path}&dry={dry}")
+        self._post(f"api/move/{artifact_current_path}?to={urllib.parse.quote(artifact_new_path, safe='')}&dry={dry}")
         logger.debug("Artifact %s successfully moved", artifact_current_path)
         return self.info(artifact_new_path)
 
